@@ -1,0 +1,1458 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Agroflow API",
+    "version": "1.0.0",
+    "description": "API documentation for the Agroflow backend."
+  },
+  "servers": [
+    {
+      "url": "/v1",
+      "description": "Base path for the API"
+    }
+  ],
+  "tags": [
+    {
+      "name": "User",
+      "description": "User-related endpoints"
+    },
+    {
+      "name": "Auth",
+      "description": "Authentication and authorization endpoints"
+    },
+    {
+      "name": "Project",
+      "description": "Project management endpoints"
+    },
+    {
+      "name": "Farm",
+      "description": "Farm management endpoints"
+    }
+  ],
+  "paths": {
+    "/users/register": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Register a new user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRegister"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 201
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - validation error"
+          },
+          "409": {
+            "description": "Conflict - email already exists"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/users/me": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Fetch current user details",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid token"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login a user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLogin"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User logged in successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/UserWithAccessToken"
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Set-Cookie": {
+                "description": "Refresh token set as HTTP-only cookie",
+                "schema": {
+                  "type": "string",
+                  "example": "refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict; Path=/v1/auth/refresh; Max-Age=2592000"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - invalid credentials"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Logout a user",
+        "responses": {
+          "204": {
+            "description": "User logged out successfully"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Refresh access token",
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token refreshed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/UserWithAccessToken"
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Set-Cookie": {
+                "description": "New refresh token set as HTTP-only cookie",
+                "schema": {
+                  "type": "string",
+                  "example": "refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict; Path=/v1/auth/refresh; Max-Age=2592000"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - invalid or expired refresh token"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/projects": {
+      "post": {
+        "tags": ["Project"],
+        "summary": "Create a new project",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Project created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Project"
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 201
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - validation error"
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid token"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Project"],
+        "summary": "Get user's projects with pagination",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "description": "Number of records to skip for pagination"
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "default": 5
+            },
+            "description": "Maximum number of records to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Projects retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Project"
+                      }
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid token"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/projects/{projectId}": {
+      "get": {
+        "tags": ["Project"],
+        "summary": "Get project by ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Project ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Project"
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid token"
+          },
+          "404": {
+            "description": "Project not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Project"],
+        "summary": "Update project",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Project ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Project updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Project"
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - validation error"
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid token"
+          },
+          "404": {
+            "description": "Project not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Project"],
+        "summary": "Delete project",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Project ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "project deleted"
+                        }
+                      }
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid token"
+          },
+          "404": {
+            "description": "Project not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/projects/{projectId}/farms": {
+      "post": {
+        "tags": ["Farm"],
+        "summary": "Create a new farm",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Project ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FarmCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Farm created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Farm"
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 201
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - validation error"
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid token"
+          },
+          "404": {
+            "description": "Project not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Farm"],
+        "summary": "Get farms by project with pagination",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "description": "Number of records to skip for pagination"
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "default": 5
+            },
+            "description": "Maximum number of records to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Farms retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Farm"
+                      }
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid token"
+          },
+          "404": {
+            "description": "Project not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/projects/{projectId}/farms/{farmId}": {
+      "get": {
+        "tags": ["Farm"],
+        "summary": "Get farm by ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "farmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Farm ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Farm retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Farm"
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid token"
+          },
+          "404": {
+            "description": "Farm or project not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Farm"],
+        "summary": "Update farm",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "farmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Farm ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FarmUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Farm updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Farm"
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - validation error"
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid token"
+          },
+          "404": {
+            "description": "Farm or project not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Farm"],
+        "summary": "Delete farm",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "farmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Farm ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Farm deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "farm deleted"
+                        }
+                      }
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid token"
+          },
+          "404": {
+            "description": "Farm or project not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "ulid",
+            "description": "Unique identifier for the user"
+          },
+          "first_name": {
+            "type": "string",
+            "description": "User's first name"
+          },
+          "last_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "User's last name"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User's email address"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["USER", "ADMIN"],
+            "description": "User's role"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date and time of user creation"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date and time of last user update"
+          }
+        },
+        "required": ["id", "first_name", "email", "role", "created_at", "updated_at"]
+      },
+      "UserRegister": {
+        "type": "object",
+        "properties": {
+          "first_name": {
+            "type": "string",
+            "description": "User's first name",
+            "maxLength": 128,
+            "pattern": "^(?!.*[\\p{Emoji}\\d]).*$",
+            "example": "John"
+          },
+          "last_name": {
+            "type": "string",
+            "description": "User's last name",
+            "maxLength": 128,
+            "pattern": "^(?!.*[\\p{Emoji}\\d]).*$",
+            "example": "Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User's email address",
+            "example": "john.doe@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "User's password",
+            "minLength": 8,
+            "example": "securePassword123"
+          }
+        },
+        "required": ["first_name", "last_name", "email", "password"]
+      },
+      "UserLogin": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User's email address"
+          },
+          "password": {
+            "type": "string",
+            "description": "User's password"
+          }
+        },
+        "required": ["email", "password"]
+      },
+      "UserWithToken": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/User"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "accessToken": {
+                "type": "string",
+                "description": "JWT access token"
+              },
+              "refreshToken": {
+                "type": "string",
+                "description": "JWT refresh token"
+              }
+            }
+          }
+        ]
+      },
+      "UserWithAccessToken": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/User"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "access_token": {
+                "type": "string",
+                "description": "JWT access token"
+              }
+            },
+            "required": ["access_token"]
+          }
+        ]
+      },
+      "Project": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "ulid",
+            "description": "Unique identifier for the project"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "ulid",
+            "description": "ID of the user who owns this project"
+          },
+          "project_name": {
+            "type": "string",
+            "description": "Name of the project"
+          },
+          "budget": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Project budget"
+          },
+          "project_status": {
+            "type": "string",
+            "enum": ["PLANNING", "IN_PROGRESS", "COMPLETED"],
+            "description": "Current status of the project"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Project start date"
+          },
+          "target_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Project target completion date"
+          },
+          "actual_end_date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Actual project completion date"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Project description"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date and time of project creation"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date and time of last project update"
+          }
+        },
+        "required": [
+          "id",
+          "user_id",
+          "project_name",
+          "budget",
+          "project_status",
+          "start_date",
+          "target_date",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "ProjectCreate": {
+        "type": "object",
+        "properties": {
+          "project_name": {
+            "type": "string",
+            "description": "Name of the project",
+            "pattern": "^(?!.*[\\p{Emoji}]).*$",
+            "example": "Tomato Farm Project"
+          },
+          "budget": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Project budget",
+            "example": 50000
+          },
+          "project_status": {
+            "type": "string",
+            "enum": ["PLANNING", "IN_PROGRESS", "COMPLETED"],
+            "default": "PLANNING",
+            "description": "Current status of the project",
+            "example": "PLANNING"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Project start date",
+            "example": "2025-09-15T08:00:00Z"
+          },
+          "target_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Project target completion date",
+            "example": "2025-12-31T17:00:00Z"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Project description",
+            "example": "A comprehensive tomato farming project focusing on organic cultivation methods"
+          }
+        },
+        "required": ["project_name", "budget", "target_date"]
+      },
+      "ProjectUpdate": {
+        "type": "object",
+        "properties": {
+          "project_name": {
+            "type": "string",
+            "description": "Name of the project",
+            "pattern": "^(?!.*[\\p{Emoji}]).*$",
+            "example": "Tomato Farm Project"
+          },
+          "budget": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Project budget"
+          },
+          "project_status": {
+            "type": "string",
+            "enum": ["PLANNING", "IN_PROGRESS", "COMPLETED"],
+            "description": "Current status of the project"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Project start date"
+          },
+          "target_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Project target completion date"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Project description"
+          }
+        }
+      },
+      "ProjectGetMany": {
+        "type": "object",
+        "properties": {
+          "skip": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0,
+            "description": "Number of records to skip for pagination"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "default": 5,
+            "description": "Maximum number of records to return"
+          }
+        }
+      },
+      "Farm": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "ulid",
+            "description": "Unique identifier for the farm"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "ulid",
+            "description": "ID of the project this farm belongs to"
+          },
+          "farm_name": {
+            "type": "string",
+            "description": "Name of the farm"
+          },
+          "location": {
+            "type": "string",
+            "description": "Farm location"
+          },
+          "land_size": {
+            "type": "number",
+            "description": "Farm land size in hectares"
+          },
+          "product_price": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Product price per kilogram"
+          },
+          "comodity": {
+            "type": "string",
+            "description": "Type of commodity grown"
+          },
+          "farm_status": {
+            "type": "string",
+            "enum": ["ACTIVE", "HARVESTED"],
+            "description": "Current status of the farm"
+          },
+          "soil_type": {
+            "type": "string",
+            "enum": [
+              "ORGANOSOL",
+              "ANDOSOL",
+              "LITOSOL",
+              "REGOSOL",
+              "VERTISOL",
+              "ALUVIAL",
+              "MEDISOL",
+              "PODZOLIK",
+              "GRUMUSOL",
+              "KAMBISOL"
+            ],
+            "description": "Type of soil"
+          },
+          "planted_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when the farm was planted"
+          },
+          "target_harvest_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Target harvest date"
+          },
+          "actual_harvest_date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Actual harvest date"
+          },
+          "total_harvest": {
+            "type": "number",
+            "nullable": true,
+            "description": "Total harvest amount in kilograms"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Farm description"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date and time of farm creation"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date and time of last farm update"
+          }
+        },
+        "required": [
+          "id",
+          "project_id",
+          "farm_name",
+          "location",
+          "land_size",
+          "product_price",
+          "comodity",
+          "farm_status",
+          "soil_type",
+          "planted_at",
+          "target_harvest_date",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "FarmCreate": {
+        "type": "object",
+        "properties": {
+          "farm_name": {
+            "type": "string",
+            "description": "Name of the farm",
+            "pattern": "^(?!.*[\\p{Emoji}]).*$",
+            "example": "Sawah Hijau 1"
+          },
+          "location": {
+            "type": "string",
+            "description": "Farm location",
+            "example": "Bandung, West Java"
+          },
+          "land_size": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Farm land size in hectares",
+            "example": 2.5
+          },
+          "product_price": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Product price per kilogram",
+            "example": 8000
+          },
+          "comodity": {
+            "type": "string",
+            "description": "Type of commodity grown",
+            "example": "Tomato"
+          },
+          "farm_status": {
+            "type": "string",
+            "enum": ["ACTIVE", "HARVESTED"],
+            "default": "ACTIVE",
+            "description": "Current status of the farm",
+            "example": "ACTIVE"
+          },
+          "soil_type": {
+            "type": "string",
+            "enum": [
+              "ORGANOSOL",
+              "ANDOSOL",
+              "LITOSOL",
+              "REGOSOL",
+              "VERTISOL",
+              "ALUVIAL",
+              "MEDISOL",
+              "PODZOLIK",
+              "GRUMUSOL",
+              "KAMBISOL"
+            ],
+            "default": "ORGANOSOL",
+            "description": "Type of soil",
+            "example": "ORGANOSOL"
+          },
+          "planted_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when the farm was planted",
+            "example": "2024-01-15T08:00:00Z"
+          },
+          "target_harvest_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Target harvest date",
+            "example": "2024-04-15T08:00:00Z"
+          },
+          "actual_harvest_date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Actual harvest date",
+            "example": "2024-04-18T10:30:00Z"
+          },
+          "total_harvest": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 0,
+            "description": "Total harvest amount in kilograms",
+            "example": 150.5
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Farm description",
+            "example": "Organic tomato farm using sustainable farming practices"
+          }
+        },
+        "required": [
+          "farm_name",
+          "location",
+          "land_size",
+          "product_price",
+          "comodity",
+          "planted_at",
+          "target_harvest_date"
+        ]
+      },
+      "FarmUpdate": {
+        "type": "object",
+        "properties": {
+          "farm_name": {
+            "type": "string",
+            "description": "Name of the farm",
+            "pattern": "^(?!.*[\\p{Emoji}]).*$"
+          },
+          "location": {
+            "type": "string",
+            "description": "Farm location"
+          },
+          "land_size": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Farm land size in hectares"
+          },
+          "product_price": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Product price per kilogram"
+          },
+          "comodity": {
+            "type": "string",
+            "description": "Type of commodity grown"
+          },
+          "farm_status": {
+            "type": "string",
+            "enum": ["ACTIVE", "HARVESTED"],
+            "description": "Current status of the farm"
+          },
+          "soil_type": {
+            "type": "string",
+            "enum": [
+              "ORGANOSOL",
+              "ANDOSOL",
+              "LITOSOL",
+              "REGOSOL",
+              "VERTISOL",
+              "ALUVIAL",
+              "MEDISOL",
+              "PODZOLIK",
+              "GRUMUSOL",
+              "KAMBISOL"
+            ],
+            "description": "Type of soil"
+          },
+          "planted_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when the farm was planted"
+          },
+          "target_harvest_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Target harvest date"
+          },
+          "actual_harvest_date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Actual harvest date"
+          },
+          "total_harvest": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 0,
+            "description": "Total harvest amount in kilograms"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Farm description"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "refresh_token"
+      }
+    }
+  }
+}

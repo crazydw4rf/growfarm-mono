@@ -1,0 +1,19 @@
+{
+  "editor.fontFamily": "ZedMono Nerd Font",
+  "editor.fontLigatures": true,
+  "editor.fontSize": 14,
+  "window.zoomLevel": 1,
+  "editor.fontWeight": "600",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "typescript.experimental.useTsgo": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "[typescript]": {
+    "editor.inlayHints.enabled": "off"
+  }
+}

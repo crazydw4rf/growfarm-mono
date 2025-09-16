@@ -1,0 +1,59 @@
+{
+  "name": "growfarm-be",
+  "repository": {
+    "url": "https://github.com/crazydw4rf/growfarm-be.git"
+  },
+  "license": "MIT",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "prisma:gen": "prisma generate",
+    "prisma:seed": "prisma db seed",
+    "prisma:fmt": "prisma format",
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:push": "prisma db push",
+    "prisma:push:reset": "prisma db push --force-reset",
+    "compose:dev:up": "docker compose -f compose.dev.yaml up",
+    "compose:dev:down": "docker compose -f compose.dev.yaml down",
+    "dev": "bun run --env-file .env --watch src/index.ts",
+    "build:js": "bun build --minify --target=bun --outfile ./build/app.js ./src/index.ts",
+    "build:bin": "bun build --compile --minify --target=bun --outfile ./build/app.bin ./src/index.ts",
+    "postinstall": "prisma generate"
+  },
+  "module": "src/index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@eslint/js": "^9.35.0",
+    "@types/bun": "^1.2.22",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/ms": "^2.1.0",
+    "@types/node": "^24.4.0",
+    "@types/winston": "^2.4.4",
+    "eslint": "^9.35.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-unused-imports": "^4.2.0",
+    "prisma": "^6.16.1",
+    "typescript-eslint": "^8.43.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^6.16.1",
+    "@prisma/client": "^6.16.1",
+    "@prisma/extension-accelerate": "^2.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "http-status-codes": "^2.3.0",
+    "inversify": "^7.10.0",
+    "jsonwebtoken": "^9.0.2",
+    "ms": "^2.1.3",
+    "winston": "^3.17.0",
+    "zod": "^4.1.8"
+  }
+}

@@ -1,0 +1,120 @@
+datasource db {
+  url = env("DATABASE_URL")
+  provider  = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  engineType = "client"
+  output   = "../src/generated/prisma"
+
+  runtime                = "bun"
+  moduleFormat           = "esm"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum FarmStatus {
+  ACTIVE
+  HARVESTED
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum SoilType {
+  ORGANOSOL
+  ANDOSOL
+  LITOSOL
+  REGOSOL
+  VERTISOL
+  ALUVIAL
+  MEDISOL
+  PODZOLIK
+  GRUMUSOL
+  KAMBISOL
+}
+
+enum WorkerPosition {
+  MANAGER
+  SUPERVISOR
+  WORKER
+}
+
+model User {
+  id            String   @id @default(ulid()) @db.Char(26)
+  first_name    String
+  last_name     String?
+  email         String   @unique
+  password_hash String   @db.VarChar(255)
+  role          Role     @default(USER)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+
+  projects        Project[] // satu user bisa punya banyak project
+  worker_profiles WorkerProfile[] // satu user bisa punya banyak worker profile
+}
+
+model Project {
+  id              String        @id @default(ulid()) @db.Char(26)
+  user_id         String        @db.Char(26) // pemilik atau pembuat proyek - user -> project FK
+  project_name    String
+  budget          Int
+  project_status  ProjectStatus @default(PLANNING)
+  start_date      DateTime
+  target_date     DateTime
+  actual_end_date DateTime?
+  description     String?
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @default(now()) @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  farms           Farm[] // satu project bisa punya banyak farm
+  worker_profiles WorkerProfile[] // satu project bisa punya banyak worker profile
+
+  @@index([user_id])
+}
+
+model Farm {
+  id                  String     @id @default(ulid()) @db.Char(26)
+  project_id          String     @db.Char(26) // project -> farm FK
+  farm_name           String
+  location            String
+  land_size           Decimal    @db.Decimal(10, 2) // luas lahan (hektare)
+  product_price       Int // harga produk per kilogram
+  comodity            String
+  farm_status         FarmStatus @default(ACTIVE)
+  soil_type           SoilType   @default(ORGANOSOL)
+  planted_at          DateTime
+  target_harvest_date DateTime
+  actual_harvest_date DateTime?
+  total_harvest       Decimal?   @db.Decimal(10, 2) // total panen (kg)
+  description         String?
+  created_at          DateTime   @default(now())
+  updated_at          DateTime   @default(now()) @updatedAt
+
+  project Project @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@index([project_id])
+}
+
+model WorkerProfile {
+  id         String         @id @default(ulid()) @db.Char(26)
+  user_id    String         @db.Char(26) // user -> worker profile FK
+  project_id String         @db.Char(26) // project -> worker profile FK
+  position   WorkerPosition
+
+  project Project @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, project_id])
+}
