@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
+import Image from "next/image";
 import {
   LayoutDashboard,
   FolderKanban,
@@ -13,7 +14,6 @@ import {
   Menu,
   X,
   User as UserIcon,
-  Leaf,
 } from "lucide-react";
 import { User } from "@/types/api";
 import { clsx } from "clsx";
@@ -58,12 +58,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         )}
       >
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
-          <div className="flex items-center">
-            <Leaf className="h-8 w-8 text-green-600" />
+          <Link
+            href="/"
+            className="flex items-center hover:opacity-80 transition-opacity duration-200"
+          >
+            <Image
+              src="/growfarm-128x128.png"
+              alt="GrowFarm Logo"
+              width={128}
+              height={128}
+              className="h-10 w-10"
+            />
             <span className="ml-2 text-xl font-bold text-gray-900">
               Grow Farm
             </span>
-          </div>
+          </Link>
           <button
             onClick={() => setSidebarOpen(false)}
             className="text-gray-500 hover:text-gray-700"
@@ -84,10 +93,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex flex-col w-64">
           <div className="flex flex-col h-0 flex-1 bg-white shadow-lg">
             <div className="flex items-center h-16 flex-shrink-0 px-4 border-b border-gray-200">
-              <Leaf className="h-8 w-8 text-green-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">
-                Grow Farm
-              </span>
+              <Link
+                href="/"
+                className="flex items-center hover:opacity-80 transition-opacity duration-200"
+              >
+                <Image
+                  src="/growfarm-128x128.png"
+                  alt="GrowFarm Logo"
+                  width={128}
+                  height={128}
+                  className="h-10 w-10"
+                />
+                <span className="ml-2 text-xl font-bold text-gray-900">
+                  Grow Farm
+                </span>
+              </Link>
             </div>
             <SidebarContent
               navigation={navigation}
