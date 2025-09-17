@@ -40,26 +40,22 @@ export default function FarmsPage() {
     }
   }, []);
 
-  const fetchFarms = useCallback(
-    async (projectId: string) => {
-      if (!projectId) return;
+  const fetchFarms = useCallback(async (projectId: string) => {
+    if (!projectId) return;
 
-      try {
-        setIsLoadingFarms(true);
-        setError(null);
-        const farmsResponse = await farmsApi.getByProject(projectId);
-        setFarms(farmsResponse.data);
-      } catch (error) {
-        console.error("Failed to fetch farms:", error);
-        setError("Failed to load farms data");
-        setFarms([]);
-      } finally {
-        setIsLoadingFarms(false);
-      }
-    },
-    [farmsApi]
-  );
-
+    try {
+      setIsLoadingFarms(true);
+      setError(null);
+      const farmsResponse = await farmsApi.getByProject(projectId);
+      setFarms(farmsResponse.data);
+    } catch (error) {
+      console.error("Failed to fetch farms:", error);
+      setError("Failed to load farms data");
+      setFarms([]);
+    } finally {
+      setIsLoadingFarms(false);
+    }
+  }, []);
   useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);

@@ -6,33 +6,27 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { farmsApi } from "@/lib/api";
-import { Calendar, MapPin, Banknote, Sprout } from "lucide-react";
 
 const farmSchema = z.object({
-  farm_name: z
-    .string()
-    .min(1, "Farm name is required")
-    .regex(/^(?!.*[\p{Emoji}]).*$/u, "Farm name cannot contain emojis"),
+  farm_name: z.string().min(1, "Farm name is required"),
   location: z.string().min(1, "Location is required"),
-  land_size: z.number().min(0.1, "Land size must be at least 0.1 hectares"),
-  product_price: z.number().min(1, "Product price must be at least 1"),
+  land_size: z.string().min(1, "Land size is required"),
+  product_price: z.string().min(1, "Product price is required"),
   comodity: z.string().min(1, "Commodity is required"),
-  farm_status: z.enum(["ACTIVE", "HARVESTED"]).default("ACTIVE"),
-  soil_type: z
-    .enum([
-      "ORGANOSOL",
-      "ANDOSOL",
-      "LITOSOL",
-      "REGOSOL",
-      "VERTISOL",
-      "ALUVIAL",
-      "MEDISOL",
-      "PODZOLIK",
-      "GRUMUSOL",
-      "KAMBISOL",
-    ])
-    .default("ORGANOSOL"),
-  planted_at: z.string().min(1, "Planting date is required"),
+  farm_status: z.enum(["ACTIVE", "HARVESTED"]),
+  soil_type: z.enum([
+    "ORGANOSOL",
+    "ANDOSOL",
+    "LITOSOL",
+    "REGOSOL",
+    "VERTISOL",
+    "ALUVIAL",
+    "MEDISOL",
+    "PODZOLIK",
+    "GRUMUSOL",
+    "KAMBISOL",
+  ]),
+  planted_at: z.string().min(1, "Planted date is required"),
   target_harvest_date: z.string().min(1, "Target harvest date is required"),
   description: z.string().optional(),
 });
@@ -41,21 +35,17 @@ type FarmFormData = z.infer<typeof farmSchema>;
 
 interface CreateFarmFormProps {
   projectId: string;
-  onSuccess?: () => void;
 }
 
-export default function CreateFarmForm({
-  projectId,
-  onSuccess,
-}: CreateFarmFormProps) {
+export default function CreateFarmForm({ projectId }: CreateFarmFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors },
+    setError,
   } = useForm<FarmFormData>({
     resolver: zodResolver(farmSchema),
     defaultValues: {
@@ -65,52 +55,60 @@ export default function CreateFarmForm({
   });
 
   const onSubmit = async (data: FarmFormData) => {
+    setIsSubmitting(true);
     try {
-      setIsLoading(true);
-
-      // Include project_id in the payload
-      const farmPayload = {
-        ...data,
-        project_id: projectId,
+      const farmData = {
+        farm_name: data.farm_name,
+        location: data.location,
         land_size: Number(data.land_size),
         product_price: Number(data.product_price),
-        total_harvest: data.total_harvest
-          ? Number(data.total_harvest)
-          : undefined,
+        comodity: data.comodity,
+        farm_status: data.farm_status,
+        soil_type: data.soil_type,
+        planted_at: new Date(data.planted_at).toISOString(),
+        target_harvest_date: new Date(data.target_harvest_date).toISOString(),
+        description: data.description,
       };
 
-      await farmsApi.create(projectId, farmPayload);
-
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        router.push(`/projects/${projectId}`);
-      }
+      await farmsApi.create(projectId, farmData);
+      router.push(`/projects/${projectId}/farms`);
     } catch (error) {
-      console.error("Farm creation error:", error);
-      setError("root", { message: "Failed to create farm. Please try again." });
+      console.error("Failed to create farm:", error);
+      setError("root", {
+        message: "Failed to create farm. Please try again.",
+      });
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Farm Name */}
+    <div className="bg-white shadow rounded-lg">
+      <div className="px-6 py-4 border-b border-gray-200">
+        <h2 className="text-lg font-medium text-gray-900">Create New Farm</h2>
+        <p className="mt-1 text-sm text-gray-600">
+          Add a new farm to your project and start tracking cultivation
+          progress.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 px-6 py-6">
+        {errors.root && (
+          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
+            {errors.root.message}
+          </div>
+        )}
+
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700">
             Farm Name *
           </label>
-          <div className="relative">
-            <Sprout className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <input
-              {...register("farm_name")}
-              type="text"
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="Enter farm name (no emojis allowed)"
-            />
-          </div>
+          <input
+            {...register("farm_name")}
+            type="text"
+            className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+            placeholder="Enter farm name"
+          />
           {errors.farm_name && (
             <p className="mt-1 text-sm text-red-600">
               {errors.farm_name.message}
@@ -118,20 +116,16 @@ export default function CreateFarmForm({
           )}
         </div>
 
-        {/* Location */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700">
             Location *
           </label>
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <input
-              {...register("location")}
-              type="text"
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="Enter farm location"
-            />
-          </div>
+          <input
+            {...register("location")}
+            type="text"
+            className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+            placeholder="Enter farm location"
+          />
           {errors.location && (
             <p className="mt-1 text-sm text-red-600">
               {errors.location.message}
@@ -139,19 +133,18 @@ export default function CreateFarmForm({
           )}
         </div>
 
-        {/* Land Size and Product Price */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700">
               Land Size (hectares) *
             </label>
             <input
-              {...register("land_size", { valueAsNumber: true })}
+              {...register("land_size")}
               type="number"
               step="0.1"
               min="0.1"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="2.5"
+              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+              placeholder="0.0"
             />
             {errors.land_size && (
               <p className="mt-1 text-sm text-red-600">
@@ -161,19 +154,16 @@ export default function CreateFarmForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700">
               Product Price (IDR/kg) *
             </label>
-            <div className="relative">
-              <Banknote className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <input
-                {...register("product_price", { valueAsNumber: true })}
-                type="number"
-                min="1"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="8000"
-              />
-            </div>
+            <input
+              {...register("product_price")}
+              type="number"
+              min="1"
+              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+              placeholder="0"
+            />
             {errors.product_price && (
               <p className="mt-1 text-sm text-red-600">
                 {errors.product_price.message}
@@ -182,32 +172,49 @@ export default function CreateFarmForm({
           </div>
         </div>
 
-        {/* Commodity and Soil Type */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Commodity *
+          </label>
+          <input
+            {...register("comodity")}
+            type="text"
+            className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+            placeholder="e.g., Rice, Corn, Vegetables"
+          />
+          {errors.comodity && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.comodity.message}
+            </p>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Commodity *
+            <label className="block text-sm font-medium text-gray-700">
+              Farm Status *
             </label>
-            <input
-              {...register("comodity")}
-              type="text"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="Tomato, Rice, etc."
-            />
-            {errors.comodity && (
+            <select
+              {...register("farm_status")}
+              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+            >
+              <option value="ACTIVE">Active</option>
+              <option value="HARVESTED">Harvested</option>
+            </select>
+            {errors.farm_status && (
               <p className="mt-1 text-sm text-red-600">
-                {errors.comodity.message}
+                {errors.farm_status.message}
               </p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700">
               Soil Type *
             </label>
             <select
               {...register("soil_type")}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
             >
               <option value="ORGANOSOL">Organosol</option>
               <option value="ANDOSOL">Andosol</option>
@@ -228,20 +235,16 @@ export default function CreateFarmForm({
           </div>
         </div>
 
-        {/* Dates */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Planting Date *
+            <label className="block text-sm font-medium text-gray-700">
+              Planted Date *
             </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <input
-                {...register("planted_at")}
-                type="datetime-local"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
-            </div>
+            <input
+              {...register("planted_at")}
+              type="date"
+              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+            />
             {errors.planted_at && (
               <p className="mt-1 text-sm text-red-600">
                 {errors.planted_at.message}
@@ -250,17 +253,14 @@ export default function CreateFarmForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700">
               Target Harvest Date *
             </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <input
-                {...register("target_harvest_date")}
-                type="datetime-local"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
-            </div>
+            <input
+              {...register("target_harvest_date")}
+              type="date"
+              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+            />
             {errors.target_harvest_date && (
               <p className="mt-1 text-sm text-red-600">
                 {errors.target_harvest_date.message}
@@ -269,55 +269,37 @@ export default function CreateFarmForm({
           </div>
         </div>
 
-        {/* Farm Status */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Farm Status
-          </label>
-          <select
-            {...register("farm_status")}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          >
-            <option value="ACTIVE">Active</option>
-            <option value="HARVESTED">Harvested</option>
-          </select>
-        </div>
-
-        {/* Description */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Description (Optional)
+          <label className="block text-sm font-medium text-gray-700">
+            Description
           </label>
           <textarea
             {...register("description")}
-            rows={3}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            placeholder="Additional notes about this farm..."
+            rows={4}
+            className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+            placeholder="Enter farm description (optional)"
           />
+          {errors.description && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.description.message}
+            </p>
+          )}
         </div>
 
-        {/* Error Display */}
-        {errors.root && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-600">{errors.root.message}</p>
-          </div>
-        )}
-
-        {/* Submit Buttons */}
-        <div className="flex gap-4 pt-4">
+        <div className="flex justify-end space-x-3">
           <button
             type="button"
             onClick={() => router.back()}
-            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
           >
             Cancel
           </button>
           <button
             type="submit"
-            disabled={isLoading}
-            className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            disabled={isSubmitting}
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? "Creating..." : "Create Farm"}
+            {isSubmitting ? "Creating..." : "Create Farm"}
           </button>
         </div>
       </form>
