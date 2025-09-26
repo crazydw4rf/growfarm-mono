@@ -12,13 +12,13 @@ import { httpResponse, ValidatePayload, ValidateQuery } from "@/utils";
 
 @injectable("Singleton")
 export class FarmController {
-  private _logger: Logger;
+  private logger: Logger;
 
   constructor(
-    @inject(FarmUsecase) private readonly _farmUc: FarmUsecase,
-    @inject(LoggingService) private readonly _loggerInstance: LoggingService
+    @inject(FarmUsecase) private readonly farmUc: FarmUsecase,
+    @inject(LoggingService) private readonly loggerInstance: LoggingService
   ) {
-    this._logger = this._loggerInstance.withLabel("FarmController");
+    this.logger = this.loggerInstance.withLabel("FarmController");
 
     this.createNewFarm = this.createNewFarm.bind(this);
     this.updateFarm = this.updateFarm.bind(this);
@@ -27,7 +27,7 @@ export class FarmController {
 
   @ValidatePayload(zFarmCreate)
   public async createNewFarm(req: ExtendedRequest, res: ExtendedResponse, next: NextFunction): Promise<void> {
-    const [farm, err] = await this._farmUc.newFarm(req.body);
+    const [farm, err] = await this.farmUc.newFarm(req.params.projectId, req.body);
     if (err) {
       next(err);
       return;
@@ -38,8 +38,8 @@ export class FarmController {
 
   @ValidatePayload(zFarmUpdate)
   public async updateFarm(req: ExtendedRequest, res: ExtendedResponse, next: NextFunction): Promise<void> {
-    this._logger.debug("updating farm", req.body);
-    const [farm, err] = await this._farmUc.updateFarm(req.params.farmId, req.body);
+    this.logger.debug("updating farm", req.body);
+    const [farm, err] = await this.farmUc.updateFarm(req.params.farmId, req.body);
     if (err) {
       next(err);
       return;
@@ -50,7 +50,7 @@ export class FarmController {
 
   @ValidateQuery(zFarmGetMany)
   public async getFarmsByProject(req: ExtendedRequest, res: ExtendedResponse, next: NextFunction): Promise<void> {
-    const [farms, err] = await this._farmUc.getFarmsByProject(req.params.projectId, res.locals.query);
+    const [farms, err] = await this.farmUc.getFarmsByProject(req.params.projectId, res.locals.query);
     if (err) {
       next(err);
       return;
@@ -60,7 +60,7 @@ export class FarmController {
   }
 
   public deleteFarm = async (req: ExtendedRequest, res: ExtendedResponse, next: NextFunction): Promise<void> => {
-    const [ok, err] = await this._farmUc.deleteFarm(req.params.farmId);
+    const [ok, err] = await this.farmUc.deleteFarm(req.params.farmId);
     if (!ok || err) {
       next(err);
       return;
@@ -70,7 +70,7 @@ export class FarmController {
   };
 
   public getFarmById = async (req: ExtendedRequest, res: ExtendedResponse, next: NextFunction): Promise<void> => {
-    const [farm, err] = await this._farmUc.getFarmById(req.params.farmId);
+    const [farm, err] = await this.farmUc.getFarmById(req.params.farmId);
     if (err) {
       next(err);
       return;
@@ -79,12 +79,8 @@ export class FarmController {
     httpResponse(res, StatusCodes.OK, farm);
   };
 
-  public getFarmByProjectAndId = async (
-    req: ExtendedRequest,
-    res: ExtendedResponse,
-    next: NextFunction
-  ): Promise<void> => {
-    const [farm, err] = await this._farmUc.getFarmByProjectAndId(req.params.projectId, req.params.farmId);
+  public getFarmByProjectAndId = async (req: ExtendedRequest, res: ExtendedResponse, next: NextFunction): Promise<void> => {
+    const [farm, err] = await this.farmUc.getFarmByProjectAndId(req.params.projectId, req.params.farmId);
     if (err) {
       next(err);
       return;

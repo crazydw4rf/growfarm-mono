@@ -1,26 +1,21 @@
-import type { NextFunction, Request } from "express";
-import type { ZodObject } from "zod/v4";
+import type { NextFunction } from "express";
+import { z } from "zod/v4";
 
 import { AppError, ErrorCause } from "@/types/errors";
-import type { ExtendedResponse } from "@/types/express";
+import type { ExtendedRequest, ExtendedResponse, RequestURLParameters } from "@/types/express";
 
-type ExpressFunctionHandler = (req: Request, res: ExtendedResponse, next: NextFunction) => Promise<void>;
+type ExpressFunctionHandler = (req: ExtendedRequest, res: ExtendedResponse, next: NextFunction) => Promise<void>;
 
-export function ValidatePayload(z: ZodObject): MethodDecorator {
+export function ValidatePayload(zz: z.ZodObject): MethodDecorator {
   // @ts-expect-error: Gak tau dah typescript bilang error mulu disini
-  return function (
-    _target: object,
-    _propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<ExpressFunctionHandler>
-  ): void {
+  return function (_target: object, _propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<ExpressFunctionHandler>): void {
     const func = descriptor.value!;
 
     descriptor.value = async function (req, res, next) {
       try {
-        req.body = z.parse(req.body);
+        req.body = zz.parse(req.body);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
       } catch (e) {
-	      console.debug(e)
         throw AppError.new("validation error", ErrorCause.VALIDATION_ERROR);
       }
 
@@ -29,18 +24,14 @@ export function ValidatePayload(z: ZodObject): MethodDecorator {
   };
 }
 
-export function ValidateQuery(z: ZodObject): MethodDecorator {
+export function ValidateQuery(zz: z.ZodObject): MethodDecorator {
   // @ts-expect-error: Gak tau dah typescript bilang error mulu disini
-  return function (
-    _target: object,
-    _propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<ExpressFunctionHandler>
-  ): void {
+  return function (_target: object, _propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<ExpressFunctionHandler>): void {
     const func = descriptor.value!;
 
     descriptor.value = async function (req, res, next) {
       try {
-        const parsed = z.parse(req.query);
+        const parsed = zz.parse(req.query);
         res.locals.query = parsed;
         // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
       } catch (e) {
@@ -52,6 +43,22 @@ export function ValidateQuery(z: ZodObject): MethodDecorator {
   };
 }
 
-// TODO: buat decorator untuk validasi req.params
+export function ValidateParams(paramName: keyof RequestURLParameters, zz: z.ZodType): MethodDecorator {
+  // @ts-expect-error: Gak tau dah typescript bilang error mulu disini
+  return function (_target: object, _propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<ExpressFunctionHandler>): void {
+    const func = descriptor.value!;
+
+    descriptor.value = async function (req, res, next) {
+      try {
+        zz.parse(req.params[paramName]);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
+      } catch (e) {
+        throw AppError.new("query validation error", ErrorCause.VALIDATION_ERROR);
+      }
+
+      await func.apply(this, [req, res, next]);
+    };
+  };
+}
 
 // TODO: buat decorator untuk validasi dan verifikasi jwt token

@@ -5,33 +5,33 @@ import type { Farm } from "@/entity";
 import { type FarmCreateDto, type FarmUpdateDto } from "@/models";
 import { FarmRepository, type IFarmRepository } from "@/repository";
 import { LoggingService } from "@/services/logger";
-import type { Result } from "@/types/helper";
+import type { PaginatedObject, Result } from "@/types/helper";
 import { Err, Ok } from "@/utils";
 
 export interface IFarmUsecase {
-  newFarm(dto: FarmCreateDto): Promise<Result<Farm>>;
+  newFarm(projectId: string, dto: FarmCreateDto): Promise<Result<Farm>>;
   updateFarm(id: string, dto: FarmUpdateDto): Promise<Result<Farm>>;
   deleteFarm(id: string): Promise<Result<boolean>>;
   getFarmById(id: string): Promise<Result<Farm>>;
-  getFarmsByProject(projectId: string, page: { skip?: number; take?: number }): Promise<Result<Farm[]>>;
+  getFarmsByProject(projectId: string, page: { skip?: number; take?: number }): Promise<Result<PaginatedObject<Farm[]>>>;
   getFarmByProjectAndId(projectId: string, farmId: string): Promise<Result<Farm>>;
 }
 
 @injectable("Singleton")
 export class FarmUsecase implements IFarmUsecase {
-  private _logger: Logger;
+  private logger: Logger;
 
   constructor(
-    @inject(FarmRepository) private readonly _farmRepo: IFarmRepository,
-    @inject(LoggingService) private readonly _loggerInstance: LoggingService
+    @inject(FarmRepository) private readonly farmRepo: IFarmRepository,
+    @inject(LoggingService) private readonly loggerInstance: LoggingService
   ) {
-    this._logger = this._loggerInstance.withLabel("FarmUsecase");
+    this.logger = this.loggerInstance.withLabel("FarmUsecase");
   }
 
-  async newFarm(dto: FarmCreateDto): Promise<Result<Farm>> {
-    this._logger.debug("creating new farm", dto);
+  async newFarm(projectId: string, dto: FarmCreateDto): Promise<Result<Farm>> {
+    this.logger.debug("creating new farm", dto);
 
-    const [farm, err] = await this._farmRepo.create(dto);
+    const [farm, err] = await this.farmRepo.create(dto, projectId);
     if (err) {
       return Err(err);
     }
@@ -40,9 +40,9 @@ export class FarmUsecase implements IFarmUsecase {
   }
 
   async updateFarm(id: string, dto: FarmUpdateDto): Promise<Result<Farm>> {
-    this._logger.debug("updating farm", { id, dto });
+    this.logger.debug("updating farm", { id, dto });
 
-    const [farm, err] = await this._farmRepo.update(id, dto);
+    const [farm, err] = await this.farmRepo.update(id, dto);
     if (err) {
       return Err(err);
     }
@@ -51,7 +51,7 @@ export class FarmUsecase implements IFarmUsecase {
   }
 
   async getFarmById(id: string): Promise<Result<Farm>> {
-    const [farm, err] = await this._farmRepo.get(id);
+    const [farm, err] = await this.farmRepo.get(id);
     if (err) {
       return Err(err);
     }
@@ -60,7 +60,7 @@ export class FarmUsecase implements IFarmUsecase {
   }
 
   async getFarmByProjectAndId(projectId: string, farmId: string): Promise<Result<Farm>> {
-    const [farm, err] = await this._farmRepo.findByProjectAndId(projectId, farmId);
+    const [farm, err] = await this.farmRepo.findByProjectAndId(projectId, farmId);
     if (err) {
       return Err(err);
     }
@@ -68,8 +68,8 @@ export class FarmUsecase implements IFarmUsecase {
     return Ok(farm);
   }
 
-  async getFarmsByProject(projectId: string, page: { skip?: number; take?: number }): Promise<Result<Farm[]>> {
-    const [farms, err] = await this._farmRepo.findManyByProject(projectId, page);
+  async getFarmsByProject(projectId: string, page: { skip?: number; take?: number }): Promise<Result<PaginatedObject<Farm[]>>> {
+    const [farms, err] = await this.farmRepo.findManyByProject(projectId, page);
     if (err) {
       return Err(err);
     }
@@ -78,7 +78,7 @@ export class FarmUsecase implements IFarmUsecase {
   }
 
   async deleteFarm(id: string): Promise<Result<boolean>> {
-    const [ok, err] = await this._farmRepo.delete(id);
+    const [ok, err] = await this.farmRepo.delete(id);
     if (!ok || err) {
       return Err(err);
     }

@@ -17,19 +17,19 @@ export interface IUserRepository extends BaseRepositoryInterface<User> {
 
 @injectable("Singleton")
 export class UserRepository implements IUserRepository {
-  private _logger: Logger;
+  private logger: Logger;
 
   constructor(
-    @inject(PrismaService) private readonly _prisma: PrismaService,
-    @inject(LoggingService) private readonly _loggerInstance: LoggingService,
+    @inject(PrismaService) private readonly prisma: PrismaService,
+    @inject(LoggingService) private readonly loggerInstance: LoggingService
   ) {
-    this._logger = this._loggerInstance.withLabel("UserRepository");
+    this.logger = this.loggerInstance.withLabel("UserRepository");
   }
 
   async create(data: User): Promise<Result<User>> {
     try {
-      const createdUser = await this._prisma.user.create({ data: { ...data } });
-      this._logger.debug("new user created", { ...data, password_hash: undefined });
+      const createdUser = await this.prisma.user.create({ data: { ...data } });
+      this.logger.debug("new user created", { ...data, password_hash: undefined });
 
       return Ok(createdUser);
     } catch (e) {
@@ -39,7 +39,7 @@ export class UserRepository implements IUserRepository {
 
   async get(id: string): Promise<Result<User>> {
     try {
-      const user = await this._prisma.user.findFirst({ where: { id } });
+      const user = await this.prisma.user.findFirst({ where: { id } });
       if (!user) {
         return Err(AppError.new("user not found", ErrorCause.ENTRY_NOT_FOUND));
       }
@@ -52,7 +52,7 @@ export class UserRepository implements IUserRepository {
 
   async findByEmail(email: string): Promise<Result<User>> {
     try {
-      const user = await this._prisma.user.findFirst({ where: { email } });
+      const user = await this.prisma.user.findFirst({ where: { email } });
       if (!user) {
         return Err(AppError.new("user not found", ErrorCause.ENTRY_NOT_FOUND));
       }
@@ -65,7 +65,7 @@ export class UserRepository implements IUserRepository {
 
   async findMany(offset: number, limit: number): Promise<Result<User[]>> {
     try {
-      const users = await this._prisma.user.findMany({
+      const users = await this.prisma.user.findMany({
         skip: offset,
         take: limit,
         orderBy: { created_at: "desc" },
@@ -83,7 +83,7 @@ export class UserRepository implements IUserRepository {
 
   async update(id: string, data: User): Promise<Result<User>> {
     try {
-      const user = await this._prisma.user.update({
+      const user = await this.prisma.user.update({
         where: { id },
         data: { ...data },
       });
@@ -95,7 +95,7 @@ export class UserRepository implements IUserRepository {
 
   async delete(id: string): Promise<Result<boolean>> {
     try {
-      await this._prisma.user.delete({ where: { id } });
+      await this.prisma.user.delete({ where: { id } });
       return Ok(true);
     } catch (e) {
       return this.handleError(e);

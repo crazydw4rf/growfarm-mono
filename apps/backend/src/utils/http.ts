@@ -2,24 +2,34 @@ import type { Response } from "express";
 import { StatusCodes } from "http-status-codes";
 
 import { ErrorCause } from "@/types/errors";
+import type { ResponseBody } from "@/types/http";
 
-import type Merror from "./merror";
+import { Merror } from "./merror";
 
-export interface HttpResponse {
-  data?: any;
-  error?: string;
-  code?: number;
+export function httpResponse<T extends object | any[]>(res: Response, code: number, body: ResponseBody<T>): void {
+  if (body.data) {
+    res.status(code).json(body);
+    return;
+  }
+
+  res.status(code).json({ data: body, code });
 }
 
-export function httpResponse(res: Response, code: number, data: object): void {
-  res.status(code).json({ data, code });
+export function httpResponseString(res: Response, code: number, body: string, isJson = false): void {
+  if (isJson) {
+    res.setHeader("Content-Type", "application/json");
+    res.status(code).send(body);
+    return;
+  }
+
+  res.status(code).send(body);
 }
 
 export function httpError(res: Response, err: Merror): void {
-  const rootError = err.root;
+  const root = err.root;
 
-  const message = rootError?.error.message ?? "An unexpected error occurred";
-  switch (rootError?.error.cause) {
+  const message = root?.error.message ?? "An unexpected error occurred";
+  switch (root?.error.cause) {
     case ErrorCause.DUPLICATE_ENTRY:
       httpResponse(res, StatusCodes.CONFLICT, { error: message });
       return;

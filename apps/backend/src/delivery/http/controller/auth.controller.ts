@@ -16,22 +16,22 @@ import { ValidatePayload } from "@/utils/decorator";
 
 @injectable("Singleton")
 export class AuthController {
-  private _logger: Logger;
+  private logger: Logger;
 
   constructor(
-    @inject(AuthUsecase) private readonly _authUc: AuthUsecase,
-    @inject(ConfigService) private readonly _config: ConfigService,
-    @inject(LoggingService) private readonly _loggerInstance: LoggingService,
+    @inject(AuthUsecase) private readonly authUc: AuthUsecase,
+    @inject(ConfigService) private readonly config: ConfigService,
+    @inject(LoggingService) private readonly loggerInstance: LoggingService
   ) {
-    this._logger = this._loggerInstance.withLabel("AuthController");
+    this.logger = this.loggerInstance.withLabel("AuthController");
 
     this.loginUser = this.loginUser.bind(this);
   }
 
   @ValidatePayload(zLoginUser)
   async loginUser(req: ExtendedRequest, res: ExtendedResponse, next: NextFunction): Promise<void> {
-    this._logger.debug("login user", { ...req.body, password: undefined });
-    const [user, err] = await this._authUc.login(req.body);
+    this.logger.debug("login user", { ...req.body, password: undefined });
+    const [user, err] = await this.authUc.login(req.body);
     if (err) {
       next(err);
       return;
@@ -43,7 +43,7 @@ export class AuthController {
   }
 
   public refreshToken = async (_req: ExtendedRequest, res: ExtendedResponse, next: NextFunction): Promise<void> => {
-    const [user, err] = await this._authUc.refreshToken(res.locals.user.id);
+    const [user, err] = await this.authUc.refreshToken(res.locals.user.id);
     if (err) {
       next(err);
       return;
@@ -55,8 +55,12 @@ export class AuthController {
   };
 
   public logoutUser = (_req: ExtendedRequest, res: ExtendedResponse, _next: NextFunction): void => {
-    this._logger.debug("logging out user", res.locals.user);
-    res.clearCookie("refresh_token", { path: "/v1/auth/refresh" });
+    this.logger.debug("logging out user", res.locals.user);
+    res.cookie("refresh_token", "0", {
+      domain: ".".concat(this.config.env.DOMAIN_NAME),
+      path: "/v1/auth/refresh",
+      maxAge: -1,
+    });
 
     res.sendStatus(StatusCodes.NO_CONTENT);
   };
@@ -66,7 +70,7 @@ export class AuthController {
       httpOnly: true,
       secure: true,
       sameSite: "lax",
-      domain: ".".concat(this._config.env.DOMAIN_NAME),
+      domain: ".".concat(this.config.env.DOMAIN_NAME),
       path: "/v1/auth/refresh",
       maxAge: 60 * 60 * 24 * 30 * 1000, // 1 bulan
     });

@@ -6,32 +6,32 @@ import { Prisma } from "@/generated/prisma/client";
 import { LoggingService } from "@/services/logger";
 import PrismaService from "@/services/prisma";
 import { AppError, ErrorCause } from "@/types/errors";
-import type { BaseRepositoryInterface, Result } from "@/types/helper";
+import type { BaseRepositoryInterface, PaginatedObject, Result } from "@/types/helper";
 import { Err, Ok } from "@/utils";
 
 export interface IFarmRepository extends BaseRepositoryInterface<Farm> {
-  findManyByProject(projectId: string, page: { skip?: number; take?: number }): Promise<Result<Farm[]>>;
+  findManyByProject(projectId: string, page: { skip?: number; take?: number }): Promise<Result<PaginatedObject<Farm[]>>>;
   findByProjectAndId(projectId: string, farmId: string): Promise<Result<Farm>>;
 }
 
 @injectable("Singleton")
 export class FarmRepository implements IFarmRepository {
-  private _logger: Logger;
+  private logger: Logger;
 
   constructor(
-    @inject(PrismaService) private readonly _prisma: PrismaService,
-    @inject(LoggingService) private readonly _loggerInstance: LoggingService
+    @inject(PrismaService) private readonly prisma: PrismaService,
+    @inject(LoggingService) private readonly loggerInstance: LoggingService
   ) {
-    this._logger = this._loggerInstance.withLabel("FarmRepository");
+    this.logger = this.loggerInstance.withLabel("FarmRepository");
   }
 
-  async create(data: Farm): Promise<Result<Farm>> {
+  async create(data: Farm, projectId: string): Promise<Result<Farm>> {
     try {
-      const farm = await this._prisma.farm.create({
-        data: { ...data },
+      const farm = await this.prisma.farm.create({
+        data: { ...data, project_id: projectId },
         include: { project: true },
       });
-      this._logger.debug("new farm created", { ...data });
+      this.logger.debug("new farm created", { ...data });
 
       return Ok(farm);
     } catch (e) {
@@ -41,7 +41,7 @@ export class FarmRepository implements IFarmRepository {
 
   async get(id: string): Promise<Result<Farm>> {
     try {
-      const farm = await this._prisma.farm.findFirst({
+      const farm = await this.prisma.farm.findFirst({
         where: { id },
         include: { project: true },
       });
@@ -57,7 +57,7 @@ export class FarmRepository implements IFarmRepository {
 
   async findByProjectAndId(projectId: string, farmId: string): Promise<Result<Farm>> {
     try {
-      const farm = await this._prisma.farm.findFirst({
+      const farm = await this.prisma.farm.findFirst({
         where: {
           id: farmId,
           project_id: projectId,
@@ -74,16 +74,19 @@ export class FarmRepository implements IFarmRepository {
     }
   }
 
-  async findManyByProject(projectId: string, page: { skip: number; take: number }): Promise<Result<Farm[]>> {
+  async findManyByProject(projectId: string, page: { skip: number; take: number }): Promise<Result<PaginatedObject<Farm[]>>> {
     try {
-      const farms = await this._prisma.farm.findMany({
-        where: { project_id: projectId },
-        ...page,
-        orderBy: { created_at: "desc" },
-        include: { project: true },
-      });
+      const [farms, count] = await this.prisma.$transaction([
+        this.prisma.farm.findMany({
+          where: { project_id: projectId },
+          ...page,
+          orderBy: { created_at: "desc" },
+          include: { project: true },
+        }),
+        this.prisma.farm.count({ where: { project_id: projectId } }),
+      ]);
 
-      return Ok(farms);
+      return Ok({ data: farms, count, ...page });
     } catch (e) {
       return this.handleError(e);
     }
@@ -91,7 +94,7 @@ export class FarmRepository implements IFarmRepository {
 
   async update(id: string, data: Farm): Promise<Result<Farm>> {
     try {
-      const farm = await this._prisma.farm.update({
+      const farm = await this.prisma.farm.update({
         where: { id },
         data: { ...data },
         include: { project: true },
@@ -104,7 +107,7 @@ export class FarmRepository implements IFarmRepository {
 
   async delete(id: string): Promise<Result<boolean>> {
     try {
-      await this._prisma.farm.delete({ where: { id } });
+      await this.prisma.farm.delete({ where: { id } });
       return Ok(true);
     } catch (e) {
       return this.handleError(e);

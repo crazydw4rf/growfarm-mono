@@ -1,9 +1,9 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Agroflow API",
+    "title": "GrowFarm API",
     "version": "1.0.0",
-    "description": "API documentation for the Agroflow backend."
+    "description": "API documentation for the GrowFarm backend."
   },
   "servers": [
     {
@@ -304,7 +304,7 @@
             "schema": {
               "type": "integer",
               "minimum": 1,
-              "maximum": 20,
+              "maximum": 10,
               "default": 5
             },
             "description": "Maximum number of records to return"
@@ -316,19 +316,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Project"
-                      }
-                    },
-                    "code": {
-                      "type": "integer",
-                      "example": 200
-                    }
-                  }
+                  "$ref": "#/components/schemas/PaginatedProjectsResponse"
                 }
               }
             }
@@ -516,6 +504,187 @@
         }
       }
     },
+    "/projects/{projectId}/report": {
+      "get": {
+        "tags": ["Project"],
+        "summary": "Generate project report with farm details and totals",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Project ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project report generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectReportItem"
+                  }
+                },
+                "example": [
+                  {
+                    "row_type": "PROJECT_TOTAL",
+                    "farm_id": null,
+                    "farm_name": null,
+                    "farm_status": null,
+                    "soil_type": null,
+                    "total_harvest": 32,
+                    "total_revenue": 192000
+                  },
+                  {
+                    "row_type": "FARM_DETAIL",
+                    "farm_id": "01K5Y93QYK5KRVRY3QNWVVDJN9",
+                    "farm_name": "Foo farm",
+                    "farm_status": "ACTIVE",
+                    "soil_type": "ORGANOSOL",
+                    "total_harvest": 0,
+                    "total_revenue": 0
+                  },
+                  {
+                    "row_type": "FARM_DETAIL",
+                    "farm_id": "01K5Y96CM7CTS5P67NYWECR993",
+                    "farm_name": "Bar Farm",
+                    "farm_status": "HARVESTED",
+                    "soil_type": "ANDOSOL",
+                    "total_harvest": 32,
+                    "total_revenue": 192000
+                  },
+                  {
+                    "row_type": "FARM_DETAIL",
+                    "farm_id": "01K5Y9BYH9EH9P4523T9FA2H01",
+                    "farm_name": "Kebun Raya Pejabat",
+                    "farm_status": "ACTIVE",
+                    "soil_type": "VERTISOL",
+                    "total_harvest": 0,
+                    "total_revenue": 0
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid token"
+          },
+          "404": {
+            "description": "Project not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Project"],
+        "summary": "Generate project report by date range with farm details and totals",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Project ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectReportDateRange"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Project report by date range generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectReportByDateItem"
+                  }
+                },
+                "example": [
+                  {
+                    "row_type": "PROJECT_SUMMARY",
+                    "project_id": "01K5XGJDJTC93WPEY2Q2T5WSMV",
+                    "project_name": "Project X",
+                    "project_budget": 12000000,
+                    "total_farm_budget": "8200000",
+                    "average_farm_budget": 2733333.333333333333,
+                    "total_harvest": 32,
+                    "total_revenue": 192000,
+                    "total_farms": "3",
+                    "farm_id": null,
+                    "farm_name": null,
+                    "farm_status": null,
+                    "soil_type": null,
+                    "farm_budget_individual": null,
+                    "farm_harvest": null,
+                    "farm_revenue": null
+                  },
+                  {
+                    "row_type": "FARM_DETAIL",
+                    "project_id": "01K5XGJDJTC93WPEY2Q2T5WSMV",
+                    "project_name": "Project X",
+                    "project_budget": 12000000,
+                    "total_farm_budget": null,
+                    "average_farm_budget": null,
+                    "total_harvest": null,
+                    "total_revenue": null,
+                    "total_farms": null,
+                    "farm_id": "01K5Y93QYK5KRVRY3QNWVVDJN9",
+                    "farm_name": "Foo farm",
+                    "farm_status": "ACTIVE",
+                    "soil_type": "ORGANOSOL",
+                    "farm_budget_individual": 2000000,
+                    "farm_harvest": 0,
+                    "farm_revenue": 0
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - validation error"
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid token"
+          },
+          "404": {
+            "description": "Project not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/projects/{projectId}/farms": {
       "post": {
         "tags": ["Farm"],
@@ -618,7 +787,7 @@
             "schema": {
               "type": "integer",
               "minimum": 1,
-              "maximum": 20,
+              "maximum": 10,
               "default": 5
             },
             "description": "Maximum number of records to return"
@@ -630,19 +799,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Farm"
-                      }
-                    },
-                    "code": {
-                      "type": "integer",
-                      "example": 200
-                    }
-                  }
+                  "$ref": "#/components/schemas/PaginatedFarmsResponse"
                 }
               }
             }
@@ -1049,17 +1206,7 @@
             "description": "Date and time of last project update"
           }
         },
-        "required": [
-          "id",
-          "user_id",
-          "project_name",
-          "budget",
-          "project_status",
-          "start_date",
-          "target_date",
-          "created_at",
-          "updated_at"
-        ]
+        "required": ["id", "user_id", "project_name", "budget", "project_status", "start_date", "target_date", "created_at", "updated_at"]
       },
       "ProjectCreate": {
         "type": "object",
@@ -1199,18 +1346,7 @@
           },
           "soil_type": {
             "type": "string",
-            "enum": [
-              "ORGANOSOL",
-              "ANDOSOL",
-              "LITOSOL",
-              "REGOSOL",
-              "VERTISOL",
-              "ALUVIAL",
-              "MEDISOL",
-              "PODZOLIK",
-              "GRUMUSOL",
-              "KAMBISOL"
-            ],
+            "enum": ["ORGANOSOL", "ANDOSOL", "LITOSOL", "REGOSOL", "VERTISOL", "ALUVIAL", "MEDISOL", "PODZOLIK", "GRUMUSOL", "KAMBISOL"],
             "description": "Type of soil"
           },
           "planted_at": {
@@ -1233,6 +1369,11 @@
             "type": "number",
             "nullable": true,
             "description": "Total harvest amount in kilograms"
+          },
+          "farm_budget": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Farm budget allocation"
           },
           "description": {
             "type": "string",
@@ -1262,6 +1403,7 @@
           "soil_type",
           "planted_at",
           "target_harvest_date",
+          "farm_budget",
           "created_at",
           "updated_at"
         ]
@@ -1306,18 +1448,7 @@
           },
           "soil_type": {
             "type": "string",
-            "enum": [
-              "ORGANOSOL",
-              "ANDOSOL",
-              "LITOSOL",
-              "REGOSOL",
-              "VERTISOL",
-              "ALUVIAL",
-              "MEDISOL",
-              "PODZOLIK",
-              "GRUMUSOL",
-              "KAMBISOL"
-            ],
+            "enum": ["ORGANOSOL", "ANDOSOL", "LITOSOL", "REGOSOL", "VERTISOL", "ALUVIAL", "MEDISOL", "PODZOLIK", "GRUMUSOL", "KAMBISOL"],
             "default": "ORGANOSOL",
             "description": "Type of soil",
             "example": "ORGANOSOL"
@@ -1348,6 +1479,12 @@
             "description": "Total harvest amount in kilograms",
             "example": 150.5
           },
+          "farm_budget": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Farm budget allocation",
+            "example": 25000000
+          },
           "description": {
             "type": "string",
             "nullable": true,
@@ -1355,15 +1492,7 @@
             "example": "Organic tomato farm using sustainable farming practices"
           }
         },
-        "required": [
-          "farm_name",
-          "location",
-          "land_size",
-          "product_price",
-          "comodity",
-          "planted_at",
-          "target_harvest_date"
-        ]
+        "required": ["farm_name", "location", "land_size", "product_price", "comodity", "planted_at", "target_harvest_date", "farm_budget"]
       },
       "FarmUpdate": {
         "type": "object",
@@ -1398,18 +1527,7 @@
           },
           "soil_type": {
             "type": "string",
-            "enum": [
-              "ORGANOSOL",
-              "ANDOSOL",
-              "LITOSOL",
-              "REGOSOL",
-              "VERTISOL",
-              "ALUVIAL",
-              "MEDISOL",
-              "PODZOLIK",
-              "GRUMUSOL",
-              "KAMBISOL"
-            ],
+            "enum": ["ORGANOSOL", "ANDOSOL", "LITOSOL", "REGOSOL", "VERTISOL", "ALUVIAL", "MEDISOL", "PODZOLIK", "GRUMUSOL", "KAMBISOL"],
             "description": "Type of soil"
           },
           "planted_at": {
@@ -1434,12 +1552,247 @@
             "minimum": 0,
             "description": "Total harvest amount in kilograms"
           },
+          "farm_budget": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Farm budget allocation"
+          },
           "description": {
             "type": "string",
             "nullable": true,
             "description": "Farm description"
           }
         }
+      },
+      "PaginatedProjectsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Project"
+            },
+            "description": "Array of projects"
+          },
+          "skip": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of records skipped for pagination"
+          },
+          "take": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Number of records taken for pagination"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of records available"
+          }
+        },
+        "required": ["data", "skip", "take", "count"]
+      },
+      "PaginatedFarmsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Farm"
+            },
+            "description": "Array of farms"
+          },
+          "skip": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of records skipped for pagination"
+          },
+          "take": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Number of records taken for pagination"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of records available"
+          }
+        },
+        "required": ["data", "skip", "take", "count"]
+      },
+      "ProjectReportItem": {
+        "type": "object",
+        "properties": {
+          "row_type": {
+            "type": "string",
+            "enum": ["PROJECT_TOTAL", "FARM_DETAIL"],
+            "nullable": true,
+            "description": "Type of row in the report",
+            "example": "FARM_DETAIL"
+          },
+          "farm_id": {
+            "type": "string",
+            "format": "ulid",
+            "nullable": true,
+            "description": "Farm ID (null for PROJECT_TOTAL rows)",
+            "example": "01K5Y93QYK5KRVRY3QNWVVDJN9"
+          },
+          "farm_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Farm name (null for PROJECT_TOTAL rows)",
+            "example": "Foo farm"
+          },
+          "farm_status": {
+            "type": "string",
+            "enum": ["ACTIVE", "HARVESTED"],
+            "nullable": true,
+            "description": "Farm status (null for PROJECT_TOTAL rows)",
+            "example": "ACTIVE"
+          },
+          "soil_type": {
+            "type": "string",
+            "enum": ["ORGANOSOL", "ANDOSOL", "LITOSOL", "REGOSOL", "VERTISOL", "ALUVIAL", "MEDISOL", "PODZOLIK", "GRUMUSOL", "KAMBISOL"],
+            "nullable": true,
+            "description": "Soil type (null for PROJECT_TOTAL rows)",
+            "example": "ORGANOSOL"
+          },
+          "total_harvest": {
+            "type": "number",
+            "nullable": true,
+            "description": "Total harvest amount in kilograms",
+            "example": 32
+          },
+          "total_revenue": {
+            "type": "number",
+            "nullable": true,
+            "description": "Total revenue calculated from harvest and product price",
+            "example": 192000
+          }
+        },
+        "required": ["row_type"]
+      },
+      "ProjectReportDateRange": {
+        "type": "object",
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Start date for the report range",
+            "example": "2025-01-01"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date",
+            "description": "End date for the report range",
+            "example": "2026-01-02"
+          }
+        },
+        "required": ["end_date"]
+      },
+      "ProjectReportByDateItem": {
+        "type": "object",
+        "properties": {
+          "row_type": {
+            "type": "string",
+            "enum": ["PROJECT_SUMMARY", "FARM_DETAIL"],
+            "nullable": true,
+            "description": "Type of row in the date-based report",
+            "example": "PROJECT_SUMMARY"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "ulid",
+            "description": "Project ID",
+            "example": "01K5XGJDJTC93WPEY2Q2T5WSMV"
+          },
+          "project_name": {
+            "type": "string",
+            "description": "Project name",
+            "example": "Project X"
+          },
+          "project_budget": {
+            "type": "number",
+            "description": "Project budget",
+            "example": 12000000
+          },
+          "total_farm_budget": {
+            "type": "string",
+            "nullable": true,
+            "description": "Total farm budget (string representation of bigint, null for FARM_DETAIL rows)",
+            "example": "8200000"
+          },
+          "average_farm_budget": {
+            "type": "number",
+            "nullable": true,
+            "description": "Average farm budget (null for FARM_DETAIL rows)",
+            "example": 2733333.333333333333
+          },
+          "total_harvest": {
+            "type": "number",
+            "nullable": true,
+            "description": "Total harvest amount (null for FARM_DETAIL rows)",
+            "example": 32
+          },
+          "total_revenue": {
+            "type": "number",
+            "nullable": true,
+            "description": "Total revenue (null for FARM_DETAIL rows)",
+            "example": 192000
+          },
+          "total_farms": {
+            "type": "string",
+            "nullable": true,
+            "description": "Total number of farms (string representation of bigint, null for FARM_DETAIL rows)",
+            "example": "3"
+          },
+          "farm_id": {
+            "type": "string",
+            "format": "ulid",
+            "nullable": true,
+            "description": "Farm ID (null for PROJECT_SUMMARY rows)",
+            "example": "01K5Y93QYK5KRVRY3QNWVVDJN9"
+          },
+          "farm_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Farm name (null for PROJECT_SUMMARY rows)",
+            "example": "Foo farm"
+          },
+          "farm_status": {
+            "type": "string",
+            "enum": ["ACTIVE", "HARVESTED"],
+            "nullable": true,
+            "description": "Farm status (null for PROJECT_SUMMARY rows)",
+            "example": "ACTIVE"
+          },
+          "soil_type": {
+            "type": "string",
+            "enum": ["ORGANOSOL", "ANDOSOL", "LITOSOL", "REGOSOL", "VERTISOL", "ALUVIAL", "MEDISOL", "PODZOLIK", "GRUMUSOL", "KAMBISOL"],
+            "nullable": true,
+            "description": "Soil type (null for PROJECT_SUMMARY rows)",
+            "example": "ORGANOSOL"
+          },
+          "farm_budget_individual": {
+            "type": "number",
+            "nullable": true,
+            "description": "Individual farm budget (null for PROJECT_SUMMARY rows)",
+            "example": 2000000
+          },
+          "farm_harvest": {
+            "type": "number",
+            "nullable": true,
+            "description": "Individual farm harvest (null for PROJECT_SUMMARY rows)",
+            "example": 0
+          },
+          "farm_revenue": {
+            "type": "number",
+            "nullable": true,
+            "description": "Individual farm revenue (null for PROJECT_SUMMARY rows)",
+            "example": 0
+          }
+        },
+        "required": ["row_type", "project_id", "project_name", "project_budget"]
       }
     },
     "securitySchemes": {

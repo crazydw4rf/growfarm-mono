@@ -18,19 +18,19 @@ export interface IAuthUsecase {
 
 @injectable("Singleton")
 export class AuthUsecase implements IAuthUsecase {
-  private _logger: Logger;
+  private logger: Logger;
   constructor(
-    @inject(UserRepository) private readonly _userRepo: IUserRepository,
-    @inject(ConfigService) private readonly _config: ConfigService,
-    @inject(LoggingService) private readonly _loggerInstance: LoggingService,
+    @inject(UserRepository) private readonly userRepo: IUserRepository,
+    @inject(ConfigService) private readonly config: ConfigService,
+    @inject(LoggingService) private readonly loggerInstance: LoggingService
   ) {
-    this._logger = this._loggerInstance.withLabel("AuthUsecase");
+    this.logger = this.loggerInstance.withLabel("AuthUsecase");
   }
 
   async login(dto: UserLoginDto): Promise<Result<UserWithToken>> {
-    this._logger.debug("logging in user", { ...dto, password: undefined });
+    this.logger.debug("logging in user", { ...dto, password: undefined });
 
-    const [user, err] = await this._userRepo.findByEmail(dto.email);
+    const [user, err] = await this.userRepo.findByEmail(dto.email);
     if (err) {
       return Err(err);
     }
@@ -46,7 +46,7 @@ export class AuthUsecase implements IAuthUsecase {
   }
 
   async refreshToken(id: string): Promise<Result<UserWithToken>> {
-    const [user, err] = await this._userRepo.get(id);
+    const [user, err] = await this.userRepo.get(id);
     if (err) {
       return Err(err);
     }
@@ -58,12 +58,12 @@ export class AuthUsecase implements IAuthUsecase {
 
   /** @returns A tuple containing the access token and refresh token [[accessToken, refreshToken]] */
   private generateToken(user: User): [string, string] {
-    const accessToken = jwt.sign({ role: user.role }, this._config.env.JWT_ACCESS_SECRET, {
+    const accessToken = jwt.sign({}, this.config.env.JWT_ACCESS_SECRET, {
       algorithm: "HS256",
       expiresIn: "15m",
       subject: user.id,
     });
-    const refreshToken = jwt.sign({}, this._config.env.JWT_REFRESH_SECRET, {
+    const refreshToken = jwt.sign({}, this.config.env.JWT_REFRESH_SECRET, {
       algorithm: "HS256",
       expiresIn: "30d",
       subject: user.id,

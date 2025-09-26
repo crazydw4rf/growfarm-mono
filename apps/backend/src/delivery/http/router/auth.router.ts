@@ -13,15 +13,15 @@ export class AuthRouter implements IHTTPRouter {
   readonly router = Router();
 
   constructor(
-    @inject(AuthMiddleware) private readonly _authMw: AuthMiddleware,
-    @inject(AuthController) private readonly _authController: AuthController,
+    @inject(AuthMiddleware) private readonly authMw: AuthMiddleware,
+    @inject(AuthController) private readonly authController: AuthController
   ) {
     this.setupRoutes();
   }
 
   private setupRoutes(): void {
-    this.router.post("/login", this._authController.loginUser);
-    this.router.post("/logout", this._authController.logoutUser);
-    this.router.post("/refresh", this._authMw.verifyRefreshJWT, this._authController.refreshToken);
+    this.router.post("/login", this.authController.loginUser);
+    this.router.post("/logout", this.authController.logoutUser);
+    this.router.post("/refresh", this.authMw.verifyRefreshJWT, this.authController.refreshToken);
   }
 }

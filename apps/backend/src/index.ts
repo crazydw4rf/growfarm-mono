@@ -1,6 +1,6 @@
 import { Container } from "inversify";
 
-import { AuthController, FarmController, ProjectController, UserController } from "@/delivery/http/controller";
+import { AuthController, FarmController, ProjectController, ReportController, UserController } from "@/delivery/http/controller";
 import { AppMiddleware, AuthMiddleware } from "@/delivery/http/middleware";
 import { AuthRouter, FarmRouter, ProjectRouter, UserRouter } from "@/delivery/http/router";
 import { FarmRepository, ProjectRepository, UserRepository } from "@/repository";
@@ -25,6 +25,8 @@ function registerAppServices(c: Container): void {
   c.bind(FarmRepository).toSelf();
   c.bind(FarmUsecase).toSelf();
   c.bind(FarmController).toSelf();
+
+  c.bind(ReportController).toSelf();
 
   c.bind(AuthController).toSelf();
   c.bind(AuthUsecase).toSelf();

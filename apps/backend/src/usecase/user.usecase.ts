@@ -17,17 +17,17 @@ export interface IUserUsecase {
 
 @injectable("Singleton")
 export class UserUsecase implements IUserUsecase {
-  private _logger: Logger;
+  private logger: Logger;
 
   constructor(
-    @inject(UserRepository) private readonly _userRepo: IUserRepository,
-    @inject(LoggingService) private readonly _loggerInstance: LoggingService,
+    @inject(UserRepository) private readonly userRepo: IUserRepository,
+    @inject(LoggingService) private readonly loggerInstance: LoggingService
   ) {
-    this._logger = this._loggerInstance.withLabel("UserUsecase");
+    this.logger = this.loggerInstance.withLabel("UserUsecase");
   }
 
   async registerUser(dto: UserRegisterDto): Promise<Result<User>> {
-    this._logger.debug("registering user", { ...dto, password: null });
+    this.logger.debug("registering user", { ...dto, password: null });
 
     const userPwd = await Bun.password.hash(dto.password);
 
@@ -38,7 +38,7 @@ export class UserUsecase implements IUserUsecase {
       password_hash: userPwd,
     };
 
-    const [user, err] = await this._userRepo.create(userObject);
+    const [user, err] = await this.userRepo.create(userObject);
     if (err) {
       return Err(err);
     }
@@ -55,7 +55,7 @@ export class UserUsecase implements IUserUsecase {
   }
 
   async getUserById(id: string): Promise<Result<User>> {
-    const [user, err] = await this._userRepo.get(id);
+    const [user, err] = await this.userRepo.get(id);
     if (err) {
       return Err(err);
     }

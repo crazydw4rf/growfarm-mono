@@ -7,16 +7,12 @@ generator client {
   provider = "prisma-client"
   engineType = "client"
   output   = "../src/generated/prisma"
+  previewFeatures = ["typedSql"]
 
   runtime                = "bun"
   moduleFormat           = "esm"
   generatedFileExtension = "ts"
   importFileExtension    = "ts"
-}
-
-enum Role {
-  USER
-  ADMIN
 }
 
 enum FarmStatus {
@@ -55,12 +51,10 @@ model User {
   last_name     String?
   email         String   @unique
   password_hash String   @db.VarChar(255)
-  role          Role     @default(USER)
   created_at    DateTime @default(now())
   updated_at    DateTime @default(now()) @updatedAt
 
   projects        Project[] // satu user bisa punya banyak project
-  worker_profiles WorkerProfile[] // satu user bisa punya banyak worker profile
 }
 
 model Project {
@@ -79,7 +73,6 @@ model Project {
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   farms           Farm[] // satu project bisa punya banyak farm
-  worker_profiles WorkerProfile[] // satu project bisa punya banyak worker profile
 
   @@index([user_id])
 }
@@ -90,6 +83,7 @@ model Farm {
   farm_name           String
   location            String
   land_size           Decimal    @db.Decimal(10, 2) // luas lahan (hektare)
+  farm_budget         Int
   product_price       Int // harga produk per kilogram
   comodity            String
   farm_status         FarmStatus @default(ACTIVE)
@@ -105,16 +99,4 @@ model Farm {
   project Project @relation(fields: [project_id], references: [id], onDelete: Cascade)
 
   @@index([project_id])
-}
-
-model WorkerProfile {
-  id         String         @id @default(ulid()) @db.Char(26)
-  user_id    String         @db.Char(26) // user -> worker profile FK
-  project_id String         @db.Char(26) // project -> worker profile FK
-  position   WorkerPosition
-
-  project Project @relation(fields: [project_id], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@index([user_id, project_id])
 }

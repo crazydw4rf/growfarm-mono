@@ -5,42 +5,9 @@ const prisma = new PrismaClient();
 
 // Sample data arrays for realistic seeding
 const FIRST_NAMES = ["Ahmad", "Budi", "Citra", "Dewi", "Eko", "Fatimah", "Gunawan", "Hani", "Indra", "Joko"];
-const LAST_NAMES = [
-  "Santoso",
-  "Wijaya",
-  "Putri",
-  "Kusuma",
-  "Rahmat",
-  "Sari",
-  "Pratama",
-  "Lestari",
-  "Wibowo",
-  "Handayani",
-];
-const LOCATIONS = [
-  "Bandung",
-  "Bogor",
-  "Cianjur",
-  "Sukabumi",
-  "Garut",
-  "Subang",
-  "Purwakarta",
-  "Karawang",
-  "Bekasi",
-  "Depok",
-];
-const COMMODITIES = [
-  "Padi",
-  "Tomat",
-  "Cabai",
-  "Jagung",
-  "Kentang",
-  "Wortel",
-  "Bawang Merah",
-  "Sawi",
-  "Kangkung",
-  "Bayam",
-];
+const LAST_NAMES = ["Santoso", "Wijaya", "Putri", "Kusuma", "Rahmat", "Sari", "Pratama", "Lestari", "Wibowo", "Handayani"];
+const LOCATIONS = ["Bandung", "Bogor", "Cianjur", "Sukabumi", "Garut", "Subang", "Purwakarta", "Karawang", "Bekasi", "Depok"];
+const COMMODITIES = ["Padi", "Tomat", "Cabai", "Jagung", "Kentang", "Wortel", "Bawang Merah", "Sawi", "Kangkung", "Bayam"];
 const SOIL_TYPES: SoilType[] = [
   "ORGANOSOL",
   "ANDOSOL",
@@ -95,12 +62,12 @@ async function createUsers() {
 
   // Create admin user
   const admin = await prisma.user.upsert({
-    where: { email: "admin@agroflow.com" },
+    where: { email: "admin@growfarm.com" },
     update: {},
     create: {
       first_name: "Admin",
-      last_name: "AgroFlow",
-      email: "admin@agroflow.com",
+      last_name: "GrowFarm",
+      email: "admin@growfarm.com",
       password_hash: await Bun.password.hash("admin123456"),
       role: "ADMIN" as Role,
     },
@@ -266,7 +233,7 @@ async function createFarms(projects: any[]) {
 // }
 
 async function main() {
-  console.log("Starting AgroFlow database seeding...");
+  console.log("Starting GrowFarm database seeding...");
 
   await prisma.$connect();
 

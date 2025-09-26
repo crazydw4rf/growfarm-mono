@@ -13,20 +13,20 @@ import { httpResponse, sanitizeUser, ValidatePayload } from "@/utils";
 
 @injectable("Singleton")
 export class UserController {
-  private _logger: Logger;
+  private logger: Logger;
 
   constructor(
-    @inject(UserUsecase) private readonly _userUc: IUserUsecase,
-    @inject(LoggingService) private readonly _loggerInstance: LoggingService,
+    @inject(UserUsecase) private readonly userUc: IUserUsecase,
+    @inject(LoggingService) private readonly loggerInstance: LoggingService
   ) {
-    this._logger = this._loggerInstance.withLabel("UserController");
+    this.logger = this.loggerInstance.withLabel("UserController");
 
     this.registerUser = this.registerUser.bind(this);
   }
 
   @ValidatePayload(zCreateUser)
   public async registerUser(req: ExtendedRequest, res: ExtendedResponse, next: NextFunction): Promise<void> {
-    const [user, err] = await this._userUc.registerUser(req.body);
+    const [user, err] = await this.userUc.registerUser(req.body);
     if (err) {
       next(err);
       return;
@@ -43,7 +43,7 @@ export class UserController {
   };
 
   public me = async (_req: ExtendedRequest, res: ExtendedResponse, next: NextFunction): Promise<void> => {
-    const [user, err] = await this._userUc.getUserById(res.locals.user.id);
+    const [user, err] = await this.userUc.getUserById(res.locals.user.id);
     if (err) {
       next(err);
       return;

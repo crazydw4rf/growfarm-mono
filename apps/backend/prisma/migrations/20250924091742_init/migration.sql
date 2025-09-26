@@ -1,7 +1,4 @@
 -- CreateEnum
-CREATE TYPE "public"."Role" AS ENUM ('USER', 'ADMIN');
-
--- CreateEnum
 CREATE TYPE "public"."FarmStatus" AS ENUM ('ACTIVE', 'HARVESTED');
 
 -- CreateEnum
@@ -20,7 +17,6 @@ CREATE TABLE "public"."User" (
     "last_name" TEXT,
     "email" TEXT NOT NULL,
     "password_hash" VARCHAR(255) NOT NULL,
-    "role" "public"."Role" NOT NULL DEFAULT 'USER',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -51,6 +47,7 @@ CREATE TABLE "public"."Farm" (
     "farm_name" TEXT NOT NULL,
     "location" TEXT NOT NULL,
     "land_size" DECIMAL(10,2) NOT NULL,
+    "farm_budget" INTEGER NOT NULL,
     "product_price" INTEGER NOT NULL,
     "comodity" TEXT NOT NULL,
     "farm_status" "public"."FarmStatus" NOT NULL DEFAULT 'ACTIVE',
@@ -66,16 +63,6 @@ CREATE TABLE "public"."Farm" (
     CONSTRAINT "Farm_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "public"."WorkerProfile" (
-    "id" CHAR(26) NOT NULL,
-    "user_id" CHAR(26) NOT NULL,
-    "project_id" CHAR(26) NOT NULL,
-    "position" "public"."WorkerPosition" NOT NULL,
-
-    CONSTRAINT "WorkerProfile_pkey" PRIMARY KEY ("id")
-);
-
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
 
@@ -85,17 +72,8 @@ CREATE INDEX "Project_user_id_idx" ON "public"."Project"("user_id");
 -- CreateIndex
 CREATE INDEX "Farm_project_id_idx" ON "public"."Farm"("project_id");
 
--- CreateIndex
-CREATE INDEX "WorkerProfile_user_id_project_id_idx" ON "public"."WorkerProfile"("user_id", "project_id");
-
 -- AddForeignKey
 ALTER TABLE "public"."Project" ADD CONSTRAINT "Project_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."Farm" ADD CONSTRAINT "Farm_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "public"."Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."WorkerProfile" ADD CONSTRAINT "WorkerProfile_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "public"."Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."WorkerProfile" ADD CONSTRAINT "WorkerProfile_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -25,7 +25,7 @@ export function isValidPayloadObject(o: string | JwtPayload): o is JwtPayload & 
     return false;
   }
 
-  return Object.hasOwn(o, "sub") || Object.hasOwn(o, "role");
+  return Object.hasOwn(o, "sub");
 }
 
 export function sanitizeUser<T extends User>(user: T): T & UserWithToken {

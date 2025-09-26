@@ -8,10 +8,10 @@ import Merror from "@/utils/merror";
 
 @injectable("Singleton")
 export class AppMiddleware {
-  private _logger: Logger;
+  private logger: Logger;
 
-  constructor(@inject(LoggingService) private readonly _loggerInstance: LoggingService) {
-    this._logger = this._loggerInstance.withLabel("AppMiddleware");
+  constructor(@inject(LoggingService) private readonly loggerInstance: LoggingService) {
+    this.logger = this.loggerInstance.withLabel("AppMiddleware");
   }
 
   public httpLogger = (req: Request, res: Response, next: NextFunction): void => {
@@ -20,7 +20,7 @@ export class AppMiddleware {
     const reqId = res.get("X-Request-Id");
 
     res.on("finish", () => {
-      this._logger.debug(`${method} ${path} ${res.statusCode} - ${Date.now() - start}ms`, {
+      this.logger.debug(`${method} ${path} ${res.statusCode} - ${Date.now() - start}ms`, {
         requestId: reqId,
       });
     });
@@ -40,12 +40,12 @@ export class AppMiddleware {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public errorHandling = (err: Error | Merror, _req: Request, res: Response, _next: NextFunction): void => {
     if (err instanceof Merror) {
-      this._logger.error("an error occurred while processing the request", err.root);
+      this.logger.error("an error occurred while processing the request", err.root);
       httpError(res, err);
       return;
     }
 
-    this._logger.error("unknown error occurred", { message: err.message, cause: err.cause });
+    this.logger.error("unknown error occurred", { message: err.message, cause: err.cause });
 
     httpError(res, Merror.new(err));
   };

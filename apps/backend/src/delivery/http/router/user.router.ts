@@ -13,14 +13,14 @@ export class UserRouter implements IHTTPRouter {
   readonly router = express.Router();
 
   constructor(
-    @inject(UserController) private readonly _userCtrl: UserController,
-    @inject(AuthMiddleware) private readonly _authMw: AuthMiddleware,
+    @inject(UserController) private readonly userCtrl: UserController,
+    @inject(AuthMiddleware) private readonly authMw: AuthMiddleware
   ) {
     this.setupRoutes();
   }
 
   private setupRoutes(): void {
-    this.router.post("/register", this._userCtrl.registerUser);
-    this.router.get("/me", this._authMw.verifyJWT, this._userCtrl.me);
+    this.router.post("/register", this.userCtrl.registerUser);
+    this.router.get("/me", this.authMw.verifyJWT, this.userCtrl.me);
   }
 }

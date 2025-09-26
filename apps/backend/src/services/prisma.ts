@@ -10,35 +10,35 @@ import { LoggingService } from "./logger";
 
 @injectable("Singleton")
 export default class PrismaService extends PrismaClient {
-  private _logger: Logger;
+  private logger: Logger;
 
   constructor(
-    @inject(LoggingService) private readonly _loggerInstance: LoggingService,
-    @inject(ConfigService) private readonly _config: ConfigService
+    @inject(LoggingService) private readonly loggerInstance: LoggingService,
+    @inject(ConfigService) private readonly config: ConfigService
   ) {
-    const adapter = new PrismaPg({ connectionString: _config.env.DATABASE_URL });
+    const adapter = new PrismaPg({ connectionString: config.env.DATABASE_URL });
     super({ adapter });
 
-    this._logger = this._loggerInstance.withLabel("PrismaService");
+    this.logger = this.loggerInstance.withLabel("PrismaService");
 
     this.tryConnect();
   }
 
   tryConnect(): void {
-    this._logger.info("attempting to connect to the database...");
+    this.logger.info("attempting to connect to the database...");
 
     this.$queryRaw`SELECT 1`.catch((e) => {
       if (e instanceof PrismaClientKnownRequestError) {
-        this._logger.error("failed to connect to the database. Please check your database connection settings.", {
+        this.logger.error("failed to connect to the database. Please check your database connection settings.", {
           message: e.message,
         });
         process.exit(1);
       }
 
-      this._logger.error("an unexpected error occurred while connecting to the database.", e as object);
+      this.logger.error("an unexpected error occurred while connecting to the database.", e as object);
       process.exit(1);
     });
 
-    this._logger.info("successfully connected to the database.");
+    this.logger.info("successfully connected to the database.");
   }
 }

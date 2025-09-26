@@ -7,7 +7,7 @@ export const zProjectCreate = z.object({
   project_name: z.string().regex(/^(?!.*[\p{Emoji}]).*$/u, "project name cannot contain emojis"),
   budget: z.number().min(0, "budget must be a non-negative number"),
   project_status: z.enum(["PLANNING", "IN_PROGRESS", "COMPLETED"]).default("PLANNING"),
-  start_date: z.coerce.date().default(() => new Date()),
+  start_date: z.coerce.date().default(new Date()),
   target_date: z.coerce.date(),
   actual_end_date: z.coerce.date().optional(),
   description: z.string().max(1000).optional(),

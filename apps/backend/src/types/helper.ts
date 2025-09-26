@@ -8,6 +8,10 @@ export type Result<T, Q = Merror> = [T, Q];
 
 export type ZodPartial<T> = PartialType<T, ZodType> | Record<string, ZodType>;
 
+export type { ResponseBody as PaginatedObject } from "@/types/http";
+
+export type PaginationParameters = { skip?: number; take?: number };
+
 export interface BaseRepositoryInterface<T> {
   create(data: any, id?: string): Promise<Result<T>>;
   get(id: string): Promise<Result<T>>;

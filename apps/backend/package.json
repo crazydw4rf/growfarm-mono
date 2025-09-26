@@ -1,13 +1,10 @@
 {
   "name": "growfarm-be",
-  "repository": {
-    "url": "https://github.com/crazydw4rf/growfarm-be.git"
-  },
-  "license": "MIT",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "prisma:gen": "prisma generate",
+    "prisma:gen:sql": "prisma generate --sql",
     "prisma:seed": "prisma db seed",
     "prisma:fmt": "prisma format",
     "prisma:deploy": "prisma migrate deploy",
@@ -16,9 +13,10 @@
     "compose:dev:up": "docker compose -f compose.dev.yaml up",
     "compose:dev:down": "docker compose -f compose.dev.yaml down",
     "dev": "bun run --env-file .env --watch src/index.ts",
+    "start": "bun run build/app.js",
+    "exec": "bun run",
     "build:js": "bun build --minify --target=bun --outfile ./build/app.js ./src/index.ts",
-    "build:bin": "bun build --compile --minify --target=bun --outfile ./build/app.bin ./src/index.ts",
-    "postinstall": "prisma generate"
+    "build:bin": "bun build --compile --minify --target=bun --outfile ./build/app.bin ./src/index.ts"
   },
   "module": "src/index.ts",
   "type": "module",
@@ -44,7 +42,6 @@
   "dependencies": {
     "@prisma/adapter-pg": "^6.16.1",
     "@prisma/client": "^6.16.1",
-    "@prisma/extension-accelerate": "^2.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",

@@ -15,53 +15,53 @@ import { LoggingService } from "./logger";
 
 @injectable("Singleton")
 export class ExpressService {
-  private _express = express();
-  private _routerv1 = Router();
-  private _logger: Logger;
+  private express = express();
+  private routerv1 = Router();
+  private logger: Logger;
 
   constructor(
-    @inject(ConfigService) private readonly _config: ConfigService,
-    @inject(LoggingService) private readonly _loggerInstance: LoggingService,
-    @multiInject(HTTPRouterSym) private readonly _httpRouters: IHTTPRouter[],
-    @inject(AppMiddleware) private readonly _appMiddleware: AppMiddleware
+    @inject(ConfigService) private readonly config: ConfigService,
+    @inject(LoggingService) private readonly loggerInstance: LoggingService,
+    @multiInject(HTTPRouterSym) private readonly httpRouters: IHTTPRouter[],
+    @inject(AppMiddleware) private readonly appMiddleware: AppMiddleware
   ) {
-    this._logger = this._loggerInstance.withLabel("ExpressService");
+    this.logger = this.loggerInstance.withLabel("ExpressService");
 
-    this._express.use(cookieParser());
-    this._express.use(
+    this.express.use(cookieParser());
+    this.express.use(
       cors({
-        origin: this._config.env.CORS_ORIGIN.split(",").map((o) => o.trim()),
+        origin: this.config.env.CORS_ORIGIN.split(",").map((o) => o.trim()),
         credentials: true,
         methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization", "Origin", "Accept"],
       })
     );
-    this._express.use(express.urlencoded({ extended: true }));
-    this._express.use(express.json());
+    this.express.use(express.urlencoded({ extended: true }));
+    this.express.use(express.json());
 
-    this._express.use(this._appMiddleware.requestId, this._appMiddleware.httpLogger);
+    this.express.use(this.appMiddleware.requestId, this.appMiddleware.httpLogger);
 
     // TODO: tampilkan halaman dokumentasi
-    this._express.get("/", (_, res) => {
-      httpResponse(res, StatusCodes.OK, { message: "Agroflow Backend API Service" });
+    this.express.get("/", (_, res) => {
+      httpResponse(res, StatusCodes.OK, { message: "GrowFarm Backend API Service" });
     });
 
     this.registerRoutes();
-    this._express.use("/v1", this._routerv1);
+    this.express.use("/v1", this.routerv1);
 
-    this._express.use(this._appMiddleware.errorHandling);
+    this.express.use(this.appMiddleware.errorHandling);
   }
 
   private registerRoutes(): void {
-    for (const r of this._httpRouters) {
-      this._logger.info(`registering route ${r.path}`);
-      this._routerv1.use(r.path, r.router);
+    for (const r of this.httpRouters) {
+      this.logger.info(`registering route ${r.path}`);
+      this.routerv1.use(r.path, r.router);
     }
   }
 
   listen(): void {
-    this._express.listen(this._config.env.APP_PORT, this._config.env.APP_HOST, () => {
-      this._logger.info(`Express server started on http://${this._config.env.APP_HOST}:${this._config.env.APP_PORT}`);
+    this.express.listen(this.config.env.APP_PORT, this.config.env.APP_HOST, () => {
+      this.logger.info(`Express server started on http://${this.config.env.APP_HOST}:${this.config.env.APP_PORT}`);
     });
   }
 }

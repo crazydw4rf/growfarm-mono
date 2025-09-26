@@ -9,10 +9,10 @@ import { ConfigService } from "./config";
 // output to console or file?
 @injectable("Singleton")
 export class LoggingService {
-  private _logger: Logger;
+  private logger: Logger;
 
   constructor(@inject(ConfigService) private readonly config: ConfigService) {
-    this._logger = createLogger({
+    this.logger = createLogger({
       level: this.config.env.APP_ENV === "production" ? "info" : "debug",
       transports: [new transports.Console()],
       format: this.setLogFormat(),
@@ -20,23 +20,23 @@ export class LoggingService {
   }
 
   info(message: string, meta?: Record<string, any>): void {
-    this._logger.info(message, meta);
+    this.logger.info(message, meta);
   }
 
   warn(message: string, meta?: Record<string, any>): void {
-    this._logger.warn(message, meta);
+    this.logger.warn(message, meta);
   }
 
   error(message: string, meta?: Record<string, any>): void {
-    this._logger.error(message, meta);
+    this.logger.error(message, meta);
   }
 
   debug(message: string, meta?: Record<string, any>): void {
-    this._logger.debug(message, meta);
+    this.logger.debug(message, meta);
   }
 
   withLabel(label: string): Logger {
-    return this._logger.child({ label });
+    return this.logger.child({ label });
   }
 
   private setLogFormat(): Format {
