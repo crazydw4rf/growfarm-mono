@@ -12,6 +12,7 @@ const farmSchema = z.object({
   farm_name: z.string().min(1, "Farm name is required"),
   location: z.string().min(1, "Location is required"),
   land_size: z.number().min(0.1, "Land size must be at least 0.1 hectares"),
+  farm_budget: z.number().min(1, "Farm budget must be at least 1"),
   product_price: z.number().min(1, "Product price must be at least 1"),
   comodity: z.string().min(1, "Commodity is required"),
   farm_status: z.enum(["ACTIVE", "HARVESTED"]),
@@ -156,6 +157,26 @@ export default function CreateFarmForm({ projectId }: CreateFarmFormProps) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
+              Farm Budget (IDR) *
+            </label>
+            <input
+              {...register("farm_budget", { valueAsNumber: true })}
+              type="number"
+              min="1"
+              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
+              placeholder="0"
+            />
+            {errors.farm_budget && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.farm_budget.message}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
               Product Price (IDR/kg) *
             </label>
             <input
@@ -171,23 +192,23 @@ export default function CreateFarmForm({ projectId }: CreateFarmFormProps) {
               </p>
             )}
           </div>
-        </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Commodity *
-          </label>
-          <input
-            {...register("comodity")}
-            type="text"
-            className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
-            placeholder="e.g., Rice, Corn, Vegetables"
-          />
-          {errors.comodity && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.comodity.message}
-            </p>
-          )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Commodity *
+            </label>
+            <input
+              {...register("comodity")}
+              type="text"
+              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
+              placeholder="e.g., Rice, Corn, Vegetables"
+            />
+            {errors.comodity && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.comodity.message}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
