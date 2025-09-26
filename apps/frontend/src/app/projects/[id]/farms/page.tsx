@@ -4,7 +4,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
-import { farmsApi, projectsApi } from "@/lib/api";
+import Pagination from "@/components/pagination";
+import { useData } from "@/contexts/data-context";
+import { projectsApi } from "@/lib/api";
 import { Farm, Project } from "@/types/api";
 import {
   ArrowLeft,
@@ -23,29 +25,75 @@ export default function ProjectFarmsPage({
   params: Promise<{ id: string }>;
 }) {
   const { id: projectId } = React.use(params);
-  const [farms, setFarms] = useState<Farm[]>([]);
+  const {
+    farmsPagination,
+    loadFarms,
+    getFarms,
+    getAllFarmsForProject,
+    invalidateFarms,
+  } = useData();
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Get farms for this project from cache (current page)
+  const farms = getFarms(projectId);
+
+  // Get all farms for this project (for summary calculations)
+  const allFarms = getAllFarmsForProject(projectId);
 
   const fetchProjectAndFarms = useCallback(async () => {
     try {
       setIsLoading(true);
       // Fetch project details and farms in parallel
-      const [projectResponse, farmsResponse] = await Promise.all([
+      const [projectResponse] = await Promise.all([
         projectsApi.getById(projectId),
-        farmsApi.getByProject(projectId), // Get farms for this project
+        loadFarms(projectId, 1), // Load first page of farms
       ]);
 
       setProject(projectResponse.data);
-      setFarms(farmsResponse.data);
     } catch (error) {
       console.error("Failed to fetch project and farms:", error);
       setError("Failed to load farms data");
     } finally {
       setIsLoading(false);
     }
-  }, [projectId]);
+  }, [projectId, loadFarms]);
+
+  const handlePageChange = async (page: number) => {
+    try {
+      await loadFarms(projectId, page);
+    } catch (error) {
+      console.error("Failed to load farms:", error);
+      setError("Failed to load farms");
+    }
+  };
+
+  const handleRefreshFarms = useCallback(async () => {
+    try {
+      // Invalidate cache first, then reload
+      invalidateFarms(projectId);
+      await loadFarms(projectId, 1);
+    } catch (error) {
+      console.error("Failed to refresh farms:", error);
+      setError("Failed to refresh farms");
+    }
+  }, [projectId, invalidateFarms, loadFarms]);
+
+  // Auto-refresh farms when page becomes visible (e.g., after returning from create/edit)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // Page became visible, refresh farms
+        handleRefreshFarms();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [handleRefreshFarms]);
 
   useEffect(() => {
     fetchProjectAndFarms();
@@ -101,23 +149,33 @@ export default function ProjectFarmsPage({
     return labels[soilType] || soilType;
   };
 
-  const totalLandSize = farms.reduce((sum: number, farm: Farm) => {
+  const totalLandSize = allFarms.reduce((sum: number, farm: Farm) => {
+    // Handle both string and number values
+    const landSizeValue =
+      typeof farm.land_size === "string"
+        ? parseFloat(farm.land_size)
+        : farm.land_size;
     const landSize =
-      typeof farm.land_size === "number" && !isNaN(farm.land_size)
-        ? farm.land_size
+      typeof landSizeValue === "number" && !isNaN(landSizeValue)
+        ? landSizeValue
         : 0;
     return sum + landSize;
   }, 0);
 
-  const totalHarvest = farms.reduce((sum: number, farm: Farm) => {
+  const totalHarvest = allFarms.reduce((sum: number, farm: Farm) => {
+    // Handle both string and number values
+    const harvestValue =
+      typeof farm.total_harvest === "string"
+        ? parseFloat(farm.total_harvest)
+        : farm.total_harvest;
     const harvest =
-      typeof farm.total_harvest === "number" && !isNaN(farm.total_harvest)
-        ? farm.total_harvest
+      typeof harvestValue === "number" && !isNaN(harvestValue)
+        ? harvestValue
         : 0;
     return sum + harvest;
   }, 0);
 
-  const activeFarms = farms.filter(
+  const activeFarms = allFarms.filter(
     (farm: Farm) => farm.farm_status === "ACTIVE"
   ).length;
 
@@ -222,7 +280,7 @@ export default function ProjectFarmsPage({
                         Active Farms
                       </dt>
                       <dd className="text-lg font-medium text-gray-900">
-                        {activeFarms} of {farms.length}
+                        {activeFarms} of {allFarms.length}
                       </dd>
                     </dl>
                   </div>
@@ -346,6 +404,18 @@ export default function ProjectFarmsPage({
                   </li>
                 ))}
               </ul>
+            )}
+
+            {/* Farms Pagination */}
+            {farmsPagination[projectId] && (
+              <div className="mt-6">
+                <Pagination
+                  currentPage={farmsPagination[projectId].currentPage}
+                  totalItems={farmsPagination[projectId].totalItems}
+                  itemsPerPage={10}
+                  onPageChange={handlePageChange}
+                />
+              </div>
             )}
           </div>
         </div>

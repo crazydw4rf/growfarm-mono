@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
 import Pagination from "@/components/pagination";
+import { useData } from "@/contexts/data-context";
 import { projectsApi } from "@/lib/api";
-import { Project } from "@/types/api";
 import {
   FolderKanban,
   Plus,
@@ -16,48 +16,54 @@ import {
   Edit,
   Trash2,
   Eye,
+  RefreshCw,
 } from "lucide-react";
 
-const ITEMS_PER_PAGE = 20;
-
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    projects,
+    projectsPagination,
+    isLoadingProjects,
+    loadProjects,
+    invalidateProject,
+  } = useData();
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalProjects, setTotalProjects] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    fetchProjects();
-  }, [currentPage]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const fetchProjects = async () => {
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
     try {
-      setLoading(true);
-      const skip = (currentPage - 1) * ITEMS_PER_PAGE;
-      const response = await projectsApi.getAll({ skip, take: ITEMS_PER_PAGE });
-      setProjects(response.data);
-
-      // Note: Since the API doesn't return total count, we estimate it
-      // If we get exactly ITEMS_PER_PAGE, there might be more
-      // This is a limitation of the current API design
-      const receivedCount = response.data.length;
-      if (receivedCount < ITEMS_PER_PAGE) {
-        setTotalProjects(skip + receivedCount);
-      } else {
-        // Estimate there might be more items
-        setTotalProjects(skip + receivedCount + 1);
-      }
-    } catch (error) {
-      console.error("Failed to fetch projects:", error);
+      // Invalidate cache first, then reload
+      invalidateProject();
+      await loadProjects(1);
     } finally {
-      setLoading(false);
+      setIsRefreshing(false);
     }
-  };
+  }, [invalidateProject, loadProjects]);
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  useEffect(() => {
+    // Load projects when component mounts
+    loadProjects(1);
+  }, [loadProjects]);
+
+  // Auto-refresh projects when page becomes visible (e.g., after returning from create/edit)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // Page became visible, refresh projects
+        handleRefresh();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [handleRefresh]);
+
+  const handlePageChange = async (page: number) => {
+    await loadProjects(page);
   };
 
   const handleDelete = async (projectId: string) => {
@@ -72,7 +78,8 @@ export default function ProjectsPage() {
     setDeleting(projectId);
     try {
       await projectsApi.delete(projectId);
-      setProjects(projects.filter((p) => p.id !== projectId));
+      // Refresh the projects list after deletion
+      await loadProjects(1);
     } catch (error) {
       console.error("Failed to delete project:", error);
       alert("Failed to delete project. Please try again.");
@@ -111,7 +118,7 @@ export default function ProjectsPage() {
     }
   };
 
-  if (loading) {
+  if (isLoadingProjects && projects.length === 0) {
     return (
       <ProtectedRoute>
         <DashboardLayout>
@@ -126,19 +133,33 @@ export default function ProjectsPage() {
   return (
     <ProtectedRoute>
       <DashboardLayout>
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Header */}
           <div className="sm:flex sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
-              <p className="mt-2 text-sm text-gray-700">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                Projects
+              </h1>
+              <p className="mt-1 sm:mt-2 text-sm text-gray-700">
                 Manage your agricultural projects and track their progress.
               </p>
             </div>
-            <div className="mt-4 sm:mt-0">
+            <div className="mt-3 sm:mt-0 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+              <button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+              >
+                <RefreshCw
+                  className={`-ml-1 mr-2 h-4 w-4 ${
+                    isRefreshing ? "animate-spin" : ""
+                  }`}
+                />
+                {isRefreshing ? "Refreshing..." : "Refresh"}
+              </button>
               <Link
                 href="/projects/new"
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
                 <Plus className="-ml-1 mr-2 h-4 w-4" />
                 New Project
@@ -171,68 +192,74 @@ export default function ProjectsPage() {
               <ul className="divide-y divide-gray-200">
                 {projects.map((project) => (
                   <li key={project.id}>
-                    <div className="px-4 py-4 sm:px-6">
-                      <div className="flex items-center justify-between">
+                    <div className="px-3 sm:px-4 py-4 sm:px-6">
+                      <div className="sm:flex sm:items-center sm:justify-between">
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-medium text-gray-900 truncate">
-                            {project.project_name}
-                          </h3>
-                          <div className="mt-1 flex items-center space-x-6 text-sm text-gray-500">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                            <h3 className="text-base sm:text-lg font-medium text-gray-900 truncate">
+                              {project.project_name}
+                            </h3>
+                            <span
+                              className={`mt-2 sm:mt-0 sm:ml-4 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                                project.project_status
+                              )}`}
+                            >
+                              {project.project_status.replace("_", " ")}
+                            </span>
+                          </div>
+                          <div className="mt-2 flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-6 text-sm text-gray-500">
                             <div className="flex items-center">
-                              <Banknote className="h-4 w-4 mr-1" />
-                              {formatCurrency(project.budget)}
+                              <Banknote className="h-4 w-4 mr-1 flex-shrink-0" />
+                              <span className="truncate">
+                                {formatCurrency(project.budget)}
+                              </span>
                             </div>
                             <div className="flex items-center">
-                              <Calendar className="h-4 w-4 mr-1" />
-                              Start: {formatDate(project.start_date)}
+                              <Calendar className="h-4 w-4 mr-1 flex-shrink-0" />
+                              <span className="truncate">
+                                Start: {formatDate(project.start_date)}
+                              </span>
                             </div>
                             <div className="flex items-center">
-                              <Calendar className="h-4 w-4 mr-1" />
-                              Target: {formatDate(project.target_date)}
+                              <Calendar className="h-4 w-4 mr-1 flex-shrink-0" />
+                              <span className="truncate">
+                                Target: {formatDate(project.target_date)}
+                              </span>
                             </div>
                           </div>
                           {project.description && (
-                            <p className="mt-2 text-sm text-gray-600">
+                            <p className="mt-2 text-sm text-gray-600 line-clamp-2">
                               {project.description}
                             </p>
                           )}
                         </div>
-                        <div className="ml-4 flex items-center space-x-4">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                              project.project_status
-                            )}`}
+                        <div className="mt-4 sm:mt-0 sm:ml-4 flex items-center justify-end space-x-2">
+                          <button
+                            onClick={() =>
+                              router.push(`/projects/${project.id}`)
+                            }
+                            className="text-gray-400 hover:text-green-600 transition-colors duration-200 p-1"
+                            title="View project"
                           >
-                            {project.project_status.replace("_", " ")}
-                          </span>
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() =>
-                                router.push(`/projects/${project.id}`)
-                              }
-                              className="text-gray-400 hover:text-green-600 transition-colors duration-200"
-                              title="View project"
-                            >
-                              <Eye className="h-5 w-5" />
-                            </button>
-                            <button
-                              onClick={() =>
-                                router.push(`/projects/${project.id}/edit`)
-                              }
-                              className="text-gray-400 hover:text-blue-600 transition-colors duration-200"
-                              title="Edit project"
-                            >
-                              <Edit className="h-5 w-5" />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(project.id)}
-                              disabled={deleting === project.id}
-                              className="text-gray-400 hover:text-red-600 transition-colors duration-200 disabled:opacity-50"
-                              title="Delete project"
-                            >
-                              <Trash2 className="h-5 w-5" />
-                            </button>
-                          </div>
+                            <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                          </button>
+                          <button
+                            onClick={() =>
+                              router.push(`/projects/${project.id}/edit`)
+                            }
+                            className="text-gray-400 hover:text-blue-600 transition-colors duration-200 p-1"
+                            title="Edit project"
+                          >
+                            <Edit className="h-4 w-4 sm:h-5 sm:w-5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(project.id)}
+                            disabled={deleting === project.id}
+                            className="text-gray-400 hover:text-red-600 transition-colors duration-200 disabled:opacity-50 p-1"
+                            title="Delete project"
+                          >
+                            <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -241,12 +268,14 @@ export default function ProjectsPage() {
               </ul>
 
               {/* Pagination */}
-              <Pagination
-                currentPage={currentPage}
-                totalItems={totalProjects}
-                itemsPerPage={ITEMS_PER_PAGE}
-                onPageChange={handlePageChange}
-              />
+              {projectsPagination.totalPages > 1 && (
+                <Pagination
+                  currentPage={projectsPagination.currentPage}
+                  totalItems={projectsPagination.totalItems}
+                  itemsPerPage={10}
+                  onPageChange={handlePageChange}
+                />
+              )}
             </div>
           )}
         </div>

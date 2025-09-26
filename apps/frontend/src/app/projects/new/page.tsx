@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
+import { useData } from "@/contexts/data-context";
 import { projectsApi } from "@/lib/api";
 import { ProjectCreate } from "@/types/api";
 import { ArrowLeft, Save } from "lucide-react";
@@ -28,6 +29,7 @@ type ProjectFormData = z.infer<typeof projectSchema>;
 
 export default function NewProjectPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const { addProject } = useData();
   const router = useRouter();
 
   const {
@@ -53,6 +55,10 @@ export default function NewProjectPage() {
       };
 
       const response = await projectsApi.create(projectData);
+
+      // Add the new project to the state
+      addProject(response.data);
+
       router.push(`/projects/${response.data.id}`);
     } catch (error) {
       console.error("Failed to create project:", error);
@@ -135,7 +141,6 @@ export default function NewProjectPage() {
                     {...register("budget", { valueAsNumber: true })}
                     type="number"
                     min="0"
-                    step="1000"
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
                     placeholder="Enter budget amount"
                   />

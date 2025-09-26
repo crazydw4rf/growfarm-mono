@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
-import { projectsApi } from "@/lib/api";
+import { useData } from "@/contexts/data-context";
+import { useAuth } from "@/contexts/auth-context";
 import { Project } from "@/types/api";
 import {
   Activity,
@@ -26,7 +27,8 @@ interface DashboardStats {
 }
 
 export default function Dashboard() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const { projects, isLoadingProjects, loadProjects } = useData();
+  const { isAuthenticated, isLoading } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalProjects: 0,
     activeProjects: 0,
@@ -35,39 +37,36 @@ export default function Dashboard() {
     totalBudget: 0,
     harvestedFarms: 0,
   });
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await projectsApi.getAll({ skip: 0, take: 20 });
-        const projectsData = response.data;
-        setProjects(projectsData);
+    // Only load projects after authentication is confirmed and not loading
+    if (isAuthenticated && !isLoading) {
+      loadProjects(1);
+    }
+  }, [loadProjects, isAuthenticated, isLoading]);
 
-        // Calculate stats
-        const activeProjects = projectsData.filter(
-          (p) => p.project_status !== "COMPLETED"
-        ).length;
-        const totalBudget = projectsData.reduce((sum, p) => sum + p.budget, 0);
+  useEffect(() => {
+    // Update stats whenever projects change
+    if (projects.length > 0) {
+      const activeProjects = projects.filter(
+        (p: Project) => p.project_status !== "COMPLETED"
+      ).length;
+      const totalBudget = projects.reduce(
+        (sum: number, p: Project) => sum + p.budget,
+        0
+      );
 
-        setStats({
-          totalProjects: projectsData.length,
-          activeProjects,
-          totalFarms: 0, // We'll need to fetch farms data separately
-          activeFarms: 0,
-          totalBudget,
-          harvestedFarms: 0,
-        });
-      } catch (error) {
-        console.error("Failed to fetch dashboard data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+      setStats({
+        totalProjects: projects.length,
+        activeProjects,
+        totalFarms: 0, // We'll need to fetch farms data separately
+        activeFarms: 0,
+        totalBudget,
+        harvestedFarms: 0,
+      });
+    }
+  }, [projects]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -99,7 +98,7 @@ export default function Dashboard() {
     }
   };
 
-  if (loading) {
+  if (isLoadingProjects) {
     return (
       <ProtectedRoute>
         <DashboardLayout>

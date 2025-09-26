@@ -12,6 +12,10 @@ import {
   FarmUpdate,
   ApiResponse,
   PaginationParams,
+  PaginatedResponse,
+  ProjectReportItem,
+  ProjectReportByDateItem,
+  ProjectReportDateRange,
 } from "@/types/api";
 
 // Auth API
@@ -61,13 +65,13 @@ export const projectsApi = {
 
   getAll: async (
     params?: PaginationParams
-  ): Promise<ApiResponse<Project[]>> => {
-    // Ensure pagination limits: max take is 20, default skip is 0
+  ): Promise<PaginatedResponse<Project>> => {
+    // Ensure pagination limits: max take is 10, default skip is 0
     const paginationParams = {
       skip: params?.skip || 0,
-      take: Math.min(params?.take || 20, 20),
+      take: Math.min(params?.take || 10, 10),
     };
-    const response = await apiClient.get<ApiResponse<Project[]>>(
+    const response = await apiClient.get<PaginatedResponse<Project>>(
       "/projects",
       paginationParams
     );
@@ -100,6 +104,26 @@ export const projectsApi = {
     );
     return response.data;
   },
+
+  getReport: async (
+    projectId: string
+  ): Promise<{ data: ProjectReportItem[] }> => {
+    const response = await apiClient.get<ProjectReportItem[]>(
+      `/projects/${projectId}/report`
+    );
+    return { data: response.data };
+  },
+
+  getReportByDateRange: async (
+    projectId: string,
+    data: ProjectReportDateRange
+  ): Promise<{ data: ProjectReportByDateItem[] }> => {
+    const response = await apiClient.post<ProjectReportByDateItem[]>(
+      `/projects/${projectId}/report`,
+      data
+    );
+    return { data: response.data };
+  },
 };
 
 // Farms API
@@ -118,13 +142,13 @@ export const farmsApi = {
   getByProject: async (
     projectId: string,
     params?: PaginationParams
-  ): Promise<ApiResponse<Farm[]>> => {
-    // Ensure pagination limits: max take is 20, default skip is 0
+  ): Promise<PaginatedResponse<Farm>> => {
+    // Ensure pagination limits: max take is 10, default skip is 0
     const paginationParams = {
       skip: params?.skip || 0,
-      take: Math.min(params?.take || 20, 20),
+      take: Math.min(params?.take || 10, 10),
     };
-    const response = await apiClient.get<ApiResponse<Farm[]>>(
+    const response = await apiClient.get<PaginatedResponse<Farm>>(
       `/projects/${projectId}/farms`,
       paginationParams
     );

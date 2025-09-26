@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   FolderKanban,
   Sprout,
+  FileText,
   Settings,
   LogOut,
   Menu,
@@ -22,6 +23,7 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Projects", href: "/projects", icon: FolderKanban },
   { name: "Farms", href: "/farms", icon: Sprout },
+  { name: "Reports", href: "/reports", icon: FileText },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
@@ -126,16 +128,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="relative z-10 flex-shrink-0 flex h-16 bg-white shadow">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-green-500 md:hidden"
+              className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-green-500 md:hidden hover:text-gray-700 transition-colors"
             >
               <Menu className="h-6 w-6" />
             </button>
-            <div className="flex-1 px-4 flex justify-between">
+            <div className="flex-1 px-3 sm:px-4 flex justify-between items-center">
               <div className="flex-1 flex">
                 <div className="w-full flex md:ml-0">
                   <div className="relative w-full text-gray-400 focus-within:text-gray-600">
                     <div className="flex items-center h-16">
-                      <h1 className="text-lg font-medium text-gray-900">
+                      <h1 className="text-base sm:text-lg font-medium text-gray-900 truncate">
                         {navigation.find((item) => item.href === pathname)
                           ?.name || "Dashboard"}
                       </h1>
@@ -150,7 +152,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Desktop header */}
         <div className="hidden md:block bg-white shadow-sm border-b border-gray-200">
           <div className="px-6 py-4">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-xl lg:text-2xl font-bold text-gray-900">
               {navigation.find((item) => item.href === pathname)?.name ||
                 "Dashboard"}
             </h1>
@@ -159,8 +161,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         {/* Page content */}
         <main className="flex-1 relative overflow-y-auto focus:outline-none">
-          <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+          <div className="py-4 sm:py-6">
+            <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
               {children}
             </div>
           </div>
@@ -223,9 +225,6 @@ function SidebarContent({
             <div className="ml-3 flex-1">
               <p className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
                 {user?.first_name} {user?.last_name}
-              </p>
-              <p className="text-xs font-medium text-gray-500 group-hover:text-gray-700">
-                {user?.email}
               </p>
             </div>
             <button

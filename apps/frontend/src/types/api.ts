@@ -76,6 +76,7 @@ export interface Farm {
   farm_name: string;
   location: string;
   land_size: number;
+  farm_budget: number; // Add this field
   product_price: number;
   comodity: string;
   farm_status: "ACTIVE" | "HARVESTED";
@@ -93,6 +94,7 @@ export interface FarmCreate {
   farm_name: string;
   location: string;
   land_size: number;
+  farm_budget: number; // Add this field
   product_price: number;
   comodity: string;
   farm_status?: "ACTIVE" | "HARVESTED";
@@ -108,6 +110,7 @@ export interface FarmUpdate {
   farm_name?: string;
   location?: string;
   land_size?: number;
+  farm_budget?: number; // Add this field
   product_price?: number;
   comodity?: string;
   farm_status?: "ACTIVE" | "HARVESTED";
@@ -131,7 +134,42 @@ export interface PaginationParams {
 
 export interface PaginatedResponse<T> {
   data: T[];
-  total?: number;
-  skip: number;
-  take: number;
+  count: number; // Total number of records available
+  skip: number; // Number of records skipped
+  take: number; // Number of records returned
+}
+
+// Report Types
+export interface ProjectReportItem {
+  row_type: "PROJECT_TOTAL" | "FARM_DETAIL";
+  farm_id?: string;
+  farm_name?: string;
+  farm_status?: "ACTIVE" | "HARVESTED";
+  soil_type?: SoilType;
+  total_harvest?: number;
+  total_revenue?: number;
+}
+
+export interface ProjectReportByDateItem {
+  row_type: "PROJECT_SUMMARY" | "FARM_DETAIL";
+  project_id: string;
+  project_name: string;
+  project_budget: number;
+  total_farm_budget?: string;
+  average_farm_budget?: number;
+  total_harvest?: number;
+  total_revenue?: number;
+  total_farms?: string;
+  farm_id?: string;
+  farm_name?: string;
+  farm_status?: "ACTIVE" | "HARVESTED";
+  soil_type?: SoilType;
+  farm_budget_individual?: number;
+  farm_harvest?: number;
+  farm_revenue?: number;
+}
+
+export interface ProjectReportDateRange {
+  start_date: string;
+  end_date: string;
 }

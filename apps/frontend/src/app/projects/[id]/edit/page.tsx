@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
+import { useData } from "@/contexts/data-context";
 import { projectsApi } from "@/lib/api";
 import { Project, ProjectUpdate } from "@/types/api";
 import { ArrowLeft, Save } from "lucide-react";
@@ -32,6 +33,7 @@ export default function EditProjectPage({
   params: Promise<{ id: string }>;
 }) {
   const { id: projectId } = React.use(params);
+  const { projects, loadProjects, updateProject } = useData();
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,8 +50,22 @@ export default function EditProjectPage({
     resolver: zodResolver(projectSchema),
   });
 
-  const fetchProject = useCallback(async () => {
+  const fetchProjectData = useCallback(async () => {
     try {
+      setIsLoading(true);
+      setError(null);
+
+      // First try to get from cache
+      await loadProjects(1);
+      const cachedProject = projects.find((p: Project) => p.id === projectId);
+
+      if (cachedProject) {
+        setProject(cachedProject);
+        setIsLoading(false);
+        return;
+      }
+
+      // If not in cache, fetch from API
       const response = await projectsApi.getById(projectId);
       setProject(response.data);
     } catch (error) {
@@ -58,11 +74,11 @@ export default function EditProjectPage({
     } finally {
       setIsLoading(false);
     }
-  }, [projectId]);
+  }, [projectId, loadProjects, projects]);
 
   useEffect(() => {
-    fetchProject();
-  }, [fetchProject]);
+    fetchProjectData();
+  }, [fetchProjectData]);
 
   useEffect(() => {
     if (project) {
@@ -88,7 +104,11 @@ export default function EditProjectPage({
         target_date: new Date(data.target_date).toISOString(),
       };
 
-      await projectsApi.update(projectId, updateData);
+      const response = await projectsApi.update(projectId, updateData);
+
+      // Update the project in the state with the response data
+      updateProject(response.data);
+
       router.push(`/projects/${projectId}`);
     } catch (error) {
       console.error("Failed to update project:", error);
@@ -204,7 +224,6 @@ export default function EditProjectPage({
                     {...register("budget", { valueAsNumber: true })}
                     type="number"
                     min="0"
-                    step="1000"
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
                     placeholder="Enter budget amount"
                   />

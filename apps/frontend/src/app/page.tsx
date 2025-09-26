@@ -43,7 +43,7 @@ export default function Home() {
           <div className="flex justify-between items-center h-16">
             {/* App Name and Icon */}
             <div className="flex items-center space-x-2">
-              <div className="relative w-10 h-10 rounded-lg overflow-hidden">
+              <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-lg overflow-hidden">
                 <Image
                   src="/growfarm-128x128.png"
                   alt="GrowFarm Logo"
@@ -52,20 +52,22 @@ export default function Home() {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="text-xl font-bold text-gray-900">GrowFarm</span>
+              <span className="text-lg sm:text-xl font-bold text-gray-900">
+                GrowFarm
+              </span>
             </div>
 
             {/* Navigation */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {user ? (
                 <>
                   {/* Dashboard Button */}
                   <Link
                     href="/dashboard"
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                    className="inline-flex items-center px-3 py-2 sm:px-4 border border-transparent text-xs sm:text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
                   >
-                    <BarChart3 className="w-4 h-4 mr-2" />
-                    Dashboard
+                    <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Dashboard</span>
                   </Link>
 
                   {/* User Profile Dropdown */}
@@ -74,22 +76,22 @@ export default function Home() {
                       onClick={() =>
                         setIsProfileDropdownOpen(!isProfileDropdownOpen)
                       }
-                      className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 rounded-md px-3 py-2 transition-colors duration-200"
+                      className="flex items-center space-x-1 sm:space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 rounded-md px-2 sm:px-3 py-2 transition-colors duration-200"
                     >
-                      <div className="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-full">
-                        <User className="w-4 h-4 text-gray-600" />
+                      <div className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 bg-gray-200 rounded-full">
+                        <User className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
                       </div>
-                      <span className="text-sm font-medium">
+                      <span className="hidden md:block text-sm font-medium">
                         {user.first_name} {user.last_name}
                       </span>
-                      <ChevronDown className="w-4 h-4" />
+                      <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4" />
                     </button>
 
                     {/* Dropdown Menu */}
                     {isProfileDropdownOpen && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                      <div className="absolute right-0 mt-2 w-56 sm:w-64 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
                         <div className="py-1">
-                          <div className="px-4 py-2 text-sm text-gray-500 border-b border-gray-100">
+                          <div className="px-4 py-2 text-sm text-gray-500 border-b border-gray-100 break-words">
                             {user.email}
                           </div>
                           <button
@@ -116,13 +118,13 @@ export default function Home() {
                   {/* Login and Sign Up Buttons */}
                   <Link
                     href="/auth/login"
-                    className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors duration-200"
+                    className="text-gray-600 hover:text-gray-900 px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium transition-colors duration-200"
                   >
                     Login
                   </Link>
                   <Link
                     href="/auth/register"
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                    className="inline-flex items-center px-3 py-2 sm:px-4 border border-transparent text-xs sm:text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
                   >
                     Sign Up
                   </Link>
@@ -137,22 +139,22 @@ export default function Home() {
       <main>
         {/* Hero Section */}
         <div className="relative overflow-hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 lg:py-24">
             <div className="text-center">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
                 Grow Your Farm
                 <span className="block text-green-600">Manage Your Future</span>
               </h1>
-              <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-600">
+              <p className="mt-4 sm:mt-6 max-w-2xl mx-auto text-base sm:text-lg lg:text-xl text-gray-600 px-4">
                 Take control of your agricultural projects with our
                 comprehensive farm management system. Track crops, monitor
                 growth, and optimize your harvest for maximum yield.
               </p>
-              <div className="mt-10 flex justify-center space-x-4">
+              <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4 px-4">
                 {user ? (
                   <Link
                     href="/dashboard"
-                    className="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                    className="inline-flex items-center justify-center px-6 sm:px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200 w-full sm:w-auto"
                   >
                     Go to Dashboard
                     <ArrowRight className="w-5 h-5 ml-2" />
@@ -161,14 +163,14 @@ export default function Home() {
                   <>
                     <Link
                       href="/auth/register"
-                      className="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                      className="inline-flex items-center justify-center px-6 sm:px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200 w-full sm:w-auto"
                     >
                       Get Started
                       <ArrowRight className="w-5 h-5 ml-2" />
                     </Link>
                     <Link
                       href="/auth/login"
-                      className="inline-flex items-center px-8 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                      className="inline-flex items-center justify-center px-6 sm:px-8 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200 w-full sm:w-auto"
                     >
                       Login
                     </Link>
@@ -180,56 +182,56 @@ export default function Home() {
         </div>
 
         {/* Features Section */}
-        <div className="py-20 bg-white">
+        <div className="py-12 sm:py-16 lg:py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <h2 className="text-3xl font-bold text-gray-900">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
                 Everything you need to manage your farm
               </h2>
-              <p className="mt-4 text-lg text-gray-600">
+              <p className="mt-3 sm:mt-4 text-base sm:text-lg text-gray-600 px-4">
                 Powerful tools to help you grow better crops and increase
                 productivity
               </p>
             </div>
 
-            <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="mt-12 sm:mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {/* Feature 1 */}
-              <div className="text-center">
+              <div className="text-center px-4">
                 <div className="flex items-center justify-center w-12 h-12 mx-auto bg-green-100 rounded-lg">
                   <Leaf className="w-6 h-6 text-green-600" />
                 </div>
                 <h3 className="mt-4 text-lg font-medium text-gray-900">
                   Crop Management
                 </h3>
-                <p className="mt-2 text-gray-600">
+                <p className="mt-2 text-gray-600 text-sm sm:text-base">
                   Track your crops from planting to harvest with detailed
                   monitoring and insights.
                 </p>
               </div>
 
               {/* Feature 2 */}
-              <div className="text-center">
+              <div className="text-center px-4">
                 <div className="flex items-center justify-center w-12 h-12 mx-auto bg-blue-100 rounded-lg">
                   <BarChart3 className="w-6 h-6 text-blue-600" />
                 </div>
                 <h3 className="mt-4 text-lg font-medium text-gray-900">
                   Analytics & Reports
                 </h3>
-                <p className="mt-2 text-gray-600">
+                <p className="mt-2 text-gray-600 text-sm sm:text-base">
                   Get detailed analytics and reports to make data-driven farming
                   decisions.
                 </p>
               </div>
 
               {/* Feature 3 */}
-              <div className="text-center">
+              <div className="text-center px-4 sm:col-span-2 lg:col-span-1">
                 <div className="flex items-center justify-center w-12 h-12 mx-auto bg-purple-100 rounded-lg">
                   <TrendingUp className="w-6 h-6 text-purple-600" />
                 </div>
                 <h3 className="mt-4 text-lg font-medium text-gray-900">
                   Yield Optimization
                 </h3>
-                <p className="mt-2 text-gray-600">
+                <p className="mt-2 text-gray-600 text-sm sm:text-base">
                   Optimize your farming practices to maximize yield and
                   profitability.
                 </p>
@@ -241,19 +243,19 @@ export default function Home() {
         {/* CTA Section */}
         {!user && (
           <div className="bg-green-600">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
               <div className="text-center">
-                <h2 className="text-3xl font-bold text-white">
+                <h2 className="text-2xl sm:text-3xl font-bold text-white">
                   Ready to transform your farming?
                 </h2>
-                <p className="mt-4 text-xl text-green-100">
+                <p className="mt-3 sm:mt-4 text-lg sm:text-xl text-green-100 px-4">
                   Join thousands of farmers who are already using GrowFarm to
                   optimize their operations.
                 </p>
-                <div className="mt-8">
+                <div className="mt-6 sm:mt-8">
                   <Link
                     href="/auth/register"
-                    className="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-green-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                    className="inline-flex items-center justify-center px-6 sm:px-8 py-3 border border-transparent text-base font-medium rounded-md text-green-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200 w-full max-w-xs sm:w-auto"
                   >
                     Start Your Free Trial
                     <ArrowRight className="w-5 h-5 ml-2" />
@@ -267,10 +269,10 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
             <div className="flex items-center space-x-2">
-              <div className="relative w-8 h-8 rounded overflow-hidden">
+              <div className="relative w-6 h-6 sm:w-8 sm:h-8 rounded overflow-hidden">
                 <Image
                   src="/growfarm-128x128.png"
                   alt="GrowFarm Logo"
@@ -279,9 +281,11 @@ export default function Home() {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="text-white font-medium">GrowFarm</span>
+              <span className="text-white font-medium text-sm sm:text-base">
+                GrowFarm
+              </span>
             </div>
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-400 text-xs sm:text-sm text-center">
               © 2025 GrowFarm. All rights reserved.
             </p>
           </div>

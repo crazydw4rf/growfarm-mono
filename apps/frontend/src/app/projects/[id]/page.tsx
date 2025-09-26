@@ -33,7 +33,7 @@ export default function ProjectDetailsPage() {
       try {
         const [projectResponse, farmsResponse] = await Promise.all([
           projectsApi.getById(projectId),
-          farmsApi.getByProject(projectId, { skip: 0, take: 20 }),
+          farmsApi.getByProject(projectId, { skip: 0, take: 10 }),
         ]);
         setProject(projectResponse.data);
         setFarms(farmsResponse.data);

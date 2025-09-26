@@ -12,6 +12,7 @@ class ApiClient {
   private isRefreshing = false;
   private failedQueue: QueueItem[] = [];
   private accessToken: string | null = null;
+  private authContextRefreshInProgress = false;
 
   constructor() {
     this.client = axios.create({
@@ -59,6 +60,15 @@ class ApiClient {
           originalRequest &&
           !originalRequest._retry
         ) {
+          // If auth context is already refreshing, wait a bit and retry
+          if (this.authContextRefreshInProgress) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            if (this.accessToken && originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${this.accessToken}`;
+            }
+            return this.client(originalRequest);
+          }
+
           if (this.isRefreshing) {
             // If already refreshing, queue the request
             return new Promise((resolve, reject) => {
@@ -114,12 +124,9 @@ class ApiClient {
 
         const response = await axios.post(
           `${API_BASE_URL}/v1/auth/refresh`,
-          {},
+          undefined,
           {
             withCredentials: true,
-            headers: {
-              "Content-Type": "application/json",
-            },
           }
         );
 
@@ -216,6 +223,14 @@ class ApiClient {
 
   public getAccessToken(): string | null {
     return this.accessToken;
+  }
+
+  public setAuthContextRefreshInProgress(inProgress: boolean) {
+    this.authContextRefreshInProgress = inProgress;
+  }
+
+  public isAuthContextRefreshInProgress(): boolean {
+    return this.authContextRefreshInProgress;
   }
 }
 

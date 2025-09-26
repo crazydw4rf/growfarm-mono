@@ -17,12 +17,25 @@ interface AuthContext {
 const AuthContext = createContext<AuthContext | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  console.log("AuthProvider render");
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    console.log("AuthContext useEffect triggered");
     const initializeAuth = async () => {
+      // Skip auto-authentication on auth pages to prevent reload loops
+      if (typeof window !== "undefined") {
+        const currentPath = window.location.pathname;
+        console.log("Current path:", currentPath);
+        if (currentPath.startsWith("/auth/")) {
+          console.log("Skipping auth initialization on auth page");
+          setIsLoading(false);
+          return;
+        }
+      }
+
       try {
         // First check if we have an access token in memory
         let token = apiClient.getAccessToken();
@@ -32,30 +45,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.log(
             "No access token in memory, attempting silent refresh..."
           );
-          const refreshResponse = await fetch(
-            `${
-              process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
-            }/v1/auth/refresh`,
-            {
-              method: "POST",
-              credentials: "include",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
 
-          if (refreshResponse.ok) {
-            const refreshData = await refreshResponse.json();
-            token = refreshData.data.access_token;
-            if (token) {
-              apiClient.setAccessToken(token);
-              console.log("Silent refresh successful");
+          // Set flag to prevent API client from also refreshing
+          apiClient.setAuthContextRefreshInProgress(true);
+
+          try {
+            const refreshResponse = await fetch(
+              `${
+                process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+              }/v1/auth/refresh`,
+              {
+                method: "POST",
+                credentials: "include",
+              }
+            );
+
+            if (refreshResponse.ok) {
+              const refreshData = await refreshResponse.json();
+              token = refreshData.data.access_token;
+              if (token) {
+                apiClient.setAccessToken(token);
+                console.log("Silent refresh successful");
+              }
+            } else {
+              console.log("Silent refresh failed, user needs to login");
+              setIsLoading(false);
+              return;
             }
-          } else {
-            console.log("Silent refresh failed, user needs to login");
-            setIsLoading(false);
-            return;
+          } finally {
+            // Clear the flag after refresh attempt
+            apiClient.setAuthContextRefreshInProgress(false);
           }
         }
 

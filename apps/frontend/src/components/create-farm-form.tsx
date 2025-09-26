@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useData } from "@/contexts/data-context";
 import { farmsApi } from "@/lib/api";
 
 const farmSchema = z.object({
   farm_name: z.string().min(1, "Farm name is required"),
   location: z.string().min(1, "Location is required"),
-  land_size: z.string().min(1, "Land size is required"),
-  product_price: z.string().min(1, "Product price is required"),
+  land_size: z.number().min(0.1, "Land size must be at least 0.1 hectares"),
+  product_price: z.number().min(1, "Product price must be at least 1"),
   comodity: z.string().min(1, "Commodity is required"),
   farm_status: z.enum(["ACTIVE", "HARVESTED"]),
   soil_type: z.enum([
@@ -39,6 +40,7 @@ interface CreateFarmFormProps {
 
 export default function CreateFarmForm({ projectId }: CreateFarmFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { addFarm } = useData();
   const router = useRouter();
 
   const {
@@ -57,20 +59,16 @@ export default function CreateFarmForm({ projectId }: CreateFarmFormProps) {
   const onSubmit = async (data: FarmFormData) => {
     setIsSubmitting(true);
     try {
-      const farmData = {
-        farm_name: data.farm_name,
-        location: data.location,
-        land_size: Number(data.land_size),
-        product_price: Number(data.product_price),
-        comodity: data.comodity,
-        farm_status: data.farm_status,
-        soil_type: data.soil_type,
-        planted_at: new Date(data.planted_at).toISOString(),
-        target_harvest_date: new Date(data.target_harvest_date).toISOString(),
-        description: data.description,
+      // Include project_id in the payload as required by the API
+      const farmPayload = {
+        ...data,
+        project_id: projectId,
       };
 
-      await farmsApi.create(projectId, farmData);
+      const response = await farmsApi.create(projectId, farmPayload);
+
+      // Update state directly with the new farm
+      addFarm(projectId, response.data);
       router.push(`/projects/${projectId}/farms`);
     } catch (error) {
       console.error("Failed to create farm:", error);
@@ -84,7 +82,7 @@ export default function CreateFarmForm({ projectId }: CreateFarmFormProps) {
 
   return (
     <div className="bg-white shadow rounded-lg">
-      <div className="px-6 py-4 border-b border-gray-200">
+      <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
         <h2 className="text-lg font-medium text-gray-900">Create New Farm</h2>
         <p className="mt-1 text-sm text-gray-600">
           Add a new farm to your project and start tracking cultivation
@@ -92,7 +90,10 @@ export default function CreateFarmForm({ projectId }: CreateFarmFormProps) {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 px-6 py-6">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-4 sm:space-y-6 px-4 sm:px-6 py-4 sm:py-6"
+      >
         {errors.root && (
           <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
             {errors.root.message}
@@ -106,7 +107,7 @@ export default function CreateFarmForm({ projectId }: CreateFarmFormProps) {
           <input
             {...register("farm_name")}
             type="text"
-            className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+            className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
             placeholder="Enter farm name"
           />
           {errors.farm_name && (
@@ -133,17 +134,17 @@ export default function CreateFarmForm({ projectId }: CreateFarmFormProps) {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Land Size (hectares) *
             </label>
             <input
-              {...register("land_size")}
+              {...register("land_size", { valueAsNumber: true })}
               type="number"
               step="0.1"
               min="0.1"
-              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
               placeholder="0.0"
             />
             {errors.land_size && (
@@ -158,10 +159,10 @@ export default function CreateFarmForm({ projectId }: CreateFarmFormProps) {
               Product Price (IDR/kg) *
             </label>
             <input
-              {...register("product_price")}
+              {...register("product_price", { valueAsNumber: true })}
               type="number"
               min="1"
-              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
               placeholder="0"
             />
             {errors.product_price && (
@@ -179,7 +180,7 @@ export default function CreateFarmForm({ projectId }: CreateFarmFormProps) {
           <input
             {...register("comodity")}
             type="text"
-            className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+            className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
             placeholder="e.g., Rice, Corn, Vegetables"
           />
           {errors.comodity && (
@@ -189,14 +190,14 @@ export default function CreateFarmForm({ projectId }: CreateFarmFormProps) {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Farm Status *
             </label>
             <select
               {...register("farm_status")}
-              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
             >
               <option value="ACTIVE">Active</option>
               <option value="HARVESTED">Harvested</option>
@@ -214,7 +215,7 @@ export default function CreateFarmForm({ projectId }: CreateFarmFormProps) {
             </label>
             <select
               {...register("soil_type")}
-              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
             >
               <option value="ORGANOSOL">Organosol</option>
               <option value="ANDOSOL">Andosol</option>
@@ -235,15 +236,15 @@ export default function CreateFarmForm({ projectId }: CreateFarmFormProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Planted Date *
             </label>
             <input
               {...register("planted_at")}
-              type="date"
-              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+              type="datetime-local"
+              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
             />
             {errors.planted_at && (
               <p className="mt-1 text-sm text-red-600">
@@ -258,8 +259,8 @@ export default function CreateFarmForm({ projectId }: CreateFarmFormProps) {
             </label>
             <input
               {...register("target_harvest_date")}
-              type="date"
-              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+              type="datetime-local"
+              className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
             />
             {errors.target_harvest_date && (
               <p className="mt-1 text-sm text-red-600">
@@ -276,7 +277,7 @@ export default function CreateFarmForm({ projectId }: CreateFarmFormProps) {
           <textarea
             {...register("description")}
             rows={4}
-            className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+            className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
             placeholder="Enter farm description (optional)"
           />
           {errors.description && (
@@ -286,18 +287,18 @@ export default function CreateFarmForm({ projectId }: CreateFarmFormProps) {
           )}
         </div>
 
-        <div className="flex justify-end space-x-3">
+        <div className="flex flex-col-reverse sm:flex-row justify-end space-y-reverse space-y-3 sm:space-y-0 sm:space-x-3">
           <button
             type="button"
             onClick={() => router.back()}
-            className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            className="w-full sm:w-auto bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Creating..." : "Create Farm"}
           </button>
