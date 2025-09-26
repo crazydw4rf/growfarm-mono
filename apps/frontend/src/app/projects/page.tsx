@@ -7,6 +7,7 @@ import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
 import Pagination from "@/components/pagination";
 import { useData } from "@/contexts/data-context";
+import { useAuth } from "@/contexts/auth-context";
 import { projectsApi } from "@/lib/api";
 import {
   FolderKanban,
@@ -27,6 +28,7 @@ export default function ProjectsPage() {
     loadProjects,
     invalidateProject,
   } = useData();
+  const { isAuthenticated, isLoading } = useAuth();
   const [deleting, setDeleting] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const router = useRouter();
@@ -43,9 +45,11 @@ export default function ProjectsPage() {
   }, [invalidateProject, loadProjects]);
 
   useEffect(() => {
-    // Load projects when component mounts
-    loadProjects(1);
-  }, [loadProjects]);
+    // Only load projects after authentication is confirmed and not loading
+    if (isAuthenticated && !isLoading) {
+      loadProjects(1);
+    }
+  }, [loadProjects, isAuthenticated, isLoading]);
 
   // Auto-refresh projects when page becomes visible (e.g., after returning from create/edit)
   useEffect(() => {

@@ -6,6 +6,7 @@ import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
 import Pagination from "@/components/pagination";
 import { useData } from "@/contexts/data-context";
+import { useAuth } from "@/contexts/auth-context";
 import { Farm, Project } from "@/types/api";
 import {
   ArrowLeft,
@@ -32,6 +33,7 @@ export default function FarmsPage() {
     invalidateFarms,
     isLoadingProjects,
   } = useData();
+  const { isAuthenticated, isLoading } = useAuth();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isLoadingFarms, setIsLoadingFarms] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,8 +49,11 @@ export default function FarmsPage() {
 
   // Load projects on mount (uses cache if available)
   useEffect(() => {
-    loadProjects(1);
-  }, [loadProjects]);
+    // Only load projects after authentication is confirmed and not loading
+    if (isAuthenticated && !isLoading) {
+      loadProjects(1);
+    }
+  }, [loadProjects, isAuthenticated, isLoading]);
 
   const handleFarmsPageChange = async (page: number) => {
     if (!selectedProject) return;

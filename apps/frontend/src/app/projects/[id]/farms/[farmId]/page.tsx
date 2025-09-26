@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
+import { useAuth } from "@/contexts/auth-context";
 import { farmsApi } from "@/lib/api";
 import { Farm } from "@/types/api";
 import {
@@ -22,11 +23,14 @@ export default function FarmDetailPage({
   params: Promise<{ id: string; farmId: string }>;
 }) {
   const { id: projectId, farmId } = React.use(params);
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [farm, setFarm] = useState<Farm | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchFarm = useCallback(async () => {
+    if (!isAuthenticated || authLoading) return;
+
     try {
       const response = await farmsApi.getById(projectId, farmId);
       setFarm(response.data);
@@ -36,7 +40,7 @@ export default function FarmDetailPage({
     } finally {
       setIsLoading(false);
     }
-  }, [projectId, farmId]);
+  }, [projectId, farmId, isAuthenticated, authLoading]);
 
   useEffect(() => {
     fetchFarm();

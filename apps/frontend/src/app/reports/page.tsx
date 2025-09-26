@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
 import { useData } from "@/contexts/data-context";
+import { useAuth } from "@/contexts/auth-context";
 import { apiClient } from "@/lib/api-client";
 import {
   FileText,
@@ -45,6 +46,7 @@ interface ProjectReportByDateItem {
 
 export default function ReportsPage() {
   const { projects, loadProjects } = useData();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<"project" | "dateRange">(
     "project"
   );
@@ -59,8 +61,11 @@ export default function ReportsPage() {
   >([]);
 
   useEffect(() => {
-    loadProjects(1);
-  }, [loadProjects]);
+    // Only load projects after authentication is confirmed and not loading
+    if (isAuthenticated && !authLoading) {
+      loadProjects(1);
+    }
+  }, [loadProjects, isAuthenticated, authLoading]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("id-ID", {

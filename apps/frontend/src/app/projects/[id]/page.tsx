@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
+import { useAuth } from "@/contexts/auth-context";
 import { projectsApi, farmsApi } from "@/lib/api";
 import { Project, Farm } from "@/types/api";
 import {
@@ -22,13 +23,14 @@ export default function ProjectDetailsPage() {
   const [farms, setFarms] = useState<Farm[]>([]);
   const [loading, setLoading] = useState(true);
   const [farmsLoading, setFarmsLoading] = useState(true);
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const params = useParams();
   const projectId = params.id as string;
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!projectId) return;
+      if (!projectId || !isAuthenticated || authLoading) return;
 
       try {
         const [projectResponse, farmsResponse] = await Promise.all([
@@ -47,7 +49,7 @@ export default function ProjectDetailsPage() {
     };
 
     fetchData();
-  }, [projectId, router]);
+  }, [projectId, router, isAuthenticated, authLoading]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("id-ID", {
