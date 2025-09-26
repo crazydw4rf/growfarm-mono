@@ -7,7 +7,7 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
-  "typescript.experimental.useTsgo": false,
+  "typescript.experimental.useTsgo": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "always"
   },
@@ -15,5 +15,9 @@
   "editor.insertSpaces": true,
   "[typescript]": {
     "editor.inlayHints.enabled": "off"
+  },
+  "chat.useAgentsMdFile": true,
+  "workbench.view.showQuietly": {
+    "workbench.panel.output": true
   }
 }
