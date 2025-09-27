@@ -3,9 +3,9 @@ import { inject, injectable } from "inversify";
 import type { Project, ProjectReportMany, ProjectReportOne, ProjectWithFarms } from "@/entity";
 import { Prisma } from "@/generated/prisma/client";
 import { aggregateProjectReportBatch, aggregateProjectReportOne } from "@/generated/prisma/sql";
-import PrismaService from "@/services/prisma";
-import { AppError, ErrorCause } from "@/types/errors";
-import type { BaseRepositoryInterface, PaginatedObject, PaginationParameters, Result } from "@/types/helper";
+import { PrismaService } from "@/services/prisma";
+import type { BaseRepositoryInterface, PaginatedObject, PaginationParameters, Result } from "@/types";
+import { AppError, ErrorCause } from "@/types";
 import { Err, Ok } from "@/utils";
 
 export interface IProjectRepository extends BaseRepositoryInterface<Project> {

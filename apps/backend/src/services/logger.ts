@@ -13,7 +13,7 @@ export class LoggingService {
 
   constructor(@inject(ConfigService) private readonly config: ConfigService) {
     this.logger = createLogger({
-      level: this.config.env.APP_ENV === "production" ? "info" : "debug",
+      level: this.config.get("APP_ENV") === "production" ? "info" : "debug",
       transports: [new transports.Console()],
       format: this.setLogFormat(),
     });
@@ -40,7 +40,7 @@ export class LoggingService {
   }
 
   private setLogFormat(): Format {
-    if (this.config.env.APP_ENV === "production") {
+    if (this.config.get("APP_ENV") === "production") {
       return format.json();
     }
 
@@ -83,7 +83,7 @@ export class LoggingService {
         }
 
         return `${timestamp} [${level}]: ${message}${metaString}`;
-      })
+      }),
     );
   }
 }

@@ -21,7 +21,7 @@ export class AuthMiddleware {
     }
 
     try {
-      const token = jwt.verify(authToken, this.config.env.JWT_ACCESS_SECRET, { complete: true });
+      const token = jwt.verify(authToken, this.config.get("JWT_ACCESS_SECRET"), { complete: true });
       if (isValidPayloadObject(token.payload)) {
         res.locals.user = { id: token.payload.sub };
         next();
@@ -47,7 +47,7 @@ export class AuthMiddleware {
     }
 
     try {
-      const decoded = jwt.verify(token, this.config.env.JWT_REFRESH_SECRET, { complete: true });
+      const decoded = jwt.verify(token, this.config.get("JWT_REFRESH_SECRET"), { complete: true });
       if (isValidPayloadObject(decoded.payload)) {
         res.locals.user = { id: decoded.payload.sub };
         next();

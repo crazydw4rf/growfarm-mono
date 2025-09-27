@@ -22,7 +22,7 @@ export class AuthUsecase implements IAuthUsecase {
   constructor(
     @inject(UserRepository) private readonly userRepo: IUserRepository,
     @inject(ConfigService) private readonly config: ConfigService,
-    @inject(LoggingService) private readonly loggerInstance: LoggingService
+    @inject(LoggingService) private readonly loggerInstance: LoggingService,
   ) {
     this.logger = this.loggerInstance.withLabel("AuthUsecase");
   }
@@ -58,12 +58,12 @@ export class AuthUsecase implements IAuthUsecase {
 
   /** @returns A tuple containing the access token and refresh token [[accessToken, refreshToken]] */
   private generateToken(user: User): [string, string] {
-    const accessToken = jwt.sign({}, this.config.env.JWT_ACCESS_SECRET, {
+    const accessToken = jwt.sign({}, this.config.get("JWT_ACCESS_SECRET"), {
       algorithm: "HS256",
       expiresIn: "15m",
       subject: user.id,
     });
-    const refreshToken = jwt.sign({}, this.config.env.JWT_REFRESH_SECRET, {
+    const refreshToken = jwt.sign({}, this.config.get("JWT_REFRESH_SECRET"), {
       algorithm: "HS256",
       expiresIn: "30d",
       subject: user.id,

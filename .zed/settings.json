@@ -1,0 +1,28 @@
+{
+  "languages": {
+    "TypeScript": {
+      "inlay_hints": { "enabled": false },
+      "code_actions_on_format": {
+        "source.organizeImports": true
+      },
+      "language_servers": ["vtsls", "!tsgo"],
+      "formatter": "prettier"
+    },
+    "TSX": {
+      "inlay_hints": { "enabled": false },
+      "code_actions_on_format": {
+        "source.organizeImports": true
+      },
+      "language_servers": ["tsgo"],
+      "formatter": "prettier"
+    }
+  },
+  "lsp": {
+    "vtsls": {
+      "settings": {
+        "typescript": { "tsserver": { "maxTsServerMemory": 4096 } },
+        "javascript": { "tsserver": { "maxTsServerMemory": 4096 } }
+      }
+    }
+  }
+}

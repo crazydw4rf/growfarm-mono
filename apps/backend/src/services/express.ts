@@ -23,18 +23,21 @@ export class ExpressService {
     @inject(ConfigService) private readonly config: ConfigService,
     @inject(LoggingService) private readonly loggerInstance: LoggingService,
     @multiInject(HTTPRouterSym) private readonly httpRouters: IHTTPRouter[],
-    @inject(AppMiddleware) private readonly appMiddleware: AppMiddleware
+    @inject(AppMiddleware) private readonly appMiddleware: AppMiddleware,
   ) {
     this.logger = this.loggerInstance.withLabel("ExpressService");
 
     this.express.use(cookieParser());
     this.express.use(
       cors({
-        origin: this.config.env.CORS_ORIGIN.split(",").map((o) => o.trim()),
+        origin: this.config
+          .get("CORS_ORIGIN")
+          .split(",")
+          .map((o) => o.trim()),
         credentials: true,
         methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization", "Origin", "Accept"],
-      })
+      }),
     );
     this.express.use(express.urlencoded({ extended: true }));
     this.express.use(express.json());
@@ -60,8 +63,11 @@ export class ExpressService {
   }
 
   listen(): void {
-    this.express.listen(this.config.env.APP_PORT, this.config.env.APP_HOST, () => {
-      this.logger.info(`Express server started on http://${this.config.env.APP_HOST}:${this.config.env.APP_PORT}`);
+    const host = this.config.get("APP_HOST");
+    const port = this.config.get("APP_PORT");
+
+    this.express.listen(port, host, () => {
+      this.logger.info(`Express server started on http://${host}:${port}`);
     });
   }
 }

@@ -1,0 +1,16 @@
+{
+  "name": "dynamic-env-config",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "dotenv": "^17.2.2",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

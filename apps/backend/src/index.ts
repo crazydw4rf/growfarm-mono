@@ -4,14 +4,9 @@ import { AuthController, FarmController, ProjectController, ReportController, Us
 import { AppMiddleware, AuthMiddleware } from "@/delivery/http/middleware";
 import { AuthRouter, FarmRouter, ProjectRouter, UserRouter } from "@/delivery/http/router";
 import { FarmRepository, ProjectRepository, UserRepository } from "@/repository";
-import { ConfigService } from "@/services/config";
-import { ExpressService } from "@/services/express";
-import { LoggingService } from "@/services/logger";
-import type { IHTTPRouter } from "@/types/http";
-import { HTTPRouterSym } from "@/types/symbols";
+import { ConfigService, ExpressService, LoggingService, PrismaService } from "@/services";
+import { type IHTTPRouter, HTTPRouterSym } from "@/types";
 import { AuthUsecase, FarmUsecase, ProjectUsecase, UserUsecase } from "@/usecase";
-
-import PrismaService from "./services/prisma";
 
 function registerAppServices(c: Container): void {
   c.bind(UserRepository).toSelf();

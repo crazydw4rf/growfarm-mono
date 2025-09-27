@@ -9,14 +9,14 @@ import { ConfigService } from "./config";
 import { LoggingService } from "./logger";
 
 @injectable("Singleton")
-export default class PrismaService extends PrismaClient {
+export class PrismaService extends PrismaClient {
   private logger: Logger;
 
   constructor(
     @inject(LoggingService) private readonly loggerInstance: LoggingService,
-    @inject(ConfigService) private readonly config: ConfigService
+    @inject(ConfigService) private readonly config: ConfigService,
   ) {
-    const adapter = new PrismaPg({ connectionString: config.env.DATABASE_URL });
+    const adapter = new PrismaPg({ connectionString: config.get("DATABASE_URL") });
     super({ adapter });
 
     this.logger = this.loggerInstance.withLabel("PrismaService");

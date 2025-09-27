@@ -20,6 +20,13 @@
   },
   "module": "src/index.ts",
   "type": "module",
+  "exports": {
+    "./repository": "./src/repository/index.ts",
+    "./usecase": "./src/usecase/index.ts",
+    "./services": "./src/services/index.ts",
+    "./utils": "./src/utils/index.ts",
+    "./types": "./src/types/index.ts"
+  },
   "devDependencies": {
     "@eslint/js": "^9.35.0",
     "@types/bun": "^1.2.22",
@@ -40,6 +47,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
+    "dynamic-env-config": "workspace:*",
     "@prisma/adapter-pg": "^6.16.1",
     "@prisma/client": "^6.16.1",
     "cookie-parser": "^1.4.7",
