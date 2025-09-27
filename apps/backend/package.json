@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "dynamic-env-config": "workspace:*",
-    "@prisma/adapter-pg": "^6.16.1",
+    "@prisma/adapter-pg": "^6.16.2",
     "@prisma/client": "^6.16.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
