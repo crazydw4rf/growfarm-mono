@@ -28,7 +28,7 @@
     "./types": "./src/types/index.ts"
   },
   "devDependencies": {
-    "@eslint/js": "^9.35.0",
+    "@eslint/js": "^9.36.0",
     "@types/bun": "^1.2.22",
     "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.19",
