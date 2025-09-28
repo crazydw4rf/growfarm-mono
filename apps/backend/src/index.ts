@@ -4,8 +4,9 @@ import { AuthController, FarmController, ProjectController, ReportController, Us
 import { AppMiddleware, AuthMiddleware } from "@/delivery/http/middleware";
 import { AuthRouter, FarmRouter, ProjectRouter, UserRouter } from "@/delivery/http/router";
 import { FarmRepository, ProjectRepository, UserRepository } from "@/repository";
-import { ConfigService, ExpressService, LoggingService, PrismaService } from "@/services";
-import { type IHTTPRouter, HTTPRouterSym } from "@/types";
+import { ConfigService, LoggingService, PrismaService } from "@/services";
+import { ExpressService } from "@/services/express";
+import { HTTPRouterSym,type IHTTPRouter } from "@/types";
 import { AuthUsecase, FarmUsecase, ProjectUsecase, UserUsecase } from "@/usecase";
 
 function registerAppServices(c: Container): void {
