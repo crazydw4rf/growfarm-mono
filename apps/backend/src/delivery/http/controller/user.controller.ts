@@ -6,7 +6,8 @@ import { inject, injectable } from "inversify";
 import type { Logger } from "winston";
 
 import { zCreateUser } from "@/models";
-import { LoggingService } from "@/services/logger";
+import { type LoggingService } from "@/services/logger";
+import { LoggingServiceSym } from "@/types";
 import type { ExtendedRequest, ExtendedResponse } from "@/types/express";
 import { type IUserUsecase, UserUsecase } from "@/usecase/user.usecase";
 import { httpResponse, sanitizeUser, ValidatePayload } from "@/utils";
@@ -17,7 +18,7 @@ export class UserController {
 
   constructor(
     @inject(UserUsecase) private readonly userUc: IUserUsecase,
-    @inject(LoggingService) private readonly loggerInstance: LoggingService
+    @inject(LoggingServiceSym) private readonly loggerInstance: LoggingService,
   ) {
     this.logger = this.loggerInstance.withLabel("UserController");
 

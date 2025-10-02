@@ -7,11 +7,11 @@ import type { Logger } from "winston";
 
 import { AppMiddleware } from "@/delivery/http/middleware";
 import type { IHTTPRouter } from "@/types/http";
-import { HTTPRouterSym } from "@/types/symbols";
+import { ConfigServiceSym, HTTPRouterSym, LoggingServiceSym } from "@/types/symbols";
 import { httpResponse } from "@/utils";
 
-import { ConfigService } from "./config";
-import { LoggingService } from "./logger";
+import { type ConfigService } from "./config";
+import { type LoggingService } from "./logger";
 
 @injectable("Singleton")
 export class ExpressService {
@@ -20,8 +20,8 @@ export class ExpressService {
   private logger: Logger;
 
   constructor(
-    @inject(ConfigService) private readonly config: ConfigService,
-    @inject(LoggingService) private readonly loggerInstance: LoggingService,
+    @inject(ConfigServiceSym) private readonly config: ConfigService,
+    @inject(LoggingServiceSym) private readonly loggerInstance: LoggingService,
     @multiInject(HTTPRouterSym) private readonly httpRouters: IHTTPRouter[],
     @inject(AppMiddleware) private readonly appMiddleware: AppMiddleware,
   ) {
@@ -31,7 +31,7 @@ export class ExpressService {
     this.express.use(
       cors({
         origin: this.config
-          .get("CORS_ORIGIN")
+          .getEnv("CORS_ORIGIN")
           .split(",")
           .map((o) => o.trim()),
         credentials: true,
@@ -63,8 +63,8 @@ export class ExpressService {
   }
 
   listen(): void {
-    const host = this.config.get("APP_HOST");
-    const port = this.config.get("APP_PORT");
+    const host = this.config.getEnv("APP_HOST");
+    const port = this.config.getEnv("APP_PORT");
 
     this.express.listen(port, host, () => {
       this.logger.info(`Express server started on http://${host}:${port}`);

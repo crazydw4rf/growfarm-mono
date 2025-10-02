@@ -2,7 +2,7 @@
 import type { NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 import { inject, injectable } from "inversify";
-import { ulid } from "zod/v4";
+import { ulid } from "zod";
 
 import { zGenProjectReport } from "@/models";
 import type { ExtendedRequest, ExtendedResponse } from "@/types/express";

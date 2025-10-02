@@ -3,9 +3,9 @@ import { inject, injectable } from "inversify";
 import type { Project, ProjectReportMany, ProjectReportOne, ProjectWithFarms } from "@/entity";
 import { Prisma } from "@/generated/prisma/client";
 import { aggregateProjectReportBatch, aggregateProjectReportOne } from "@/generated/prisma/sql";
-import { PrismaService } from "@/services/prisma";
+import { type PrismaService } from "@/services/prisma";
 import type { BaseRepositoryInterface, PaginatedObject, PaginationParameters, Result } from "@/types";
-import { AppError, ErrorCause } from "@/types";
+import { AppError, ErrorCause, PrismaServiceSym } from "@/types";
 import { Err, Ok } from "@/utils";
 
 export interface IProjectRepository extends BaseRepositoryInterface<Project> {
@@ -18,7 +18,7 @@ export interface IProjectRepository extends BaseRepositoryInterface<Project> {
 
 @injectable("Singleton")
 export class ProjectRepository implements IProjectRepository {
-  constructor(@inject(PrismaService) private readonly prisma: PrismaService) {}
+  constructor(@inject(PrismaServiceSym) private readonly prisma: PrismaService) {}
 
   async create(data: Project, userId: string): Promise<Result<Project>> {
     try {

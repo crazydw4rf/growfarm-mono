@@ -2,7 +2,8 @@ import type { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { Logger } from "winston";
 
-import { LoggingService } from "@/services/logger";
+import { type LoggingService } from "@/services/logger";
+import { LoggingServiceSym } from "@/types";
 import { httpError } from "@/utils/http";
 import Merror from "@/utils/merror";
 
@@ -10,7 +11,7 @@ import Merror from "@/utils/merror";
 export class AppMiddleware {
   private logger: Logger;
 
-  constructor(@inject(LoggingService) private readonly loggerInstance: LoggingService) {
+  constructor(@inject(LoggingServiceSym) private readonly loggerInstance: LoggingService) {
     this.logger = this.loggerInstance.withLabel("AppMiddleware");
   }
 

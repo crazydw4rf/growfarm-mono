@@ -4,9 +4,9 @@ import type { Logger } from "winston";
 
 import type { User } from "@/entity";
 import { Prisma } from "@/generated/prisma/client";
-import { LoggingService, PrismaService } from "@/services";
+import type { LoggingService, PrismaService } from "@/services";
 import type { BaseRepositoryInterface, Result } from "@/types";
-import { AppError, ErrorCause } from "@/types";
+import { AppError, ErrorCause, LoggingServiceSym, PrismaServiceSym } from "@/types";
 import { Err, Ok } from "@/utils";
 
 export interface IUserRepository extends BaseRepositoryInterface<User> {
@@ -19,8 +19,8 @@ export class UserRepository implements IUserRepository {
   private logger: Logger;
 
   constructor(
-    @inject(PrismaService) private readonly prisma: PrismaService,
-    @inject(LoggingService) private readonly loggerInstance: LoggingService,
+    @inject(PrismaServiceSym) private readonly prisma: PrismaService,
+    @inject(LoggingServiceSym) private readonly loggerInstance: LoggingService,
   ) {
     this.logger = this.loggerInstance.withLabel("UserRepository");
   }

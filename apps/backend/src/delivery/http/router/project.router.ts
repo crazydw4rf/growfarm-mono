@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import express from "express";
+import { Router } from "express";
 import { inject, injectable } from "inversify";
 
 import { ProjectController, ReportController } from "@/delivery/http/controller";
@@ -10,12 +10,12 @@ import { AuthMiddleware } from "../middleware";
 @injectable("Singleton")
 export class ProjectRouter implements IHTTPRouter {
   readonly path = "/projects";
-  readonly router = express.Router();
+  readonly router = Router();
 
   constructor(
     @inject(ProjectController) private readonly projectCtrl: ProjectController,
     @inject(ReportController) private readonly reportCtrl: ReportController,
-    @inject(AuthMiddleware) private readonly authMw: AuthMiddleware
+    @inject(AuthMiddleware) private readonly authMw: AuthMiddleware,
   ) {
     this.setupRoutes();
   }
@@ -29,6 +29,6 @@ export class ProjectRouter implements IHTTPRouter {
     this.router.delete("/:projectId", this.projectCtrl.deleteProject);
 
     this.router.get("/:projectId/report", this.reportCtrl.genProjectReportOne);
-    this.router.post("/:projectId/report", this.reportCtrl.genProjectReportByDate);
+    this.router.post("/report", this.reportCtrl.genProjectReportByDate);
   }
 }

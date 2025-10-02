@@ -6,21 +6,21 @@ import type { Result } from "@/types/helper";
 
 import Merror from "./merror";
 
-export function Err(error: Merror | Error): Result<any, Merror> {
+export function Err(error: Merror | Error | string, cause?: ErrorCause): Result<any, Merror> {
   if (error instanceof Merror) {
     return [undefined, error];
   } else if (error instanceof Error) {
     return [undefined, Merror.new(error)];
   }
 
-  return [undefined, Merror.new(AppError.new("unknown error", ErrorCause.UNKNOWN_ERROR))];
+  return [undefined, Merror.new(AppError.new(error, cause ?? ErrorCause.UNKNOWN_ERROR))];
 }
 
 export function Ok<T>(ok: T): Result<T, any> {
   return [ok, undefined];
 }
 
-export function isValidPayloadObject(o: string | JwtPayload): o is JwtPayload & { sub: string; role: string } {
+export function isValidPayloadObject(o: string | JwtPayload): o is JwtPayload & { sub: string } {
   if (typeof o === "string") {
     return false;
   }

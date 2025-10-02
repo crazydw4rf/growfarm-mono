@@ -3,10 +3,11 @@ import type { NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 import { inject, injectable } from "inversify";
 import type { Logger } from "winston";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { zProjectCreate, zProjectGetMany, zProjectUpdate } from "@/models";
-import { LoggingService } from "@/services/logger";
+import { type LoggingService } from "@/services/logger";
+import { LoggingServiceSym } from "@/types";
 import type { ExtendedRequest, ExtendedResponse } from "@/types/express";
 import { ProjectUsecase } from "@/usecase";
 import { httpResponse, ValidateParams, ValidatePayload, ValidateQuery } from "@/utils";
@@ -17,7 +18,7 @@ export class ProjectController {
 
   constructor(
     @inject(ProjectUsecase) private readonly projectUc: ProjectUsecase,
-    @inject(LoggingService) private readonly loggerInstance: LoggingService
+    @inject(LoggingServiceSym) private readonly loggerInstance: LoggingService,
   ) {
     this.logger = this.loggerInstance.withLabel("ProjectController");
 

@@ -3,7 +3,9 @@ import { inject, injectable } from "inversify";
 import { Format } from "logform";
 import { createLogger, format, Logger, transports } from "winston";
 
-import { ConfigService } from "./config";
+import { ConfigServiceSym } from "@/types";
+
+import { type ConfigService } from "./config";
 
 // TODO: add winston-loki transport
 // output to console or file?
@@ -11,9 +13,9 @@ import { ConfigService } from "./config";
 export class LoggingService {
   private logger: Logger;
 
-  constructor(@inject(ConfigService) private readonly config: ConfigService) {
+  constructor(@inject(ConfigServiceSym) private readonly config: ConfigService) {
     this.logger = createLogger({
-      level: this.config.get("APP_ENV") === "production" ? "info" : "debug",
+      level: this.config.getEnv("APP_ENV") === "production" ? "info" : "debug",
       transports: [new transports.Console()],
       format: this.setLogFormat(),
     });
@@ -40,7 +42,7 @@ export class LoggingService {
   }
 
   private setLogFormat(): Format {
-    if (this.config.get("APP_ENV") === "production") {
+    if (this.config.getEnv("APP_ENV") === "production") {
       return format.json();
     }
 

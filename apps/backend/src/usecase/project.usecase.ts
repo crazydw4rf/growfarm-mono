@@ -4,7 +4,8 @@ import type { Logger } from "winston";
 import type { Project, ProjectReportMany, ProjectReportOne } from "@/entity";
 import type { GenProjectReportDto, ProjectCreateDto, ProjectUpdateDto } from "@/models";
 import { type IProjectRepository, ProjectRepository } from "@/repository";
-import { LoggingService } from "@/services/logger";
+import { type LoggingService } from "@/services/logger";
+import { LoggingServiceSym } from "@/types";
 import type { PaginatedObject, Result } from "@/types/helper";
 import { Err, Ok } from "@/utils";
 
@@ -24,7 +25,7 @@ export class ProjectUsecase implements IProjectUsecase {
 
   constructor(
     @inject(ProjectRepository) private readonly projectRepo: IProjectRepository,
-    @inject(LoggingService) private readonly loggerInstance: LoggingService
+    @inject(LoggingServiceSym) private readonly loggerInstance: LoggingService,
   ) {
     this.logger = this.loggerInstance.withLabel("ProjectUsecase");
   }

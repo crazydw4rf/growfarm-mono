@@ -5,7 +5,8 @@ import { inject, injectable } from "inversify";
 import type { Logger } from "winston";
 
 import { zFarmCreate, zFarmGetMany, zFarmUpdate } from "@/models";
-import { LoggingService } from "@/services/logger";
+import { type LoggingService } from "@/services/logger";
+import { LoggingServiceSym } from "@/types";
 import type { ExtendedRequest, ExtendedResponse } from "@/types/express";
 import { FarmUsecase } from "@/usecase";
 import { httpResponse, ValidatePayload, ValidateQuery } from "@/utils";
@@ -16,7 +17,7 @@ export class FarmController {
 
   constructor(
     @inject(FarmUsecase) private readonly farmUc: FarmUsecase,
-    @inject(LoggingService) private readonly loggerInstance: LoggingService
+    @inject(LoggingServiceSym) private readonly loggerInstance: LoggingService,
   ) {
     this.logger = this.loggerInstance.withLabel("FarmController");
 

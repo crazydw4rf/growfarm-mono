@@ -4,7 +4,8 @@ import type { Logger } from "winston";
 import type { User } from "@/entity";
 import { type UserRegisterDto } from "@/models";
 import { type IUserRepository, UserRepository } from "@/repository";
-import { LoggingService } from "@/services/logger";
+import type { LoggingService } from "@/services/logger";
+import { LoggingServiceSym } from "@/types";
 import type { Result } from "@/types/helper";
 import { Err, Ok } from "@/utils";
 
@@ -21,7 +22,7 @@ export class UserUsecase implements IUserUsecase {
 
   constructor(
     @inject(UserRepository) private readonly userRepo: IUserRepository,
-    @inject(LoggingService) private readonly loggerInstance: LoggingService
+    @inject(LoggingServiceSym) private readonly loggerInstance: LoggingService,
   ) {
     this.logger = this.loggerInstance.withLabel("UserUsecase");
   }

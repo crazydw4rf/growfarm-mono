@@ -3,14 +3,15 @@ import type { NextFunction, Response } from "express";
 import { inject, injectable } from "inversify";
 import jwt, { TokenExpiredError } from "jsonwebtoken";
 
-import { ConfigService } from "@/services/config";
+import { type ConfigService } from "@/services/config";
+import { ConfigServiceSym } from "@/types";
 import { AppError, ErrorCause } from "@/types/errors";
 import type { ExtendedRequest } from "@/types/express";
 import { isValidPayloadObject } from "@/utils";
 
 @injectable("Singleton")
 export class AuthMiddleware {
-  constructor(@inject(ConfigService) private readonly config: ConfigService) {}
+  constructor(@inject(ConfigServiceSym) private readonly config: ConfigService) {}
 
   // TODO: implement refesh token versioning and invalidation
   verifyJWT = (req: ExtendedRequest, res: Response, next: NextFunction): void => {
@@ -21,7 +22,7 @@ export class AuthMiddleware {
     }
 
     try {
-      const token = jwt.verify(authToken, this.config.get("JWT_ACCESS_SECRET"), { complete: true });
+      const token = jwt.verify(authToken, this.config.getEnv("JWT_ACCESS_SECRET"), { complete: true });
       if (isValidPayloadObject(token.payload)) {
         res.locals.user = { id: token.payload.sub };
         next();
@@ -47,7 +48,7 @@ export class AuthMiddleware {
     }
 
     try {
-      const decoded = jwt.verify(token, this.config.get("JWT_REFRESH_SECRET"), { complete: true });
+      const decoded = jwt.verify(token, this.config.getEnv("JWT_REFRESH_SECRET"), { complete: true });
       if (isValidPayloadObject(decoded.payload)) {
         res.locals.user = { id: decoded.payload.sub };
         next();

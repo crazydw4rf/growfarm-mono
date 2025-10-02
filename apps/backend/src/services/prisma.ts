@@ -4,19 +4,20 @@ import type { Logger } from "winston";
 
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaClientKnownRequestError } from "@/generated/prisma/internal/prismaNamespace";
+import { ConfigServiceSym, LoggingServiceSym } from "@/types";
 
-import { ConfigService } from "./config";
-import { LoggingService } from "./logger";
+import { type ConfigService } from "./config";
+import { type LoggingService } from "./logger";
 
 @injectable("Singleton")
 export class PrismaService extends PrismaClient {
   private logger: Logger;
 
   constructor(
-    @inject(LoggingService) private readonly loggerInstance: LoggingService,
-    @inject(ConfigService) private readonly config: ConfigService,
+    @inject(LoggingServiceSym) private readonly loggerInstance: LoggingService,
+    @inject(ConfigServiceSym) private readonly config: ConfigService,
   ) {
-    const adapter = new PrismaPg({ connectionString: config.get("DATABASE_URL") });
+    const adapter = new PrismaPg({ connectionString: config.getEnv("DATABASE_URL") });
     super({ adapter });
 
     this.logger = this.loggerInstance.withLabel("PrismaService");

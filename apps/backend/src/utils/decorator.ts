@@ -1,5 +1,5 @@
 import type { NextFunction } from "express";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 import { AppError, ErrorCause } from "@/types/errors";
 import type { ExtendedRequest, ExtendedResponse, RequestURLParameters } from "@/types/express";
@@ -43,6 +43,7 @@ export function ValidateQuery(zz: z.ZodObject): MethodDecorator {
   };
 }
 
+// TODO: improve parameter validation to support multiple parameters
 export function ValidateParams(paramName: keyof RequestURLParameters, zz: z.ZodType): MethodDecorator {
   // @ts-expect-error: Gak tau dah typescript bilang error mulu disini
   return function (_target: object, _propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<ExpressFunctionHandler>): void {

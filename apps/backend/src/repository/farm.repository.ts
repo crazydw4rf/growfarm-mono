@@ -3,8 +3,16 @@ import type { Logger } from "winston";
 
 import type { Farm } from "@/entity";
 import { Prisma } from "@/generated/prisma/client";
-import { LoggingService, PrismaService } from "@/services";
-import { AppError, type BaseRepositoryInterface, ErrorCause, type PaginatedObject, type Result } from "@/types";
+import type { LoggingService, PrismaService } from "@/services";
+import {
+  AppError,
+  type BaseRepositoryInterface,
+  ErrorCause,
+  LoggingServiceSym,
+  type PaginatedObject,
+  PrismaServiceSym,
+  type Result,
+} from "@/types";
 import { Err, Ok } from "@/utils";
 
 export interface IFarmRepository extends BaseRepositoryInterface<Farm> {
@@ -17,8 +25,8 @@ export class FarmRepository implements IFarmRepository {
   private logger: Logger;
 
   constructor(
-    @inject(PrismaService) private readonly prisma: PrismaService,
-    @inject(LoggingService) private readonly loggerInstance: LoggingService,
+    @inject(PrismaServiceSym) private readonly prisma: PrismaService,
+    @inject(LoggingServiceSym) private readonly loggerInstance: LoggingService,
   ) {
     this.logger = this.loggerInstance.withLabel("FarmRepository");
   }

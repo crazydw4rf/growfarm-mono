@@ -1,4 +1,4 @@
-import zod from "zod/v4";
+import zod from "zod";
 
 export const zGenProjectReport = zod.object({
   start_date: zod.coerce.date().default(new Date()),
