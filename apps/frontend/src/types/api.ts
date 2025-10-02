@@ -173,3 +173,12 @@ export interface ProjectReportDateRange {
   start_date: string;
   end_date: string;
 }
+
+// Chat Types
+export interface ChatRequest {
+  prompt: string;
+}
+
+export interface ChatResponse {
+  response: string;
+}

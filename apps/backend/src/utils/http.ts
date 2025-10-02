@@ -25,6 +25,9 @@ export function httpResponseString(res: Response, code: number, body: string, is
   res.status(code).send(body);
 }
 
+// TODO: impementasi pesan error yang dapat dibedakan menjadi dua jenis yaitu known error dan unknown error,
+// yang mana known error dapat ditampilkan pada user interface pada client karena pesan kesalahan tersebut dapat
+// diprediksi sebelumnya.
 export function httpError(res: Response, err: Merror): void {
   const root = err.root;
 
@@ -45,6 +48,10 @@ export function httpError(res: Response, err: Merror): void {
       return;
     case ErrorCause.VALIDATION_ERROR:
       httpResponse(res, StatusCodes.BAD_REQUEST, { error: message });
+      return;
+    case ErrorCause.GENAI_ERROR:
+    case ErrorCause.MCP_ERROR:
+      httpResponse(res, StatusCodes.SERVICE_UNAVAILABLE, { error: "AI service temporarily unavailable" });
       return;
     default:
       httpResponse(res, StatusCodes.INTERNAL_SERVER_ERROR, { error: "unknown error occurred" });

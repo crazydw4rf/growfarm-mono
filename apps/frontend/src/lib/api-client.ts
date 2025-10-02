@@ -26,12 +26,17 @@ class ApiClient {
     // Request interceptor to add auth token
     this.client.interceptors.request.use(
       async (config) => {
-        // Check if we have a token, if not try to refresh first
-        if (!this.accessToken) {
+        // Skip token refresh for auth endpoints (login, register, refresh)
+        const isAuthEndpoint =
+          config.url?.includes("/auth/login") ||
+          config.url?.includes("/auth/register") ||
+          config.url?.includes("/auth/refresh") ||
+          config.url?.includes("/users/register");
+
+        // Check if we have a token, if not try to refresh first (but not for auth endpoints)
+        if (!this.accessToken && !isAuthEndpoint) {
           try {
-            console.log(
-              "No access token found, attempting refresh before request..."
-            );
+            console.log("No access token found, attempting refresh before request...");
             await this.refreshTokenWithRetry();
           } catch {
             console.log("Pre-request refresh failed, proceeding without token");
@@ -46,7 +51,7 @@ class ApiClient {
       },
       (error) => {
         return Promise.reject(error);
-      }
+      },
     );
 
     // Response interceptor for token refresh with retry logic
@@ -55,11 +60,7 @@ class ApiClient {
       async (error: AxiosError) => {
         const originalRequest = error.config;
 
-        if (
-          error.response?.status === 401 &&
-          originalRequest &&
-          !originalRequest._retry
-        ) {
+        if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
           // If auth context is already refreshing, wait a bit and retry
           if (this.authContextRefreshInProgress) {
             await new Promise((resolve) => setTimeout(resolve, 100));
@@ -111,7 +112,7 @@ class ApiClient {
         }
 
         return Promise.reject(error);
-      }
+      },
     );
   }
 
@@ -122,13 +123,9 @@ class ApiClient {
       try {
         console.log(`Token refresh attempt ${attempt}/${maxRetries}`);
 
-        const response = await axios.post(
-          `${API_BASE_URL}/v1/auth/refresh`,
-          undefined,
-          {
-            withCredentials: true,
-          }
-        );
+        const response = await axios.post(`${API_BASE_URL}/v1/auth/refresh`, undefined, {
+          withCredentials: true,
+        });
 
         const { access_token } = response.data.data;
 
@@ -150,10 +147,7 @@ class ApiClient {
           lastError = new Error("Unknown error during token refresh");
         }
 
-        console.error(
-          `Token refresh attempt ${attempt} failed:`,
-          lastError.message
-        );
+        console.error(`Token refresh attempt ${attempt} failed:`, lastError.message);
 
         // If it's the last attempt, don't wait
         if (attempt < maxRetries) {

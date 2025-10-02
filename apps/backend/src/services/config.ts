@@ -1,6 +1,6 @@
-import { DynamicEnvConfig } from "dynamic-env-config";
+import dot from "dotenv";
 import { injectable } from "inversify";
-import zod from "zod/v4";
+import zod, { type infer as Infer } from "zod";
 
 const zEnvConfig = zod.object({
   APP_HOST: zod.string().default("localhost"),
@@ -11,11 +11,27 @@ const zEnvConfig = zod.object({
   JWT_ACCESS_SECRET: zod.string(),
   JWT_REFRESH_SECRET: zod.string(),
   CORS_ORIGIN: zod.string().default("*"),
+  MCP_NAME: zod.string(),
+  MCP_VERSION: zod.string(),
+  MCP_COMMAND: zod
+    .string()
+    .transform((v) => v.split(" "))
+    .default(["bun", "run", "daisy.js"]), // example: bun run daisy.js
+  GEMINI_API_KEY: zod.string(),
 });
 
+export type EnvConfig = Infer<typeof zEnvConfig>;
+
 @injectable("Singleton")
-export class ConfigService extends DynamicEnvConfig<typeof zEnvConfig> {
+export class ConfigService {
+  private envConfig: EnvConfig;
+
   constructor() {
-    super(zEnvConfig);
+    dot.config({ debug: false, quiet: true });
+    this.envConfig = zEnvConfig.parse(process.env);
+  }
+
+  getEnv<P extends keyof EnvConfig>(key: P): EnvConfig[P] {
+    return this.envConfig[key];
   }
 }

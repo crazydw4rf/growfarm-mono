@@ -9,6 +9,8 @@ export const ErrorCause = {
   UNKNOWN_ERROR: "UNKNOWN ERROR",
   DUPLICATE_ENTRY: "DUPLICATE ENTRY",
   VALIDATION_ERROR: "VALIDATION ERROR",
+  GENAI_ERROR: "GENAI ERROR",
+  MCP_ERROR: "MCP ERROR",
 } as const;
 
 export class AppError extends Error {

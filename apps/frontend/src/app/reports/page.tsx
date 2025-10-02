@@ -1,18 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
-import { useData } from "@/contexts/data-context";
+import ProtectedRoute from "@/components/protected-route";
 import { useAuth } from "@/contexts/auth-context";
+import { useData } from "@/contexts/data-context";
 import { apiClient } from "@/lib/api-client";
-import {
-  FileText,
-  Calendar,
-  TrendingUp,
-  Loader2,
-  AlertCircle,
-} from "lucide-react";
+import { AlertCircle, Calendar, FileText, Loader2, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
 
 // Types are defined inline for this page since the imports aren't working
 interface ProjectReportItem {
@@ -47,18 +41,14 @@ interface ProjectReportByDateItem {
 export default function ReportsPage() {
   const { projects, loadProjects } = useData();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState<"project" | "dateRange">(
-    "project"
-  );
+  const [activeTab, setActiveTab] = useState<"project" | "dateRange">("project");
   const [selectedProject, setSelectedProject] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [projectReport, setProjectReport] = useState<ProjectReportItem[]>([]);
-  const [dateRangeReport, setDateRangeReport] = useState<
-    ProjectReportByDateItem[]
-  >([]);
+  const [dateRangeReport, setDateRangeReport] = useState<ProjectReportByDateItem[]>([]);
 
   useEffect(() => {
     // Only load projects after authentication is confirmed and not loading
@@ -85,9 +75,7 @@ export default function ReportsPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await apiClient.get<ProjectReportItem[]>(
-        `/projects/${selectedProject}/report`
-      );
+      const response = await apiClient.get<ProjectReportItem[]>(`/projects/${selectedProject}/report`);
       setProjectReport(response.data);
     } catch (err) {
       console.error("Failed to generate project report:", err);
@@ -98,10 +86,6 @@ export default function ReportsPage() {
   };
 
   const handleDateRangeReport = async () => {
-    if (!selectedProject) {
-      setError("Please select a project");
-      return;
-    }
     if (!endDate) {
       setError("Please select an end date");
       return;
@@ -114,10 +98,7 @@ export default function ReportsPage() {
         start_date: startDate || new Date().toISOString().split("T")[0],
         end_date: endDate,
       };
-      const response = await apiClient.post<ProjectReportByDateItem[]>(
-        `/projects/${selectedProject}/report`,
-        payload
-      );
+      const response = await apiClient.post<ProjectReportByDateItem[]>(`/projects/report`, payload);
       setDateRangeReport(response.data);
     } catch (err) {
       console.error("Failed to generate date range report:", err);
@@ -127,19 +108,11 @@ export default function ReportsPage() {
     }
   };
 
-  const projectTotalData = projectReport.find(
-    (item) => item.row_type === "PROJECT_TOTAL"
-  );
-  const farmDetails = projectReport.filter(
-    (item) => item.row_type === "FARM_DETAIL"
-  );
+  const projectTotalData = projectReport.find((item) => item.row_type === "PROJECT_TOTAL");
+  const farmDetails = projectReport.filter((item) => item.row_type === "FARM_DETAIL");
 
-  const projectSummaryData = dateRangeReport.find(
-    (item) => item.row_type === "PROJECT_SUMMARY"
-  );
-  const dateRangeFarmDetails = dateRangeReport.filter(
-    (item) => item.row_type === "FARM_DETAIL"
-  );
+  const projectSummaryData = dateRangeReport.find((item) => item.row_type === "PROJECT_SUMMARY");
+  const dateRangeFarmDetails = dateRangeReport.filter((item) => item.row_type === "FARM_DETAIL");
 
   return (
     <ProtectedRoute>
@@ -147,12 +120,8 @@ export default function ReportsPage() {
         <div className="space-y-6">
           {/* Header */}
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Project Reports
-            </h1>
-            <p className="mt-2 text-sm text-gray-600">
-              Generate comprehensive reports for your projects and farms.
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900">Project Reports</h1>
+            <p className="mt-2 text-sm text-gray-600">Generate comprehensive reports for your projects and farms.</p>
           </div>
 
           {/* Tab Navigation */}
@@ -196,14 +165,10 @@ export default function ReportsPage() {
             <div className="space-y-6">
               {/* Controls */}
               <div className="bg-white shadow rounded-lg p-6">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">
-                  Generate Project Report
-                </h2>
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Generate Project Report</h2>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Select Project *
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Select Project *</label>
                     <select
                       value={selectedProject}
                       onChange={(e) => setSelectedProject(e.target.value)}
@@ -223,11 +188,7 @@ export default function ReportsPage() {
                       disabled={isLoading || !selectedProject}
                       className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isLoading ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        <TrendingUp className="h-4 w-4 mr-2" />
-                      )}
+                      {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <TrendingUp className="h-4 w-4 mr-2" />}
                       Generate Report
                     </button>
                   </div>
@@ -238,9 +199,7 @@ export default function ReportsPage() {
               {projectReport.length > 0 && (
                 <div className="bg-white shadow rounded-lg overflow-hidden">
                   <div className="px-6 py-4 border-b border-gray-200">
-                    <h3 className="text-lg font-medium text-gray-900">
-                      Project Summary
-                    </h3>
+                    <h3 className="text-lg font-medium text-gray-900">Project Summary</h3>
                   </div>
 
                   {/* Summary Cards */}
@@ -253,13 +212,9 @@ export default function ReportsPage() {
                               <TrendingUp className="h-6 w-6 text-green-500" />
                             </div>
                             <div className="ml-4">
-                              <p className="text-sm font-medium text-gray-500">
-                                Total Harvest
-                              </p>
+                              <p className="text-sm font-medium text-gray-500">Total Harvest</p>
                               <p className="text-lg font-semibold text-gray-900">
-                                {projectTotalData.total_harvest
-                                  ? `${projectTotalData.total_harvest} kg`
-                                  : "N/A"}
+                                {projectTotalData.total_harvest ? `${projectTotalData.total_harvest} kg` : "N/A"}
                               </p>
                             </div>
                           </div>
@@ -270,15 +225,9 @@ export default function ReportsPage() {
                               <TrendingUp className="h-6 w-6 text-blue-500" />
                             </div>
                             <div className="ml-4">
-                              <p className="text-sm font-medium text-gray-500">
-                                Total Revenue
-                              </p>
+                              <p className="text-sm font-medium text-gray-500">Total Revenue</p>
                               <p className="text-lg font-semibold text-gray-900">
-                                {projectTotalData.total_revenue
-                                  ? formatCurrency(
-                                      projectTotalData.total_revenue
-                                    )
-                                  : "N/A"}
+                                {projectTotalData.total_revenue ? formatCurrency(projectTotalData.total_revenue) : "N/A"}
                               </p>
                             </div>
                           </div>
@@ -289,22 +238,14 @@ export default function ReportsPage() {
 
                   {/* Farm Details */}
                   <div className="p-6">
-                    <h4 className="text-md font-medium text-gray-900 mb-4">
-                      Farm Details
-                    </h4>
+                    <h4 className="text-md font-medium text-gray-900 mb-4">Farm Details</h4>
                     <div className="overflow-x-auto">
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                           <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Farm Name
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Status
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Soil Type
-                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farm Name</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Soil Type</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Total Harvest
                             </th>
@@ -316,32 +257,22 @@ export default function ReportsPage() {
                         <tbody className="bg-white divide-y divide-gray-200">
                           {farmDetails.map((farm, index) => (
                             <tr key={farm.farm_id || index}>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {farm.farm_name || "N/A"}
-                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{farm.farm_name || "N/A"}</td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <span
                                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                    farm.farm_status === "ACTIVE"
-                                      ? "bg-green-100 text-green-800"
-                                      : "bg-gray-100 text-gray-800"
+                                    farm.farm_status === "ACTIVE" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
                                   }`}
                                 >
                                   {farm.farm_status || "N/A"}
                                 </span>
                               </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{farm.soil_type || "N/A"}</td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {farm.soil_type || "N/A"}
+                                {farm.total_harvest ? `${farm.total_harvest} kg` : "0 kg"}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {farm.total_harvest
-                                  ? `${farm.total_harvest} kg`
-                                  : "0 kg"}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {farm.total_revenue
-                                  ? formatCurrency(farm.total_revenue)
-                                  : formatCurrency(0)}
+                                {farm.total_revenue ? formatCurrency(farm.total_revenue) : formatCurrency(0)}
                               </td>
                             </tr>
                           ))}
@@ -359,60 +290,35 @@ export default function ReportsPage() {
             <div className="space-y-6">
               {/* Controls */}
               <div className="bg-white shadow rounded-lg p-6">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">
-                  Generate Report by Date Range
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Select Project *
-                    </label>
-                    <select
-                      value={selectedProject}
-                      onChange={(e) => setSelectedProject(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
-                    >
-                      <option value="">Choose a project...</option>
-                      {projects.map((project) => (
-                        <option key={project.id} value={project.id}>
-                          {project.project_name}
-                        </option>
-                      ))}
-                    </select>
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Generate Reports by Date Range (All Projects)</h2>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                      <input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">End Date *</label>
+                      <input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Start Date
-                    </label>
-                    <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      End Date *
-                    </label>
-                    <input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
-                    />
-                  </div>
-                  <div className="flex items-end">
+                  <div className="flex justify-center">
                     <button
                       onClick={handleDateRangeReport}
-                      disabled={isLoading || !selectedProject || !endDate}
-                      className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={isLoading}
+                      className="inline-flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isLoading ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        <Calendar className="h-4 w-4 mr-2" />
-                      )}
+                      {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Calendar className="h-4 w-4 mr-2" />}
                       Generate Report
                     </button>
                   </div>
@@ -423,9 +329,7 @@ export default function ReportsPage() {
               {dateRangeReport.length > 0 && (
                 <div className="bg-white shadow rounded-lg overflow-hidden">
                   <div className="px-6 py-4 border-b border-gray-200">
-                    <h3 className="text-lg font-medium text-gray-900">
-                      Project Summary Report
-                    </h3>
+                    <h3 className="text-lg font-medium text-gray-900">Project Summary Report</h3>
                   </div>
 
                   {/* Summary Cards */}
@@ -438,12 +342,8 @@ export default function ReportsPage() {
                               <TrendingUp className="h-6 w-6 text-green-500" />
                             </div>
                             <div className="ml-4">
-                              <p className="text-sm font-medium text-gray-500">
-                                Total Farms
-                              </p>
-                              <p className="text-lg font-semibold text-gray-900">
-                                {projectSummaryData.total_farms || "0"}
-                              </p>
+                              <p className="text-sm font-medium text-gray-500">Total Farms</p>
+                              <p className="text-lg font-semibold text-gray-900">{projectSummaryData.total_farms || "0"}</p>
                             </div>
                           </div>
                         </div>
@@ -453,16 +353,10 @@ export default function ReportsPage() {
                               <TrendingUp className="h-6 w-6 text-blue-500" />
                             </div>
                             <div className="ml-4">
-                              <p className="text-sm font-medium text-gray-500">
-                                Total Farm Budget
-                              </p>
+                              <p className="text-sm font-medium text-gray-500">Total Farm Budget</p>
                               <p className="text-lg font-semibold text-gray-900">
                                 {projectSummaryData.total_farm_budget
-                                  ? formatCurrency(
-                                      Number(
-                                        projectSummaryData.total_farm_budget
-                                      )
-                                    )
+                                  ? formatCurrency(Number(projectSummaryData.total_farm_budget))
                                   : "N/A"}
                               </p>
                             </div>
@@ -474,15 +368,9 @@ export default function ReportsPage() {
                               <TrendingUp className="h-6 w-6 text-purple-500" />
                             </div>
                             <div className="ml-4">
-                              <p className="text-sm font-medium text-gray-500">
-                                Total Revenue
-                              </p>
+                              <p className="text-sm font-medium text-gray-500">Total Revenue</p>
                               <p className="text-lg font-semibold text-gray-900">
-                                {projectSummaryData.total_revenue
-                                  ? formatCurrency(
-                                      projectSummaryData.total_revenue
-                                    )
-                                  : "N/A"}
+                                {projectSummaryData.total_revenue ? formatCurrency(projectSummaryData.total_revenue) : "N/A"}
                               </p>
                             </div>
                           </div>
@@ -493,67 +381,41 @@ export default function ReportsPage() {
 
                   {/* Farm Details */}
                   <div className="p-6">
-                    <h4 className="text-md font-medium text-gray-900 mb-4">
-                      Farm Details
-                    </h4>
+                    <h4 className="text-md font-medium text-gray-900 mb-4">Farm Details</h4>
                     <div className="overflow-x-auto">
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                           <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Farm Name
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Status
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Soil Type
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Farm Budget
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Farm Harvest
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Farm Revenue
-                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farm Name</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Soil Type</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farm Budget</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farm Harvest</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farm Revenue</th>
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                           {dateRangeFarmDetails.map((farm, index) => (
                             <tr key={farm.farm_id || index}>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {farm.farm_name || "N/A"}
-                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{farm.farm_name || "N/A"}</td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <span
                                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                    farm.farm_status === "ACTIVE"
-                                      ? "bg-green-100 text-green-800"
-                                      : "bg-gray-100 text-gray-800"
+                                    farm.farm_status === "ACTIVE" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
                                   }`}
                                 >
                                   {farm.farm_status || "N/A"}
                                 </span>
                               </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{farm.soil_type || "N/A"}</td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {farm.soil_type || "N/A"}
+                                {farm.farm_budget_individual ? formatCurrency(farm.farm_budget_individual) : formatCurrency(0)}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {farm.farm_budget_individual
-                                  ? formatCurrency(farm.farm_budget_individual)
-                                  : formatCurrency(0)}
+                                {farm.farm_harvest ? `${farm.farm_harvest} kg` : "0 kg"}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {farm.farm_harvest
-                                  ? `${farm.farm_harvest} kg`
-                                  : "0 kg"}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {farm.farm_revenue
-                                  ? formatCurrency(farm.farm_revenue)
-                                  : formatCurrency(0)}
+                                {farm.farm_revenue ? formatCurrency(farm.farm_revenue) : formatCurrency(0)}
                               </td>
                             </tr>
                           ))}

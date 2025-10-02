@@ -40,3 +40,4 @@ experiments
 
 *.env
 cookies.txt
+*.js

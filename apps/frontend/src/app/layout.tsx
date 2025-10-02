@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/auth-context";
 import { DataProvider } from "@/contexts/data-context";
+import { ChatProvider } from "@/contexts/chat-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,9 +26,7 @@ export const metadata: Metadata = {
       { url: "/growfarm-256x256.png", sizes: "256x256", type: "image/png" },
       { url: "/favicon.ico", sizes: "any" },
     ],
-    apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
     other: [
       {
         rel: "android-chrome",
@@ -53,11 +52,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AuthProvider>
-          <DataProvider>{children}</DataProvider>
+          <DataProvider>
+            <ChatProvider>{children}</ChatProvider>
+          </DataProvider>
         </AuthProvider>
       </body>
     </html>

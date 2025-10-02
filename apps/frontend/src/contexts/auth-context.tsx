@@ -42,23 +42,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (!token) {
           // No token in memory, try to refresh using the HttpOnly cookie
-          console.log(
-            "No access token in memory, attempting silent refresh..."
-          );
+          console.log("No access token in memory, attempting silent refresh...");
 
           // Set flag to prevent API client from also refreshing
           apiClient.setAuthContextRefreshInProgress(true);
 
           try {
-            const refreshResponse = await fetch(
-              `${
-                process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
-              }/v1/auth/refresh`,
-              {
-                method: "POST",
-                credentials: "include",
-              }
-            );
+            const refreshResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/v1/auth/refresh`, {
+              method: "POST",
+              credentials: "include",
+            });
 
             if (refreshResponse.ok) {
               const refreshData = await refreshResponse.json();
@@ -100,13 +93,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const response = await apiClient.post<{
-        data: { user: User; access_token: string };
-      }>("/auth/login", { email, password });
+      const response = await authApi.login({ email, password });
 
-      const { user, access_token } = response.data.data;
+      // Response contains user data with access_token at the same level
+      const { access_token, ...userData } = response.data;
       apiClient.setAccessToken(access_token);
-      setUser(user);
+      setUser(userData);
       setIsAuthenticated(true);
 
       // Handle redirect after login

@@ -27,6 +27,10 @@
     {
       "name": "Farm",
       "description": "Farm management endpoints"
+    },
+    {
+      "name": "Chat",
+      "description": "AI-powered chat endpoints"
     }
   ],
   "paths": {
@@ -587,25 +591,15 @@
             "description": "Internal server error"
           }
         }
-      },
+      }
+    },
+    "/projects/report": {
       "post": {
         "tags": ["Project"],
-        "summary": "Generate project report by date range with farm details and totals",
+        "summary": "Generate project reports by date range",
         "security": [
           {
             "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "projectId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "ulid"
-            },
-            "description": "Project ID"
           }
         ],
         "requestBody": {
@@ -620,7 +614,7 @@
         },
         "responses": {
           "200": {
-            "description": "Project report by date range generated successfully",
+            "description": "Project reports generated successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -671,13 +665,10 @@
             }
           },
           "400": {
-            "description": "Bad request - validation error"
+            "description": "Bad request"
           },
           "401": {
-            "description": "Unauthorized - missing or invalid token"
-          },
-          "404": {
-            "description": "Project not found"
+            "description": "Unauthorized"
           },
           "500": {
             "description": "Internal server error"
@@ -1013,6 +1004,57 @@
           },
           "404": {
             "description": "Farm or project not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/chat": {
+      "post": {
+        "tags": ["Chat"],
+        "summary": "Chat with AI assistant using tools",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat response generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/ChatResponse"
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - validation error"
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid token"
           },
           "500": {
             "description": "Internal server error"
@@ -1793,6 +1835,29 @@
           }
         },
         "required": ["row_type", "project_id", "project_name", "project_budget"]
+      },
+      "ChatRequest": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "description": "The user's prompt or question for the AI assistant",
+            "minLength": 1,
+            "example": "What is the total harvest from my farms?"
+          }
+        },
+        "required": ["prompt"]
+      },
+      "ChatResponse": {
+        "type": "object",
+        "properties": {
+          "response": {
+            "type": "string",
+            "description": "The AI assistant's response",
+            "example": "Based on the data, the total harvest from your farms is 150.5 kilograms."
+          }
+        },
+        "required": ["response"]
       }
     },
     "securitySchemes": {
