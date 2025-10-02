@@ -5,15 +5,14 @@
       "code_actions_on_format": {
         "source.organizeImports": true
       },
-      "language_servers": ["vtsls", "!tsgo"],
-      "formatter": "prettier"
+      "formatter": "prettier",
+      "language_servers": ["tsgo", "eslint", "!vtsls"]
     },
     "TSX": {
       "inlay_hints": { "enabled": false },
       "code_actions_on_format": {
         "source.organizeImports": true
       },
-      "language_servers": ["tsgo"],
       "formatter": "prettier"
     }
   },
