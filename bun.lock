@@ -18,7 +18,7 @@
         "@google/genai": "^1.21.0",
         "@modelcontextprotocol/sdk": "^1.18.2",
         "@prisma/adapter-pg": "^6.16.1",
-        "@prisma/client": "^6.16.1",
+        "@prisma/client": "^6.16.3",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
         "dotenv": "^17.2.2",
@@ -237,7 +237,7 @@
 
     "@prisma/adapter-pg": ["@prisma/adapter-pg@6.16.1", "", { "dependencies": { "@prisma/driver-adapter-utils": "6.16.1", "pg": "^8.11.3", "postgres-array": "3.0.4" } }, "sha512-byMXfxRt/TvmRYf6X7mDW7ZBGbVheOUP9/m2EM0BKf6JaygEE+wyGu0t2TPT/3YXFxRN8/WBWX80xCAsrMQA2A=="],
 
-    "@prisma/client": ["@prisma/client@6.16.1", "", { "peerDependencies": { "prisma": "*", "typescript": ">=5.1.0" }, "optionalPeers": ["prisma", "typescript"] }, "sha512-QaBCOY29lLAxEFFJgBPyW3WInCW52fJeQTmWx/h6YsP5u0bwuqP51aP0uhqFvhK9DaZPwvai/M4tSDYLVE9vRg=="],
+    "@prisma/client": ["@prisma/client@6.16.3", "", { "peerDependencies": { "prisma": "*", "typescript": ">=5.1.0" }, "optionalPeers": ["prisma", "typescript"] }, "sha512-JfNfAtXG+/lIopsvoZlZiH2k5yNx87mcTS4t9/S5oufM1nKdXYxOvpDC1XoTCFBa5cQh7uXnbMPsmZrwZY80xw=="],
 
     "@prisma/config": ["@prisma/config@6.16.1", "", { "dependencies": { "c12": "3.1.0", "deepmerge-ts": "7.1.5", "effect": "3.16.12", "empathic": "2.0.0" } }, "sha512-sz3uxRPNL62QrJ0EYiujCFkIGZ3hg+9hgC1Ae1HjoYuj0BxCqHua4JNijYvYCrh9LlofZDZcRBX3tHBfLvAngA=="],
 
