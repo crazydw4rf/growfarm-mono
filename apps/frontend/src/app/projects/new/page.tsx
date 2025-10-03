@@ -11,6 +11,7 @@ import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
 import { useData } from "@/contexts/data-context";
 import { projectsApi } from "@/lib/api";
+import { ProjectCreate } from "@/types/api";
 import { ArrowLeft, Save } from "lucide-react";
 
 const projectSchema = z.object({
