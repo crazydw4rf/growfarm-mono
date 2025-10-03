@@ -34,7 +34,7 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-unused-imports": "^4.2.0",
     "prisma": "^6.16.1",
-    "typescript-eslint": "^8.43.0"
+    "typescript-eslint": "^8.45.0"
   },
   "peerDependencies": {
     "typescript": "^5.9.2"
