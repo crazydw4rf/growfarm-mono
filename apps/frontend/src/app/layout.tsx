@@ -4,6 +4,8 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/auth-context";
 import { DataProvider } from "@/contexts/data-context";
 import { ChatProvider } from "@/contexts/chat-context";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,19 +47,23 @@ export const metadata: Metadata = {
   manifest: "/site.webmanifest",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const messages = await getMessages();
+
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider>
-          <DataProvider>
-            <ChatProvider>{children}</ChatProvider>
-          </DataProvider>
-        </AuthProvider>
+        <NextIntlClientProvider messages={messages}>
+          <AuthProvider>
+            <DataProvider>
+              <ChatProvider>{children}</ChatProvider>
+            </DataProvider>
+          </AuthProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

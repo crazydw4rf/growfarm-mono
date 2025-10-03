@@ -8,7 +8,6 @@ import { ConfigServiceSym } from "@/types";
 import { type ConfigService } from "./config";
 
 // TODO: add winston-loki transport
-// output to console or file?
 @injectable("Singleton")
 export class LoggingService {
   private logger: Logger;

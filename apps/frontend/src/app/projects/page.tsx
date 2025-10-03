@@ -3,31 +3,18 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
 import Pagination from "@/components/pagination";
 import { useData } from "@/contexts/data-context";
 import { useAuth } from "@/contexts/auth-context";
 import { projectsApi } from "@/lib/api";
-import {
-  FolderKanban,
-  Plus,
-  Calendar,
-  Banknote,
-  Edit,
-  Trash2,
-  Eye,
-  RefreshCw,
-} from "lucide-react";
+import { FolderKanban, Plus, Calendar, Banknote, Edit, Trash2, Eye, RefreshCw } from "lucide-react";
 
 export default function ProjectsPage() {
-  const {
-    projects,
-    projectsPagination,
-    isLoadingProjects,
-    loadProjects,
-    invalidateProject,
-  } = useData();
+  const t = useTranslations();
+  const { projects, projectsPagination, isLoadingProjects, loadProjects, invalidateProject } = useData();
   const { isAuthenticated, isLoading } = useAuth();
   const [deleting, setDeleting] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -71,11 +58,7 @@ export default function ProjectsPage() {
   };
 
   const handleDelete = async (projectId: string) => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this project? This action cannot be undone."
-      )
-    ) {
+    if (!confirm(t("projects.confirmDelete"))) {
       return;
     }
 
@@ -86,7 +69,7 @@ export default function ProjectsPage() {
       await loadProjects(1);
     } catch (error) {
       console.error("Failed to delete project:", error);
-      alert("Failed to delete project. Please try again.");
+      alert(t("projects.deleteError"));
     } finally {
       setDeleting(null);
     }
@@ -141,12 +124,8 @@ export default function ProjectsPage() {
           {/* Header */}
           <div className="sm:flex sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-                Projects
-              </h1>
-              <p className="mt-1 sm:mt-2 text-sm text-gray-700">
-                Manage your agricultural projects and track their progress.
-              </p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t("projects.title")}</h1>
+              <p className="mt-1 sm:mt-2 text-sm text-gray-700">{t("projects.subtitle")}</p>
             </div>
             <div className="mt-3 sm:mt-0 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
               <button
@@ -154,19 +133,15 @@ export default function ProjectsPage() {
                 disabled={isRefreshing}
                 className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
               >
-                <RefreshCw
-                  className={`-ml-1 mr-2 h-4 w-4 ${
-                    isRefreshing ? "animate-spin" : ""
-                  }`}
-                />
-                {isRefreshing ? "Refreshing..." : "Refresh"}
+                <RefreshCw className={`-ml-1 mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+                {isRefreshing ? t("projects.refreshing") : t("projects.refresh")}
               </button>
               <Link
                 href="/projects/new"
                 className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
                 <Plus className="-ml-1 mr-2 h-4 w-4" />
-                New Project
+                {t("projects.newProject")}
               </Link>
             </div>
           </div>
@@ -175,19 +150,15 @@ export default function ProjectsPage() {
           {projects.length === 0 ? (
             <div className="text-center bg-white shadow rounded-lg py-12">
               <FolderKanban className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">
-                No projects
-              </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Get started by creating a new project.
-              </p>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">{t("projects.noProjects")}</h3>
+              <p className="mt-1 text-sm text-gray-500">{t("projects.getStartedMessage")}</p>
               <div className="mt-6">
                 <Link
                   href="/projects/new"
                   className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                 >
                   <Plus className="-ml-1 mr-2 h-4 w-4" />
-                  New Project
+                  {t("projects.newProject")}
                 </Link>
               </div>
             </div>
@@ -200,12 +171,10 @@ export default function ProjectsPage() {
                       <div className="sm:flex sm:items-center sm:justify-between">
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                            <h3 className="text-base sm:text-lg font-medium text-gray-900 truncate">
-                              {project.project_name}
-                            </h3>
+                            <h3 className="text-base sm:text-lg font-medium text-gray-900 truncate">{project.project_name}</h3>
                             <span
                               className={`mt-2 sm:mt-0 sm:ml-4 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                                project.project_status
+                                project.project_status,
                               )}`}
                             >
                               {project.project_status.replace("_", " ")}
@@ -214,45 +183,35 @@ export default function ProjectsPage() {
                           <div className="mt-2 flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-6 text-sm text-gray-500">
                             <div className="flex items-center">
                               <Banknote className="h-4 w-4 mr-1 flex-shrink-0" />
+                              <span className="truncate">{formatCurrency(project.budget)}</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Calendar className="h-4 w-4 mr-1 flex-shrink-0" />
                               <span className="truncate">
-                                {formatCurrency(project.budget)}
+                                {t("projects.start")}: {formatDate(project.start_date)}
                               </span>
                             </div>
                             <div className="flex items-center">
                               <Calendar className="h-4 w-4 mr-1 flex-shrink-0" />
                               <span className="truncate">
-                                Start: {formatDate(project.start_date)}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <Calendar className="h-4 w-4 mr-1 flex-shrink-0" />
-                              <span className="truncate">
-                                Target: {formatDate(project.target_date)}
+                                {t("projects.target")}: {formatDate(project.target_date)}
                               </span>
                             </div>
                           </div>
-                          {project.description && (
-                            <p className="mt-2 text-sm text-gray-600 line-clamp-2">
-                              {project.description}
-                            </p>
-                          )}
+                          {project.description && <p className="mt-2 text-sm text-gray-600 line-clamp-2">{project.description}</p>}
                         </div>
                         <div className="mt-4 sm:mt-0 sm:ml-4 flex items-center justify-end space-x-2">
                           <button
-                            onClick={() =>
-                              router.push(`/projects/${project.id}`)
-                            }
+                            onClick={() => router.push(`/projects/${project.id}`)}
                             className="text-gray-400 hover:text-green-600 transition-colors duration-200 p-1"
-                            title="View project"
+                            title={t("projects.viewProject")}
                           >
                             <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
                           </button>
                           <button
-                            onClick={() =>
-                              router.push(`/projects/${project.id}/edit`)
-                            }
+                            onClick={() => router.push(`/projects/${project.id}/edit`)}
                             className="text-gray-400 hover:text-blue-600 transition-colors duration-200 p-1"
-                            title="Edit project"
+                            title={t("projects.editProject")}
                           >
                             <Edit className="h-4 w-4 sm:h-5 sm:w-5" />
                           </button>
@@ -260,7 +219,7 @@ export default function ProjectsPage() {
                             onClick={() => handleDelete(project.id)}
                             disabled={deleting === project.id}
                             className="text-gray-400 hover:text-red-600 transition-colors duration-200 disabled:opacity-50 p-1"
-                            title="Delete project"
+                            title={t("projects.deleteProject")}
                           >
                             <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
                           </button>

@@ -13,7 +13,8 @@
       "code_actions_on_format": {
         "source.organizeImports": true
       },
-      "formatter": "prettier"
+      "formatter": "prettier",
+      "language_servers": ["tsgo", "eslint", "!vtsls"]
     }
   },
   "lsp": {

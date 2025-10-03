@@ -5,7 +5,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { aggregateProjectReportBatch, aggregateProjectReportOne } from "@/generated/prisma/sql";
 import { type PrismaService } from "@/services/prisma";
 import type { BaseRepositoryInterface, PaginatedObject, PaginationParameters, Result } from "@/types";
-import { AppError, ErrorCause, PrismaServiceSym } from "@/types";
+import { ErrorCause, PrismaServiceSym } from "@/types";
 import { Err, Ok } from "@/utils";
 
 export interface IProjectRepository extends BaseRepositoryInterface<Project> {
@@ -135,12 +135,12 @@ export class ProjectRepository implements IProjectRepository {
   private handleError(e: any): Result<any> {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2002") {
-        return Err(AppError.new("project already exists", ErrorCause.DUPLICATE_ENTRY));
+        return Err("project already exists", ErrorCause.DUPLICATE_ENTRY);
       } else if (e.code === "P2025") {
-        return Err(AppError.new("project not found", ErrorCause.ENTRY_NOT_FOUND));
+        return Err("project not found", ErrorCause.ENTRY_NOT_FOUND);
       }
-      return Err(AppError.new(e.message, ErrorCause.DATABASE_ERROR));
+      return Err(e.message, ErrorCause.DATABASE_ERROR);
     }
-    return Err(AppError.new("an unknown error occurred: ".concat(e as string), ErrorCause.UNKNOWN_ERROR));
+    return Err("an unknown error occurred: ".concat(e as string), ErrorCause.UNKNOWN_ERROR);
   }
 }

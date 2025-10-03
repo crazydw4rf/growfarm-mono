@@ -7,7 +7,7 @@ import { type UserLoginDto } from "@/models";
 import { type IUserRepository, UserRepository } from "@/repository";
 import type { ConfigService, LoggingService } from "@/services";
 import { ConfigServiceSym, LoggingServiceSym } from "@/types";
-import { AppError, ErrorCause } from "@/types/errors";
+import { ErrorCause } from "@/types/errors";
 import type { Result } from "@/types/helper";
 import { Err, Ok } from "@/utils";
 
@@ -37,7 +37,7 @@ export class AuthUsecase implements IAuthUsecase {
 
     const verifyPasswd = await Bun.password.verify(dto.password, user.password_hash);
     if (!verifyPasswd) {
-      return Err(AppError.new("Invalid password", ErrorCause.CREDENTIALS_ERROR));
+      return Err("Invalid password", ErrorCause.CREDENTIALS_ERROR);
     }
 
     const [access_token, refresh_token] = this.generateToken(user);

@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface PaginationProps {
   currentPage: number;
@@ -10,13 +11,8 @@ interface PaginationProps {
   maxPagesToShow?: number;
 }
 
-export default function Pagination({
-  currentPage,
-  totalItems,
-  itemsPerPage,
-  onPageChange,
-  maxPagesToShow = 5,
-}: PaginationProps) {
+export default function Pagination({ currentPage, totalItems, itemsPerPage, onPageChange, maxPagesToShow = 5 }: PaginationProps) {
+  const t = useTranslations();
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   if (totalPages <= 1) {
@@ -34,10 +30,7 @@ export default function Pagination({
     startPage = Math.max(1, endPage - maxPagesToShow + 1);
   }
 
-  const pages = Array.from(
-    { length: endPage - startPage + 1 },
-    (_, i) => startPage + i
-  );
+  const pages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
 
   return (
     <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
@@ -47,22 +40,22 @@ export default function Pagination({
           disabled={currentPage === 1}
           className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Previous
+          {t("pagination.previous")}
         </button>
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Next
+          {t("pagination.next")}
         </button>
       </div>
       <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-gray-700">
-            Showing <span className="font-medium">{startItem}</span> to{" "}
-            <span className="font-medium">{endItem}</span> of{" "}
-            <span className="font-medium">{totalItems}</span> results
+            {t("pagination.showing")} <span className="font-medium">{startItem}</span> {t("pagination.to")}{" "}
+            <span className="font-medium">{endItem}</span> {t("pagination.of")} <span className="font-medium">{totalItems}</span>{" "}
+            {t("pagination.results")}
           </p>
         </div>
         <div>
@@ -73,7 +66,7 @@ export default function Pagination({
               disabled={currentPage === 1}
               className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span className="sr-only">Previous</span>
+              <span className="sr-only">{t("pagination.previous")}</span>
               <ChevronLeft className="h-5 w-5" />
             </button>
 
@@ -132,7 +125,7 @@ export default function Pagination({
               disabled={currentPage === totalPages}
               className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span className="sr-only">Next</span>
+              <span className="sr-only">{t("pagination.next")}</span>
               <ChevronRight className="h-5 w-5" />
             </button>
           </nav>

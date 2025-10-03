@@ -3,19 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
 import { useData } from "@/contexts/data-context";
 import { useAuth } from "@/contexts/auth-context";
 import { Project } from "@/types/api";
-import {
-  Activity,
-  Calendar,
-  Banknote,
-  Sprout,
-  FolderKanban,
-  Plus,
-} from "lucide-react";
+import { Activity, Calendar, Banknote, Sprout, FolderKanban, Plus } from "lucide-react";
 
 interface DashboardStats {
   totalProjects: number;
@@ -27,6 +21,7 @@ interface DashboardStats {
 }
 
 export default function Dashboard() {
+  const t = useTranslations();
   const { projects, isLoadingProjects, loadProjects } = useData();
   const { isAuthenticated, isLoading } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
@@ -49,13 +44,8 @@ export default function Dashboard() {
   useEffect(() => {
     // Update stats whenever projects change
     if (projects.length > 0) {
-      const activeProjects = projects.filter(
-        (p: Project) => p.project_status !== "COMPLETED"
-      ).length;
-      const totalBudget = projects.reduce(
-        (sum: number, p: Project) => sum + p.budget,
-        0
-      );
+      const activeProjects = projects.filter((p: Project) => p.project_status !== "COMPLETED").length;
+      const totalBudget = projects.reduce((sum: number, p: Project) => sum + p.budget, 0);
 
       setStats({
         totalProjects: projects.length,
@@ -116,11 +106,8 @@ export default function Dashboard() {
         <div className="space-y-6">
           {/* Welcome Section */}
           <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg shadow-sm p-6 text-white">
-            <h1 className="text-2xl font-bold mb-2">Welcome to Grow Farm</h1>
-            <p className="text-green-100">
-              Manage your agricultural projects and farms efficiently with our
-              comprehensive farm management system.
-            </p>
+            <h1 className="text-2xl font-bold mb-2">{t("dashboard.welcomeTitle")}</h1>
+            <p className="text-green-100">{t("dashboard.welcomeSubtitle")}</p>
           </div>
 
           {/* Stats Cards */}
@@ -133,12 +120,8 @@ export default function Dashboard() {
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Total Projects
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        {stats.totalProjects}
-                      </dd>
+                      <dt className="text-sm font-medium text-gray-500 truncate">{t("dashboard.totalProjects")}</dt>
+                      <dd className="text-lg font-medium text-gray-900">{stats.totalProjects}</dd>
                     </dl>
                   </div>
                 </div>
@@ -153,12 +136,8 @@ export default function Dashboard() {
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Active Projects
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        {stats.activeProjects}
-                      </dd>
+                      <dt className="text-sm font-medium text-gray-500 truncate">{t("dashboard.activeProjects")}</dt>
+                      <dd className="text-lg font-medium text-gray-900">{stats.activeProjects}</dd>
                     </dl>
                   </div>
                 </div>
@@ -173,12 +152,8 @@ export default function Dashboard() {
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Total Farms
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        {stats.totalFarms}
-                      </dd>
+                      <dt className="text-sm font-medium text-gray-500 truncate">{t("dashboard.totalFarms")}</dt>
+                      <dd className="text-lg font-medium text-gray-900">{stats.totalFarms}</dd>
                     </dl>
                   </div>
                 </div>
@@ -193,12 +168,8 @@ export default function Dashboard() {
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Total Budget
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        {formatCurrency(stats.totalBudget)}
-                      </dd>
+                      <dt className="text-sm font-medium text-gray-500 truncate">{t("dashboard.totalBudget")}</dt>
+                      <dd className="text-lg font-medium text-gray-900">{formatCurrency(stats.totalBudget)}</dd>
                     </dl>
                   </div>
                 </div>
@@ -210,33 +181,24 @@ export default function Dashboard() {
           <div className="bg-white shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg leading-6 font-medium text-gray-900">
-                  Recent Projects
-                </h3>
-                <Link
-                  href="/projects"
-                  className="text-sm font-medium text-green-600 hover:text-green-500"
-                >
-                  View all
+                <h3 className="text-lg leading-6 font-medium text-gray-900">{t("dashboard.recentProjects")}</h3>
+                <Link href="/projects" className="text-sm font-medium text-green-600 hover:text-green-500">
+                  {t("dashboard.viewAll")}
                 </Link>
               </div>
 
               {projects.length === 0 ? (
                 <div className="text-center py-12">
                   <FolderKanban className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">
-                    No projects
-                  </h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Get started by creating a new project.
-                  </p>
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">{t("dashboard.noProjects")}</h3>
+                  <p className="mt-1 text-sm text-gray-500">{t("dashboard.getStartedMessage")}</p>
                   <div className="mt-6">
                     <button
                       onClick={() => router.push("/projects/new")}
                       className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                     >
                       <Plus className="-ml-1 mr-2 h-4 w-4" />
-                      New Project
+                      {t("dashboard.newProject")}
                     </button>
                   </div>
                 </div>
@@ -250,9 +212,7 @@ export default function Dashboard() {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-medium text-gray-900 truncate">
-                            {project.project_name}
-                          </h4>
+                          <h4 className="text-sm font-medium text-gray-900 truncate">{project.project_name}</h4>
                           <div className="mt-1 flex items-center space-x-4 text-sm text-gray-500">
                             <div className="flex items-center">
                               <Banknote className="h-4 w-4 mr-1" />
@@ -260,19 +220,15 @@ export default function Dashboard() {
                             </div>
                             <div className="flex items-center">
                               <Calendar className="h-4 w-4 mr-1" />
-                              Due {formatDate(project.target_date)}
+                              {t("dashboard.due")} {formatDate(project.target_date)}
                             </div>
                           </div>
-                          {project.description && (
-                            <p className="mt-1 text-sm text-gray-500 truncate">
-                              {project.description}
-                            </p>
-                          )}
+                          {project.description && <p className="mt-1 text-sm text-gray-500 truncate">{project.description}</p>}
                         </div>
                         <div className="ml-4 flex-shrink-0">
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                              project.project_status
+                              project.project_status,
                             )}`}
                           >
                             {project.project_status.replace("_", " ")}
@@ -289,23 +245,21 @@ export default function Dashboard() {
           {/* Quick Actions */}
           <div className="bg-white shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                Quick Actions
-              </h3>
+              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">{t("dashboard.quickActions")}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <button
                   onClick={() => router.push("/projects/new")}
                   className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                 >
                   <FolderKanban className="mr-2 h-5 w-5 text-gray-400" />
-                  Create New Project
+                  {t("dashboard.createNewProject")}
                 </button>
                 <button
                   onClick={() => router.push("/farms")}
                   className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                 >
                   <Sprout className="mr-2 h-5 w-5 text-gray-400" />
-                  View All Farms
+                  {t("dashboard.viewAllFarms")}
                 </button>
               </div>
             </div>

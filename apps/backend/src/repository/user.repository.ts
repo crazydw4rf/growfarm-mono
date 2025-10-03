@@ -6,7 +6,7 @@ import type { User } from "@/entity";
 import { Prisma } from "@/generated/prisma/client";
 import type { LoggingService, PrismaService } from "@/services";
 import type { BaseRepositoryInterface, Result } from "@/types";
-import { AppError, ErrorCause, LoggingServiceSym, PrismaServiceSym } from "@/types";
+import { ErrorCause, LoggingServiceSym, PrismaServiceSym } from "@/types";
 import { Err, Ok } from "@/utils";
 
 export interface IUserRepository extends BaseRepositoryInterface<User> {
@@ -40,7 +40,7 @@ export class UserRepository implements IUserRepository {
     try {
       const user = await this.prisma.user.findFirst({ where: { id } });
       if (!user) {
-        return Err(AppError.new("user not found", ErrorCause.ENTRY_NOT_FOUND));
+        return Err("user not found", ErrorCause.ENTRY_NOT_FOUND);
       }
 
       return Ok(user);
@@ -53,7 +53,7 @@ export class UserRepository implements IUserRepository {
     try {
       const user = await this.prisma.user.findFirst({ where: { email } });
       if (!user) {
-        return Err(AppError.new("user not found", ErrorCause.ENTRY_NOT_FOUND));
+        return Err("user not found", ErrorCause.ENTRY_NOT_FOUND);
       }
 
       return Ok(user);
@@ -71,7 +71,7 @@ export class UserRepository implements IUserRepository {
       });
 
       if (users.length <= 0) {
-        return Err(AppError.new("no users found", ErrorCause.ENTRY_NOT_FOUND));
+        return Err("no users found", ErrorCause.ENTRY_NOT_FOUND);
       }
 
       return Ok(users);
@@ -104,12 +104,12 @@ export class UserRepository implements IUserRepository {
   private handleError(e: any): Result<any> {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2002") {
-        return Err(AppError.new("email already exists", ErrorCause.DUPLICATE_ENTRY));
+        return Err("email already exists", ErrorCause.DUPLICATE_ENTRY);
       } else if (e.code === "P2025") {
-        return Err(AppError.new("user not found", ErrorCause.ENTRY_NOT_FOUND));
+        return Err("user not found", ErrorCause.ENTRY_NOT_FOUND);
       }
-      return Err(AppError.new(e.message, ErrorCause.DATABASE_ERROR));
+      return Err(e.message, ErrorCause.DATABASE_ERROR);
     }
-    return Err(AppError.new("an unknown error occurred: ".concat(e as string), ErrorCause.UNKNOWN_ERROR));
+    return Err("an unknown error occurred: ".concat(e as string), ErrorCause.UNKNOWN_ERROR);
   }
 }

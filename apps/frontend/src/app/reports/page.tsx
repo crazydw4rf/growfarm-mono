@@ -7,6 +7,7 @@ import { useData } from "@/contexts/data-context";
 import { apiClient } from "@/lib/api-client";
 import { AlertCircle, Calendar, FileText, Loader2, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 // Types are defined inline for this page since the imports aren't working
 interface ProjectReportItem {
@@ -39,6 +40,7 @@ interface ProjectReportByDateItem {
 }
 
 export default function ReportsPage() {
+  const t = useTranslations();
   const { projects, loadProjects } = useData();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<"project" | "dateRange">("project");
@@ -68,7 +70,7 @@ export default function ReportsPage() {
 
   const handleProjectReport = async () => {
     if (!selectedProject) {
-      setError("Please select a project");
+      setError(t("reports.selectProjectError"));
       return;
     }
 
@@ -79,7 +81,7 @@ export default function ReportsPage() {
       setProjectReport(response.data);
     } catch (err) {
       console.error("Failed to generate project report:", err);
-      setError("Failed to generate project report. Please try again.");
+      setError(t("reports.generateError"));
     } finally {
       setIsLoading(false);
     }
@@ -87,7 +89,7 @@ export default function ReportsPage() {
 
   const handleDateRangeReport = async () => {
     if (!endDate) {
-      setError("Please select an end date");
+      setError(t("reports.selectEndDateError"));
       return;
     }
 
@@ -102,7 +104,7 @@ export default function ReportsPage() {
       setDateRangeReport(response.data);
     } catch (err) {
       console.error("Failed to generate date range report:", err);
-      setError("Failed to generate date range report. Please try again.");
+      setError(t("reports.generateDateRangeError"));
     } finally {
       setIsLoading(false);
     }
@@ -120,8 +122,8 @@ export default function ReportsPage() {
         <div className="space-y-6">
           {/* Header */}
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Project Reports</h1>
-            <p className="mt-2 text-sm text-gray-600">Generate comprehensive reports for your projects and farms.</p>
+            <h1 className="text-2xl font-bold text-gray-900">{t("reports.title")}</h1>
+            <p className="mt-2 text-sm text-gray-600">{t("reports.subtitle")}</p>
           </div>
 
           {/* Tab Navigation */}
@@ -136,7 +138,7 @@ export default function ReportsPage() {
                 }`}
               >
                 <FileText className="inline-block w-4 h-4 mr-2" />
-                By Project
+                {t("reports.projectReport")}
               </button>
               <button
                 onClick={() => setActiveTab("dateRange")}
@@ -147,7 +149,7 @@ export default function ReportsPage() {
                 }`}
               >
                 <Calendar className="inline-block w-4 h-4 mr-2" />
-                By Date Range
+                {t("reports.dateRangeReport")}
               </button>
             </nav>
           </div>
@@ -165,16 +167,16 @@ export default function ReportsPage() {
             <div className="space-y-6">
               {/* Controls */}
               <div className="bg-white shadow rounded-lg p-6">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Generate Project Report</h2>
+                <h2 className="text-lg font-medium text-gray-900 mb-4">{t("reports.generateProjectReport")}</h2>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Select Project *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t("reports.selectProject")} *</label>
                     <select
                       value={selectedProject}
                       onChange={(e) => setSelectedProject(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
                     >
-                      <option value="">Choose a project...</option>
+                      <option value="">{t("reports.selectProjectPlaceholder")}</option>
                       {projects.map((project) => (
                         <option key={project.id} value={project.id}>
                           {project.project_name}
@@ -189,7 +191,7 @@ export default function ReportsPage() {
                       className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <TrendingUp className="h-4 w-4 mr-2" />}
-                      Generate Report
+                      {t("reports.generateReport")}
                     </button>
                   </div>
                 </div>
@@ -199,7 +201,7 @@ export default function ReportsPage() {
               {projectReport.length > 0 && (
                 <div className="bg-white shadow rounded-lg overflow-hidden">
                   <div className="px-6 py-4 border-b border-gray-200">
-                    <h3 className="text-lg font-medium text-gray-900">Project Summary</h3>
+                    <h3 className="text-lg font-medium text-gray-900">{t("reports.projectSummary")}</h3>
                   </div>
 
                   {/* Summary Cards */}
@@ -212,7 +214,7 @@ export default function ReportsPage() {
                               <TrendingUp className="h-6 w-6 text-green-500" />
                             </div>
                             <div className="ml-4">
-                              <p className="text-sm font-medium text-gray-500">Total Harvest</p>
+                              <p className="text-sm font-medium text-gray-500">{t("reports.totalHarvest")}</p>
                               <p className="text-lg font-semibold text-gray-900">
                                 {projectTotalData.total_harvest ? `${projectTotalData.total_harvest} kg` : "N/A"}
                               </p>
@@ -225,7 +227,7 @@ export default function ReportsPage() {
                               <TrendingUp className="h-6 w-6 text-blue-500" />
                             </div>
                             <div className="ml-4">
-                              <p className="text-sm font-medium text-gray-500">Total Revenue</p>
+                              <p className="text-sm font-medium text-gray-500">{t("reports.totalRevenue")}</p>
                               <p className="text-lg font-semibold text-gray-900">
                                 {projectTotalData.total_revenue ? formatCurrency(projectTotalData.total_revenue) : "N/A"}
                               </p>
@@ -238,19 +240,25 @@ export default function ReportsPage() {
 
                   {/* Farm Details */}
                   <div className="p-6">
-                    <h4 className="text-md font-medium text-gray-900 mb-4">Farm Details</h4>
+                    <h4 className="text-md font-medium text-gray-900 mb-4">{t("reports.farmDetails")}</h4>
                     <div className="overflow-x-auto">
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                           <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farm Name</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Soil Type</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Total Harvest
+                              {t("reports.farmName")}
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Total Revenue
+                              {t("reports.farmStatus")}
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {t("reports.soilType")}
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {t("reports.totalHarvest")}
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {t("reports.totalRevenue")}
                             </th>
                           </tr>
                         </thead>
@@ -290,11 +298,11 @@ export default function ReportsPage() {
             <div className="space-y-6">
               {/* Controls */}
               <div className="bg-white shadow rounded-lg p-6">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Generate Reports by Date Range (All Projects)</h2>
+                <h2 className="text-lg font-medium text-gray-900 mb-4">{t("reports.generateDateRangeReport")}</h2>
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{t("reports.startDate")}</label>
                       <input
                         type="date"
                         value={startDate}
@@ -303,7 +311,7 @@ export default function ReportsPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">End Date *</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{t("reports.endDate")} *</label>
                       <input
                         type="date"
                         value={endDate}
@@ -319,7 +327,7 @@ export default function ReportsPage() {
                       className="inline-flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Calendar className="h-4 w-4 mr-2" />}
-                      Generate Report
+                      {t("reports.generateReport")}
                     </button>
                   </div>
                 </div>
@@ -329,7 +337,7 @@ export default function ReportsPage() {
               {dateRangeReport.length > 0 && (
                 <div className="bg-white shadow rounded-lg overflow-hidden">
                   <div className="px-6 py-4 border-b border-gray-200">
-                    <h3 className="text-lg font-medium text-gray-900">Project Summary Report</h3>
+                    <h3 className="text-lg font-medium text-gray-900">{t("reports.projectSummary")}</h3>
                   </div>
 
                   {/* Summary Cards */}
@@ -342,7 +350,7 @@ export default function ReportsPage() {
                               <TrendingUp className="h-6 w-6 text-green-500" />
                             </div>
                             <div className="ml-4">
-                              <p className="text-sm font-medium text-gray-500">Total Farms</p>
+                              <p className="text-sm font-medium text-gray-500">{t("reports.totalFarms")}</p>
                               <p className="text-lg font-semibold text-gray-900">{projectSummaryData.total_farms || "0"}</p>
                             </div>
                           </div>
@@ -353,7 +361,7 @@ export default function ReportsPage() {
                               <TrendingUp className="h-6 w-6 text-blue-500" />
                             </div>
                             <div className="ml-4">
-                              <p className="text-sm font-medium text-gray-500">Total Farm Budget</p>
+                              <p className="text-sm font-medium text-gray-500">{t("reports.totalFarmBudget")}</p>
                               <p className="text-lg font-semibold text-gray-900">
                                 {projectSummaryData.total_farm_budget
                                   ? formatCurrency(Number(projectSummaryData.total_farm_budget))
@@ -368,7 +376,7 @@ export default function ReportsPage() {
                               <TrendingUp className="h-6 w-6 text-purple-500" />
                             </div>
                             <div className="ml-4">
-                              <p className="text-sm font-medium text-gray-500">Total Revenue</p>
+                              <p className="text-sm font-medium text-gray-500">{t("reports.totalRevenue")}</p>
                               <p className="text-lg font-semibold text-gray-900">
                                 {projectSummaryData.total_revenue ? formatCurrency(projectSummaryData.total_revenue) : "N/A"}
                               </p>
@@ -381,17 +389,29 @@ export default function ReportsPage() {
 
                   {/* Farm Details */}
                   <div className="p-6">
-                    <h4 className="text-md font-medium text-gray-900 mb-4">Farm Details</h4>
+                    <h4 className="text-md font-medium text-gray-900 mb-4">{t("reports.farmDetails")}</h4>
                     <div className="overflow-x-auto">
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                           <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farm Name</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Soil Type</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farm Budget</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farm Harvest</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farm Revenue</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {t("reports.farmName")}
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {t("reports.farmStatus")}
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {t("reports.soilType")}
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {t("reports.farmBudget")}
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {t("reports.farmHarvest")}
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {t("reports.farmRevenue")}
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">

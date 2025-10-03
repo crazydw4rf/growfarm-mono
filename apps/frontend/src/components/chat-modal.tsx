@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { X, Send, Loader2, Trash2 } from "lucide-react";
-import { chatApi } from "@/lib/api";
 import { useChat } from "@/contexts/chat-context";
+import { chatApi } from "@/lib/api";
+import { Loader2, Send, Trash2, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import { useTranslations, useLocale } from "next-intl";
 
 interface Message {
   role: "user" | "assistant";
@@ -22,6 +24,8 @@ export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const t = useTranslations("chat");
+  const locale = useLocale() as "id" | "en";
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -37,11 +41,7 @@ export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
     }
   }, [isOpen]);
 
-  const examplePrompts = [
-    "Beri tahu aku project apa saja yang belum selesai?",
-    "Cari data lahan apa saja yang memiliki komoditas tomat",
-    "Apa saja kebun atau lahan pertanian yang belum dipanen?",
-  ];
+  const examplePrompts = [t("examplePrompts.unfinishedProjects"), t("examplePrompts.tomatoFarms"), t("examplePrompts.unharvested")];
 
   const handleExampleClick = (prompt: string) => {
     setInputValue(prompt);
@@ -63,7 +63,7 @@ export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
     setIsLoading(true);
 
     try {
-      const response = await chatApi.chat({ prompt: inputValue });
+      const response = await chatApi.chat({ prompt: inputValue, locale });
       const assistantMessage: Message = {
         role: "assistant",
         content: response.data.response,
@@ -96,7 +96,7 @@ export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
           <div>
             <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Daisy</h2>
-            <p className="text-xs text-gray-500 hidden sm:block">Your Smart Farm Assistant</p>
+            <p className="text-xs text-gray-500 hidden sm:block">{t("subtitle")}</p>
           </div>
           <div className="flex items-center gap-2">
             {messages.length > 0 && (
@@ -120,15 +120,13 @@ export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full px-2">
               <div className="text-center space-y-3 sm:space-y-4 mb-4 sm:mb-6">
-                <p className="text-base sm:text-lg text-gray-600">👋 Hi! I&apos;m Daisy</p>
-                <p className="text-xs sm:text-sm text-gray-500 px-4">
-                  I&apos;m here to help you manage your farms and projects. Feel free to ask me anything!
-                </p>
+                <p className="text-base sm:text-lg text-gray-600">{t("welcome")}</p>
+                <p className="text-xs sm:text-sm text-gray-500 px-4">{t("welcomeMessage")}</p>
               </div>
 
               {/* Example Prompts */}
               <div className="w-full max-w-md space-y-2 sm:space-y-3">
-                <p className="text-xs text-gray-400 font-medium mb-2">Try asking:</p>
+                <p className="text-xs text-gray-400 font-medium mb-2">{t("tryAsking")}</p>
                 {examplePrompts.map((prompt, index) => (
                   <button
                     key={index}
@@ -148,7 +146,13 @@ export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
                     message.role === "user" ? "bg-green-600 text-white" : "bg-gray-100 text-gray-900"
                   }`}
                 >
-                  <p className="text-xs sm:text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                  {message.role === "user" ? (
+                    <p className="text-xs sm:text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                  ) : (
+                    <div className="text-xs sm:text-sm prose prose-sm max-w-none prose-p:my-1 prose-headings:mt-1.5 prose-headings:mb-1 prose-headings:font-semibold prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-strong:font-bold prose-strong:text-gray-900 prose-code:text-xs prose-code:bg-gray-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-a:text-green-600 prose-a:no-underline hover:prose-a:underline">
+                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                    </div>
+                  )}
                   <p className={`text-[10px] sm:text-xs mt-1 ${message.role === "user" ? "text-green-100" : "text-gray-500"}`}>
                     {message.timestamp.toLocaleTimeString()}
                   </p>
@@ -174,7 +178,7 @@ export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Ask Daisy anything..."
+              placeholder={t("placeholder")}
               className="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isLoading}
             />

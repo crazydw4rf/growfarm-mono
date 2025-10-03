@@ -1,23 +1,16 @@
 import { inject, injectable } from "inversify";
 import type { Logger } from "winston";
 
-import type { Farm } from "@/entity";
+import type { Activity, Farm } from "@/entity";
 import { Prisma } from "@/generated/prisma/client";
 import type { LoggingService, PrismaService } from "@/services";
-import {
-  AppError,
-  type BaseRepositoryInterface,
-  ErrorCause,
-  LoggingServiceSym,
-  type PaginatedObject,
-  PrismaServiceSym,
-  type Result,
-} from "@/types";
+import { type BaseRepositoryInterface, ErrorCause, LoggingServiceSym, type PaginatedObject, PrismaServiceSym, type Result } from "@/types";
 import { Err, Ok } from "@/utils";
 
 export interface IFarmRepository extends BaseRepositoryInterface<Farm> {
   findManyByProject(projectId: string, page: { skip?: number; take?: number }): Promise<Result<PaginatedObject<Farm[]>>>;
   findByProjectAndId(projectId: string, farmId: string): Promise<Result<Farm>>;
+  createActivity(): Promise<Result<Activity>>;
 }
 
 @injectable("Singleton")
@@ -52,7 +45,7 @@ export class FarmRepository implements IFarmRepository {
         include: { project: true },
       });
       if (!farm) {
-        return Err(AppError.new("farm not found", ErrorCause.ENTRY_NOT_FOUND));
+        return Err("farm not found", ErrorCause.ENTRY_NOT_FOUND);
       }
 
       return Ok(farm);
@@ -71,7 +64,7 @@ export class FarmRepository implements IFarmRepository {
         include: { project: true },
       });
       if (!farm) {
-        return Err(AppError.new("farm not found", ErrorCause.ENTRY_NOT_FOUND));
+        return Err("farm not found", ErrorCause.ENTRY_NOT_FOUND);
       }
 
       return Ok(farm);
@@ -123,14 +116,14 @@ export class FarmRepository implements IFarmRepository {
   private handleError(e: any): Result<any> {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2002") {
-        return Err(AppError.new("farm already exists", ErrorCause.DUPLICATE_ENTRY));
+        return Err("farm already exists", ErrorCause.DUPLICATE_ENTRY);
       } else if (e.code === "P2025") {
-        return Err(AppError.new("farm not found", ErrorCause.ENTRY_NOT_FOUND));
+        return Err("farm not found", ErrorCause.ENTRY_NOT_FOUND);
       } else if (e.code === "P2003") {
-        return Err(AppError.new("project not found", ErrorCause.ENTRY_NOT_FOUND));
+        return Err("project not found", ErrorCause.ENTRY_NOT_FOUND);
       }
-      return Err(AppError.new(e.message, ErrorCause.DATABASE_ERROR));
+      return Err(e.message, ErrorCause.DATABASE_ERROR);
     }
-    return Err(AppError.new("an unknown error occurred: ".concat(e as string), ErrorCause.UNKNOWN_ERROR));
+    return Err("an unknown error occurred: ".concat(e as string), ErrorCause.UNKNOWN_ERROR);
   }
 }

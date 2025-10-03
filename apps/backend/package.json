@@ -40,6 +40,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
+    "@google/genai": "^1.21.0",
     "@modelcontextprotocol/sdk": "^1.18.2",
     "@prisma/adapter-pg": "^6.16.1",
     "@prisma/client": "^6.16.1",

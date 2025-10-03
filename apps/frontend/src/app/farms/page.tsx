@@ -2,26 +2,17 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
 import Pagination from "@/components/pagination";
 import { useData } from "@/contexts/data-context";
 import { useAuth } from "@/contexts/auth-context";
 import { Farm, Project } from "@/types/api";
-import {
-  ArrowLeft,
-  Plus,
-  MapPin,
-  Calendar,
-  Sprout,
-  Edit,
-  Eye,
-  TrendingUp,
-  FolderOpen,
-  RefreshCw,
-} from "lucide-react";
+import { ArrowLeft, Plus, MapPin, Calendar, Sprout, Edit, Eye, TrendingUp, FolderOpen, RefreshCw } from "lucide-react";
 
 export default function FarmsPage() {
+  const t = useTranslations();
   const {
     projects,
     projectsPagination,
@@ -43,9 +34,7 @@ export default function FarmsPage() {
   const farms = selectedProject ? getFarms(selectedProject.id) : [];
 
   // Get all farms for selected project (for summary calculations)
-  const allFarms = selectedProject
-    ? getAllFarmsForProject(selectedProject.id)
-    : [];
+  const allFarms = selectedProject ? getAllFarmsForProject(selectedProject.id) : [];
 
   // Load projects on mount (uses cache if available)
   useEffect(() => {
@@ -77,11 +66,11 @@ export default function FarmsPage() {
       await loadFarms(selectedProject.id, 1);
     } catch (error) {
       console.error("Failed to refresh farms:", error);
-      setError("Failed to refresh farms");
+      setError(t("farms.errorLoading"));
     } finally {
       setIsLoadingFarms(false);
     }
-  }, [selectedProject, invalidateFarms, loadFarms]);
+  }, [selectedProject, invalidateFarms, loadFarms, t]);
 
   // Auto-refresh farms when page becomes visible (e.g., after returning from create/edit)
   useEffect(() => {
@@ -108,12 +97,12 @@ export default function FarmsPage() {
         await loadFarms(project.id, 1);
       } catch (error) {
         console.error("Failed to load farms:", error);
-        setError("Failed to load farms");
+        setError(t("farms.errorLoading"));
       } finally {
         setIsLoadingFarms(false);
       }
     },
-    [loadFarms]
+    [loadFarms, t],
   );
 
   const handleProjectsPageChange = async (page: number) => {
@@ -180,44 +169,26 @@ export default function FarmsPage() {
   // Calculate summary stats from all farms (across all pages)
   const totalLandSize = allFarms.reduce((sum: number, farm: Farm) => {
     // Handle both string and number values
-    const landSizeValue =
-      typeof farm.land_size === "string"
-        ? parseFloat(farm.land_size)
-        : farm.land_size;
-    const landSize =
-      typeof landSizeValue === "number" && !isNaN(landSizeValue)
-        ? landSizeValue
-        : 0;
+    const landSizeValue = typeof farm.land_size === "string" ? parseFloat(farm.land_size) : farm.land_size;
+    const landSize = typeof landSizeValue === "number" && !isNaN(landSizeValue) ? landSizeValue : 0;
     return sum + landSize;
   }, 0);
 
   const totalFarmBudget = allFarms.reduce((sum: number, farm: Farm) => {
     // Handle both string and number values
-    const budgetValue =
-      typeof farm.farm_budget === "string"
-        ? parseFloat(farm.farm_budget)
-        : farm.farm_budget;
-    const budget =
-      typeof budgetValue === "number" && !isNaN(budgetValue) ? budgetValue : 0;
+    const budgetValue = typeof farm.farm_budget === "string" ? parseFloat(farm.farm_budget) : farm.farm_budget;
+    const budget = typeof budgetValue === "number" && !isNaN(budgetValue) ? budgetValue : 0;
     return sum + budget;
   }, 0);
 
   const totalHarvest = allFarms.reduce((sum: number, farm: Farm) => {
     // Handle both string and number values
-    const harvestValue =
-      typeof farm.total_harvest === "string"
-        ? parseFloat(farm.total_harvest)
-        : farm.total_harvest;
-    const harvest =
-      typeof harvestValue === "number" && !isNaN(harvestValue)
-        ? harvestValue
-        : 0;
+    const harvestValue = typeof farm.total_harvest === "string" ? parseFloat(farm.total_harvest) : farm.total_harvest;
+    const harvest = typeof harvestValue === "number" && !isNaN(harvestValue) ? harvestValue : 0;
     return sum + harvest;
   }, 0);
 
-  const activeFarms = allFarms.filter(
-    (farm: Farm) => farm.farm_status === "ACTIVE"
-  ).length;
+  const activeFarms = allFarms.filter((farm: Farm) => farm.farm_status === "ACTIVE").length;
 
   if (isLoadingProjects && projects.length === 0) {
     return (
@@ -236,15 +207,13 @@ export default function FarmsPage() {
       <ProtectedRoute>
         <DashboardLayout>
           <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Error Loading Projects
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-900">{t("errors.generic")}</h2>
             <p className="mt-2 text-gray-600">{error}</p>
             <button
               onClick={() => loadProjects(1)}
               className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700"
             >
-              Try Again
+              {t("errors.tryAgain")}
             </button>
           </div>
         </DashboardLayout>
@@ -261,12 +230,8 @@ export default function FarmsPage() {
               {/* Header */}
               <div className="sm:flex sm:items-center sm:justify-between">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    Farms Management
-                  </h1>
-                  <p className="mt-2 text-sm text-gray-700">
-                    Select a project to view and manage its farms.
-                  </p>
+                  <h1 className="text-2xl font-bold text-gray-900">{t("farms.management")}</h1>
+                  <p className="mt-2 text-sm text-gray-700">{t("farms.selectProjectMessage")}</p>
                 </div>
                 <div className="mt-4 sm:mt-0">
                   <button
@@ -274,12 +239,8 @@ export default function FarmsPage() {
                     disabled={isLoadingProjects}
                     className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
                   >
-                    <RefreshCw
-                      className={`-ml-1 mr-2 h-4 w-4 ${
-                        isLoadingProjects ? "animate-spin" : ""
-                      }`}
-                    />
-                    {isLoadingProjects ? "Loading..." : "Refresh Projects"}
+                    <RefreshCw className={`-ml-1 mr-2 h-4 w-4 ${isLoadingProjects ? "animate-spin" : ""}`} />
+                    {isLoadingProjects ? t("common.loading") : t("farms.refresh")}
                   </button>
                 </div>
               </div>
@@ -287,32 +248,23 @@ export default function FarmsPage() {
               {/* Project Selection */}
               <div className="bg-white shadow rounded-lg">
                 <div className="px-6 py-4 border-b border-gray-200">
-                  <h2 className="text-lg font-medium text-gray-900">
-                    Choose a Project
-                  </h2>
-                  <p className="mt-1 text-sm text-gray-600">
-                    Select a project to view its farms and manage agricultural
-                    activities.
-                  </p>
+                  <h2 className="text-lg font-medium text-gray-900">{t("farms.selectProject")}</h2>
+                  <p className="mt-1 text-sm text-gray-600">{t("farms.selectProjectMessage")}</p>
                 </div>
 
                 <div className="p-6">
                   {projects.length === 0 ? (
                     <div className="text-center py-8">
                       <FolderOpen className="mx-auto h-12 w-12 text-gray-400" />
-                      <h3 className="mt-2 text-sm font-medium text-gray-900">
-                        No projects
-                      </h3>
-                      <p className="mt-1 text-sm text-gray-500">
-                        Create a project first to manage farms.
-                      </p>
+                      <h3 className="mt-2 text-sm font-medium text-gray-900">{t("projects.noProjects")}</h3>
+                      <p className="mt-1 text-sm text-gray-500">{t("farms.createFirst")}</p>
                       <div className="mt-4">
                         <Link
                           href="/projects/new"
                           className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
                         >
                           <Plus className="-ml-1 mr-2 h-4 w-4" />
-                          Create Project
+                          {t("projects.addProject")}
                         </Link>
                       </div>
                     </div>
@@ -325,12 +277,10 @@ export default function FarmsPage() {
                           className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-200"
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <h3 className="text-sm font-medium text-gray-900 truncate">
-                              {project.project_name}
-                            </h3>
+                            <h3 className="text-sm font-medium text-gray-900 truncate">{project.project_name}</h3>
                             <span
                               className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                                project.project_status
+                                project.project_status,
                               )}`}
                             >
                               {project.project_status.replace("_", " ")}
@@ -339,17 +289,13 @@ export default function FarmsPage() {
                           <div className="space-y-1 text-sm text-gray-500">
                             <div className="flex items-center">
                               <Calendar className="h-3 w-3 mr-1" />
-                              Target: {formatDate(project.target_date)}
+                              {t("projects.target")}: {formatDate(project.target_date)}
                             </div>
                             <div className="flex items-center">
                               <TrendingUp className="h-3 w-3 mr-1" />
-                              Budget: {formatCurrency(project.budget)}
+                              {t("farms.budget")}: {formatCurrency(project.budget)}
                             </div>
-                            {project.description && (
-                              <p className="text-xs text-gray-400 mt-1 truncate">
-                                {project.description}
-                              </p>
-                            )}
+                            {project.description && <p className="text-xs text-gray-400 mt-1 truncate">{project.description}</p>}
                           </div>
                         </div>
                       ))}
@@ -375,19 +321,14 @@ export default function FarmsPage() {
               {/* Selected Project Header */}
               <div className="sm:flex sm:items-center sm:justify-between">
                 <div className="flex items-center space-x-3">
-                  <button
-                    onClick={handleChangeProject}
-                    className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                  >
+                  <button onClick={handleChangeProject} className="text-gray-400 hover:text-gray-600 transition-colors duration-200">
                     <ArrowLeft className="h-6 w-6" />
                   </button>
                   <div>
                     <h1 className="text-2xl font-bold text-gray-900">
-                      {selectedProject?.project_name} - Farms
+                      {selectedProject?.project_name} - {t("farms.title")}
                     </h1>
-                    <p className="mt-1 text-sm text-gray-600">
-                      Manage farms for this project
-                    </p>
+                    <p className="mt-1 text-sm text-gray-600">{t("farms.subtitle")}</p>
                   </div>
                 </div>
                 <div className="mt-4 sm:mt-0 flex space-x-3">
@@ -396,19 +337,15 @@ export default function FarmsPage() {
                     disabled={isLoadingFarms}
                     className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
                   >
-                    <RefreshCw
-                      className={`-ml-1 mr-2 h-4 w-4 ${
-                        isLoadingFarms ? "animate-spin" : ""
-                      }`}
-                    />
-                    {isLoadingFarms ? "Loading..." : "Refresh Farms"}
+                    <RefreshCw className={`-ml-1 mr-2 h-4 w-4 ${isLoadingFarms ? "animate-spin" : ""}`} />
+                    {isLoadingFarms ? t("common.loading") : t("farms.refresh")}
                   </button>
                   <Link
                     href={`/projects/${selectedProject?.id}/farms/new`}
                     className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                   >
                     <Plus className="-ml-1 mr-2 h-4 w-4" />
-                    Add Farm
+                    {t("farms.addFarm")}
                   </Link>
                 </div>
               </div>
@@ -423,12 +360,8 @@ export default function FarmsPage() {
                       </div>
                       <div className="ml-5 w-0 flex-1">
                         <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">
-                            Total Land Size
-                          </dt>
-                          <dd className="text-lg font-medium text-gray-900">
-                            {safeToFixed(totalLandSize)} hectares
-                          </dd>
+                          <dt className="text-sm font-medium text-gray-500 truncate">{t("farms.totalArea")}</dt>
+                          <dd className="text-lg font-medium text-gray-900">{safeToFixed(totalLandSize)} hectares</dd>
                         </dl>
                       </div>
                     </div>
@@ -443,12 +376,8 @@ export default function FarmsPage() {
                       </div>
                       <div className="ml-5 w-0 flex-1">
                         <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">
-                            Total Farm Budget
-                          </dt>
-                          <dd className="text-lg font-medium text-gray-900">
-                            {formatCurrency(totalFarmBudget)}
-                          </dd>
+                          <dt className="text-sm font-medium text-gray-500 truncate">{t("farms.budget")}</dt>
+                          <dd className="text-lg font-medium text-gray-900">{formatCurrency(totalFarmBudget)}</dd>
                         </dl>
                       </div>
                     </div>
@@ -463,9 +392,7 @@ export default function FarmsPage() {
                       </div>
                       <div className="ml-5 w-0 flex-1">
                         <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">
-                            Active Farms
-                          </dt>
+                          <dt className="text-sm font-medium text-gray-500 truncate">{t("farms.activeFarms")}</dt>
                           <dd className="text-lg font-medium text-gray-900">
                             {activeFarms} of {allFarms.length}
                           </dd>
@@ -483,13 +410,9 @@ export default function FarmsPage() {
                       </div>
                       <div className="ml-5 w-0 flex-1">
                         <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">
-                            Total Harvest
-                          </dt>
+                          <dt className="text-sm font-medium text-gray-500 truncate">{t("reports.totalHarvest")}</dt>
                           <dd className="text-lg font-medium text-gray-900">
-                            {totalHarvest > 0
-                              ? `${safeToFixed(totalHarvest)} kg`
-                              : "N/A"}
+                            {totalHarvest > 0 ? `${safeToFixed(totalHarvest)} kg` : "N/A"}
                           </dd>
                         </dl>
                       </div>
@@ -501,7 +424,7 @@ export default function FarmsPage() {
               {/* Farms List */}
               <div className="bg-white shadow rounded-lg">
                 <div className="px-6 py-4 border-b border-gray-200">
-                  <h2 className="text-lg font-medium text-gray-900">Farms</h2>
+                  <h2 className="text-lg font-medium text-gray-900">{t("farms.title")}</h2>
                 </div>
 
                 <div className="p-6">
@@ -512,20 +435,15 @@ export default function FarmsPage() {
                   ) : farms.length === 0 ? (
                     <div className="text-center py-8">
                       <Sprout className="mx-auto h-12 w-12 text-gray-400" />
-                      <h3 className="mt-2 text-sm font-medium text-gray-900">
-                        No farms
-                      </h3>
-                      <p className="mt-1 text-sm text-gray-500">
-                        Add farms to this project to start tracking agricultural
-                        activities.
-                      </p>
+                      <h3 className="mt-2 text-sm font-medium text-gray-900">{t("farms.noFarms")}</h3>
+                      <p className="mt-1 text-sm text-gray-500">{t("farms.getStartedMessage")}</p>
                       <div className="mt-4">
                         <Link
                           href={`/projects/${selectedProject?.id}/farms/new`}
                           className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
                         >
                           <Plus className="-ml-1 mr-2 h-4 w-4" />
-                          Add Farm
+                          {t("farms.addFarm")}
                         </Link>
                       </div>
                     </div>
@@ -534,19 +452,15 @@ export default function FarmsPage() {
                       {farms.length === 0 ? (
                         <div className="text-center py-12">
                           <Sprout className="mx-auto h-12 w-12 text-gray-400" />
-                          <h3 className="mt-2 text-sm font-medium text-gray-900">
-                            No farms
-                          </h3>
-                          <p className="mt-1 text-sm text-gray-500">
-                            Get started by creating a new farm for this project.
-                          </p>
+                          <h3 className="mt-2 text-sm font-medium text-gray-900">{t("farms.noFarms")}</h3>
+                          <p className="mt-1 text-sm text-gray-500">{t("farms.getStartedMessage")}</p>
                           <div className="mt-6">
                             <Link
                               href={`/projects/${selectedProject?.id}/farms/new`}
                               className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                             >
                               <Plus className="-ml-1 mr-2 h-4 w-4" />
-                              Add Farm
+                              {t("farms.addFarm")}
                             </Link>
                           </div>
                         </div>
@@ -558,17 +472,13 @@ export default function FarmsPage() {
                                 <div className="flex items-center justify-between">
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center space-x-3">
-                                      <h3 className="text-lg font-medium text-gray-900 truncate">
-                                        {farm.farm_name}
-                                      </h3>
+                                      <h3 className="text-lg font-medium text-gray-900 truncate">{farm.farm_name}</h3>
                                       <span
                                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                                          farm.farm_status
+                                          farm.farm_status,
                                         )}`}
                                       >
-                                        {farm.farm_status === "ACTIVE"
-                                          ? "Active"
-                                          : "Harvested"}
+                                        {farm.farm_status === "ACTIVE" ? t("farms.active") : t("farms.harvested")}
                                       </span>
                                     </div>
                                     <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-gray-500">
@@ -578,33 +488,20 @@ export default function FarmsPage() {
                                       </div>
                                       <div className="flex items-center">
                                         <Sprout className="h-4 w-4 mr-1" />
-                                        {farm.land_size} hectares •{" "}
-                                        {farm.comodity}
+                                        {farm.land_size} hectares • {farm.comodity}
                                       </div>
                                       <div className="flex items-center">
                                         <Calendar className="h-4 w-4 mr-1" />
-                                        Target:{" "}
-                                        {formatDate(farm.target_harvest_date)}
+                                        {t("projects.target")}: {formatDate(farm.target_harvest_date)}
                                       </div>
                                     </div>
                                     <div className="mt-2 text-sm text-gray-900">
-                                      <span className="font-medium">Soil:</span>{" "}
-                                      {getSoilTypeLabel(farm.soil_type)} •
-                                      <span className="font-medium ml-2">
-                                        Budget:
-                                      </span>{" "}
-                                      {formatCurrency(farm.farm_budget)} •
-                                      <span className="font-medium ml-2">
-                                        Price:
-                                      </span>{" "}
-                                      {formatCurrency(farm.product_price)}/kg
+                                      <span className="font-medium">{t("farms.soilType")}:</span> {getSoilTypeLabel(farm.soil_type)} •
+                                      <span className="font-medium ml-2">{t("farms.budget")}:</span> {formatCurrency(farm.farm_budget)} •
+                                      <span className="font-medium ml-2">Price:</span> {formatCurrency(farm.product_price)}/kg
                                       {farm.total_harvest && (
                                         <>
-                                          •{" "}
-                                          <span className="font-medium ml-2">
-                                            Harvest:
-                                          </span>{" "}
-                                          {farm.total_harvest} kg
+                                          • <span className="font-medium ml-2">{t("reports.totalHarvest")}:</span> {farm.total_harvest} kg
                                         </>
                                       )}
                                     </div>
@@ -613,14 +510,14 @@ export default function FarmsPage() {
                                     <Link
                                       href={`/projects/${selectedProject?.id}/farms/${farm.id}`}
                                       className="text-gray-400 hover:text-blue-600 transition-colors duration-200"
-                                      title="View farm details"
+                                      title={t("farms.viewFarm")}
                                     >
                                       <Eye className="h-5 w-5" />
                                     </Link>
                                     <Link
                                       href={`/projects/${selectedProject?.id}/farms/${farm.id}/edit`}
                                       className="text-gray-400 hover:text-green-600 transition-colors duration-200"
-                                      title="Edit farm"
+                                      title={t("farms.editFarm")}
                                     >
                                       <Edit className="h-5 w-5" />
                                     </Link>
@@ -633,21 +530,16 @@ export default function FarmsPage() {
                       )}
 
                       {/* Farms Pagination */}
-                      {selectedProject &&
-                        farmsPagination[selectedProject.id] && (
-                          <div className="mt-6">
-                            <Pagination
-                              currentPage={
-                                farmsPagination[selectedProject.id].currentPage
-                              }
-                              totalItems={
-                                farmsPagination[selectedProject.id].totalItems
-                              }
-                              itemsPerPage={10}
-                              onPageChange={handleFarmsPageChange}
-                            />
-                          </div>
-                        )}
+                      {selectedProject && farmsPagination[selectedProject.id] && (
+                        <div className="mt-6">
+                          <Pagination
+                            currentPage={farmsPagination[selectedProject.id].currentPage}
+                            totalItems={farmsPagination[selectedProject.id].totalItems}
+                            itemsPerPage={10}
+                            onPageChange={handleFarmsPageChange}
+                          />
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

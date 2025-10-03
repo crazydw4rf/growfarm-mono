@@ -9,15 +9,15 @@ export interface FunctionTool<TArgs extends z.ZodRawShape = z.ZodRawShape> {
   name: string;
   description: string;
   schema: z.ZodObject<TArgs>;
-  func: (this: McpService, args: InferZodShape<TArgs>) => ReturnType<ToolCallback>;
+  callback: (this: McpService, args: InferZodShape<TArgs>) => ReturnType<ToolCallback>;
 }
 
 export function ToolBuilder<Args extends z.ZodRawShape = z.ZodRawShape>(
   name: string,
   description: string,
   schema: z.ZodObject<Args> | null,
-  func: (this: McpService, args: InferZodShape<Args>) => ReturnType<ToolCallback>,
+  callback: (this: McpService, args: InferZodShape<Args>) => ReturnType<ToolCallback>,
 ): FunctionTool {
   // @ts-expect-error: biasa type error
-  return { name, description, schema: !schema ? {} : schema.shape, func };
+  return { name, description, schema: !schema ? {} : schema.shape, callback };
 }

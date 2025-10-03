@@ -1,23 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
-import Image from "next/image";
-import { LayoutDashboard, FolderKanban, Sprout, FileText, Settings, LogOut, Menu, X, User as UserIcon } from "lucide-react";
 import { User } from "@/types/api";
 import { clsx } from "clsx";
-import FloatingChatButton from "./floating-chat-button";
+import { FileText, FolderKanban, LayoutDashboard, LogOut, Menu, MessageCircle, Settings, Sprout, User as UserIcon, X } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 import ChatModal from "./chat-modal";
+import FloatingChatButton from "./floating-chat-button";
+import LanguageSwitcher from "./language-switcher";
 
-const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Projects", href: "/projects", icon: FolderKanban },
-  { name: "Farms", href: "/farms", icon: Sprout },
-  { name: "Reports", href: "/reports", icon: FileText },
-  { name: "Settings", href: "/settings", icon: Settings },
-];
+interface NavigationItem {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -28,6 +28,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [chatOpen, setChatOpen] = useState(false);
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const t = useTranslations("navigation");
+
+  const navigation = [
+    { name: t("dashboard"), href: "/dashboard", icon: LayoutDashboard },
+    { name: t("projects"), href: "/projects", icon: FolderKanban },
+    { name: t("farms"), href: "/farms", icon: Sprout },
+    { name: t("reports"), href: "/reports", icon: FileText },
+    { name: t("chat"), href: "/chat", icon: MessageCircle },
+    { name: t("settings"), href: "/settings", icon: Settings },
+  ];
 
   const handleLogout = async () => {
     await logout();
@@ -52,10 +62,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
           <Link href="/" className="flex items-center hover:opacity-80 transition-opacity duration-200">
             <Image src="/growfarm-128x128.png" alt="GrowFarm Logo" width={128} height={128} className="h-10 w-10" />
-            <span className="ml-2 text-xl font-bold text-gray-900">Grow Farm</span>
+            <span className="ml-2 text-xl font-bold text-gray-900">GrowFarm</span>
           </Link>
-          <button onClick={() => setSidebarOpen(false)} className="text-gray-500 hover:text-gray-700">
-            <X className="h-6 w-6" />
+          <button onClick={() => setSidebarOpen(false)} className="text-gray-500 hover:text-gray-700 p-1">
+            <X className="h-5 w-5" />
           </button>
         </div>
         <SidebarContent navigation={navigation} pathname={pathname} user={user} onLogout={handleLogout} />
@@ -68,7 +78,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="flex items-center h-16 flex-shrink-0 px-4 border-b border-gray-200">
               <Link href="/" className="flex items-center hover:opacity-80 transition-opacity duration-200">
                 <Image src="/growfarm-128x128.png" alt="GrowFarm Logo" width={128} height={128} className="h-10 w-10" />
-                <span className="ml-2 text-xl font-bold text-gray-900">Grow Farm</span>
+                <span className="ml-2 text-xl font-bold text-gray-900">GrowFarm</span>
               </Link>
             </div>
             <SidebarContent navigation={navigation} pathname={pathname} user={user} onLogout={handleLogout} />
@@ -99,29 +109,35 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   </div>
                 </div>
               </div>
+              <LanguageSwitcher />
             </div>
           </div>
         </div>
 
         {/* Desktop header */}
         <div className="hidden md:block bg-white shadow-sm border-b border-gray-200">
-          <div className="px-6 py-4">
+          <div className="px-6 py-4 flex items-center justify-between">
             <h1 className="text-xl lg:text-2xl font-bold text-gray-900">
               {navigation.find((item) => item.href === pathname)?.name || "Dashboard"}
             </h1>
+            <LanguageSwitcher />
           </div>
         </div>
 
         {/* Page content */}
         <main className="flex-1 relative overflow-y-auto focus:outline-none">
-          <div className="py-4 sm:py-6">
-            <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">{children}</div>
-          </div>
+          {pathname === "/chat" ? (
+            <div className="h-full">{children}</div>
+          ) : (
+            <div className="py-4 sm:py-6">
+              <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">{children}</div>
+            </div>
+          )}
         </main>
       </div>
 
-      {/* Floating Chat Button */}
-      <FloatingChatButton onClick={() => setChatOpen(true)} />
+      {/* Floating Chat Button - hidden on chat page */}
+      {pathname !== "/chat" && <FloatingChatButton onClick={() => setChatOpen(true)} />}
 
       {/* Chat Modal */}
       <ChatModal isOpen={chatOpen} onClose={() => setChatOpen(false)} />
@@ -130,7 +146,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 }
 
 interface SidebarContentProps {
-  navigation: typeof navigation;
+  navigation: NavigationItem[];
   pathname: string;
   user: User | null;
   onLogout: () => void;

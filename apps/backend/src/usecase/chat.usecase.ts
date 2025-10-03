@@ -24,7 +24,7 @@ export class ChatUsecase implements IChatUsecase {
   }
 
   async chatWithTools(dto: ChatRequestDto): Promise<Result<ChatResponse>> {
-    const [response, err] = await this.genai.generateTextWithTools(dto.prompt);
+    const [response, err] = await this.genai.generateTextWithTools(dto.prompt, dto.locale);
     if (err) {
       this.logger.error("Error generating text with GenAI", { err });
       return Err(err);

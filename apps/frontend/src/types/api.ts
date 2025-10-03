@@ -177,6 +177,7 @@ export interface ProjectReportDateRange {
 // Chat Types
 export interface ChatRequest {
   prompt: string;
+  locale?: "id" | "en";
 }
 
 export interface ChatResponse {

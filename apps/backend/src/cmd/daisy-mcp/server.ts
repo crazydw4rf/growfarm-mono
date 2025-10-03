@@ -24,7 +24,7 @@ export class McpService extends McpServer {
   registerAllTools(): void {
     for (const toolParams of Tools) {
       // @ts-expect-error: type error
-      this.tool(toolParams.name, toolParams.description, toolParams.schema, toolParams.func.bind(this));
+      this.tool(toolParams.name, toolParams.description, toolParams.schema, toolParams.callback.bind(this));
     }
   }
 

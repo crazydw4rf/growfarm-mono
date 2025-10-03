@@ -94,12 +94,17 @@ const getFarmBatch = ToolBuilder(
 const getFarmFilterByComodity = ToolBuilder(
   "get_farm_by_comodity",
   "Mengambil data farm/lahan/kebun berdasarkan komoditas yang diberikan",
-  z.object({ comodity: z.string().min(1).describe("komoditas, contoh: tomat") }),
+  z.object({
+    comodity: z.string().min(1).describe("komoditas, contoh: tomat"),
+    take: z.coerce.number().min(1).max(10).describe("jumlah data yang akan diambil, default 5").optional().default(5),
+    skip: z.coerce.number().min(0).describe("jumlah data yang akan di skip, default 0").optional().default(0),
+  }),
   async function (args) {
     try {
       const farms = await this.prisma.farm.findMany({
         where: { comodity: { contains: args.comodity, mode: "insensitive" } },
-        take: 5,
+        take: args.take,
+        skip: args.skip,
       });
 
       if (!farms || farms.length === 0) return McpOk("farm tidak dapat ditemukan");
@@ -111,4 +116,47 @@ const getFarmFilterByComodity = ToolBuilder(
   },
 );
 
-export default [getCurrentDate, getProjectData, getFarmData, getProjectBatch, getFarmBatch, getFarmFilterByComodity];
+const getProjectCount = ToolBuilder(
+  "get_project_count",
+  "Mengambil jumlah data project berdasarkan user id yang diberikan",
+  z.object({ userId: z.string().min(26).describe("user id") }),
+  async function (args) {
+    try {
+      const count = await this.prisma.project.count({
+        where: { user_id: args.userId },
+      });
+
+      return McpOk(formatResponse({ count }));
+    } catch (e) {
+      return McpError(e);
+    }
+  },
+);
+
+const getFarmCount = ToolBuilder(
+  "get_farm_count",
+  "Mengambil jumlah data farm/lahan/kebun berdasarkan project id yang diberikan",
+  z.object({ projectId: z.string().min(26).describe("project id") }),
+  async function (args) {
+    try {
+      const count = await this.prisma.farm.count({
+        where: { project_id: args.projectId },
+      });
+
+      return McpOk(formatResponse({ count }));
+    } catch (e) {
+      return McpError(e);
+    }
+  },
+);
+
+export default [
+  getCurrentDate,
+  getProjectData,
+  getFarmData,
+  getProjectBatch,
+  getFarmBatch,
+  getFarmFilterByComodity,
+  getProjectCount,
+  getFarmCount,
+];
