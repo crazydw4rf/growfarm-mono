@@ -9,6 +9,7 @@ import DashboardLayout from "@/components/dashboard-layout";
 import { useData } from "@/contexts/data-context";
 import { useAuth } from "@/contexts/auth-context";
 import { Project } from "@/types/api";
+import { farmsApi } from "@/lib/api";
 import { Activity, Calendar, Banknote, Sprout, FolderKanban, Plus } from "lucide-react";
 
 interface DashboardStats {
@@ -42,20 +43,63 @@ export default function Dashboard() {
   }, [loadProjects, isAuthenticated, isLoading]);
 
   useEffect(() => {
-    // Update stats whenever projects change
-    if (projects.length > 0) {
-      const activeProjects = projects.filter((p: Project) => p.project_status !== "COMPLETED").length;
-      const totalBudget = projects.reduce((sum: number, p: Project) => sum + p.budget, 0);
+    // Fetch farms data for all projects
+    const fetchFarmsData = async () => {
+      if (projects.length === 0) return;
 
-      setStats({
-        totalProjects: projects.length,
-        activeProjects,
-        totalFarms: 0, // We'll need to fetch farms data separately
-        activeFarms: 0,
-        totalBudget,
-        harvestedFarms: 0,
-      });
-    }
+      try {
+        // Fetch farms for all projects
+        const farmsPromises = projects.map((project: Project) =>
+          farmsApi.getByProject(project.id, { skip: 0, take: 100 })
+        );
+        const farmsResponses = await Promise.all(farmsPromises);
+
+        // Calculate farm stats
+        let totalFarms = 0;
+        let activeFarms = 0;
+        let harvestedFarms = 0;
+
+        farmsResponses.forEach((response) => {
+          totalFarms += response.count;
+          response.data.forEach((farm) => {
+            if (farm.farm_status === "ACTIVE") {
+              activeFarms++;
+            } else if (farm.farm_status === "HARVESTED") {
+              harvestedFarms++;
+            }
+          });
+        });
+
+        // Calculate project stats
+        const activeProjects = projects.filter((p: Project) => p.project_status !== "COMPLETED").length;
+        const totalBudget = projects.reduce((sum: number, p: Project) => sum + p.budget, 0);
+
+        setStats({
+          totalProjects: projects.length,
+          activeProjects,
+          totalFarms,
+          activeFarms,
+          totalBudget,
+          harvestedFarms,
+        });
+      } catch (error) {
+        console.error("Failed to fetch farms data:", error);
+        // Still update project stats even if farms fetch fails
+        const activeProjects = projects.filter((p: Project) => p.project_status !== "COMPLETED").length;
+        const totalBudget = projects.reduce((sum: number, p: Project) => sum + p.budget, 0);
+
+        setStats({
+          totalProjects: projects.length,
+          activeProjects,
+          totalFarms: 0,
+          activeFarms: 0,
+          totalBudget,
+          harvestedFarms: 0,
+        });
+      }
+    };
+
+    fetchFarmsData();
   }, [projects]);
 
   const formatCurrency = (amount: number) => {

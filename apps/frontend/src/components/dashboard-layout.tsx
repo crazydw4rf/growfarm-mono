@@ -3,7 +3,7 @@
 import { useAuth } from "@/contexts/auth-context";
 import { User } from "@/types/api";
 import { clsx } from "clsx";
-import { Activity, FileText, FolderKanban, LayoutDashboard, LogOut, Menu, MessageCircle, Settings, Sprout, User as UserIcon, X } from "lucide-react";
+import { Activity, FileText, FolderKanban, LayoutDashboard, LogOut, Menu, MessageCircle, Sprout, User as UserIcon, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -37,7 +37,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { name: t("activities"), href: "/activities", icon: Activity },
     { name: t("reports"), href: "/reports", icon: FileText },
     { name: t("chat"), href: "/chat", icon: MessageCircle },
-    { name: t("settings"), href: "/settings", icon: Settings },
   ];
 
   const handleLogout = async () => {
