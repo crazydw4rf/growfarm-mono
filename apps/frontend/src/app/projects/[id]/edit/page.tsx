@@ -1,16 +1,17 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslations } from "next-intl";
 import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
 import { useData } from "@/contexts/data-context";
 import { projectsApi } from "@/lib/api";
-import { Project, ProjectUpdate } from "@/types/api";
+import { Project } from "@/types/api";
 import { ArrowLeft, Save } from "lucide-react";
 
 const projectSchema = z.object({
@@ -33,6 +34,7 @@ export default function EditProjectPage({
   params: Promise<{ id: string }>;
 }) {
   const { id: projectId } = React.use(params);
+  const t = useTranslations();
   const { projects, loadProjects, updateProject } = useData();
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -50,7 +52,7 @@ export default function EditProjectPage({
     resolver: zodResolver(projectSchema),
   });
 
-  const fetchProjectData = useCallback(async () => {
+  const fetchProjectData = React.useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -247,9 +249,9 @@ export default function EditProjectPage({
                     {...register("project_status")}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
                   >
-                    <option value="PLANNING">Planning</option>
-                    <option value="IN_PROGRESS">In Progress</option>
-                    <option value="COMPLETED">Completed</option>
+                    <option value="PLANNING">{t("projects.statuses.PLANNING")}</option>
+                    <option value="IN_PROGRESS">{t("projects.statuses.IN_PROGRESS")}</option>
+                    <option value="COMPLETED">{t("projects.statuses.COMPLETED")}</option>
                   </select>
                   {errors.project_status && (
                     <p className="mt-1 text-sm text-red-600">

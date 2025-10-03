@@ -1,21 +1,23 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
-import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
+import ProtectedRoute from "@/components/protected-route";
 import { useAuth } from "@/contexts/auth-context";
 import { farmsApi } from "@/lib/api";
 import { Farm } from "@/types/api";
 import {
-  ArrowLeft,
-  Edit,
-  MapPin,
-  Calendar,
-  Sprout,
-  TrendingUp,
-  Package,
+    Activity,
+    ArrowLeft,
+    Calendar,
+    Edit,
+    MapPin,
+    Package,
+    Sprout,
+    TrendingUp,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import Link from "next/link";
+import React, { useCallback, useEffect, useState } from "react";
 
 export default function FarmDetailPage({
   params,
@@ -24,6 +26,9 @@ export default function FarmDetailPage({
 }) {
   const { id: projectId, farmId } = React.use(params);
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const t = useTranslations("farms");
+  const tActivities = useTranslations("activities");
+  const tCommon = useTranslations("common");
   const [farm, setFarm] = useState<Farm | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -128,7 +133,7 @@ export default function FarmDetailPage({
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center space-x-3">
                 <Link
                   href={`/projects/${projectId}/farms`}
@@ -141,17 +146,26 @@ export default function FarmDetailPage({
                     {farm.farm_name}
                   </h1>
                   <p className="mt-1 text-sm text-gray-600">
-                    Farm details and cultivation information
+                    {t("details")}
                   </p>
                 </div>
               </div>
-              <Link
-                href={`/projects/${projectId}/farms/${farmId}/edit`}
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-              >
-                <Edit className="-ml-1 mr-2 h-4 w-4" />
-                Edit Farm
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/projects/${projectId}/farms/${farmId}/activities`}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                >
+                  <Activity className="-ml-1 mr-2 h-4 w-4" />
+                  {tActivities("viewActivities")}
+                </Link>
+                <Link
+                  href={`/projects/${projectId}/farms/${farmId}/edit`}
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                >
+                  <Edit className="-ml-1 mr-2 h-4 w-4" />
+                  {tCommon("edit")}
+                </Link>
+              </div>
             </div>
           </div>
 
@@ -162,7 +176,7 @@ export default function FarmDetailPage({
                 farm.farm_status
               )}`}
             >
-              {farm.farm_status === "ACTIVE" ? "Active" : "Harvested"}
+              {farm.farm_status === "ACTIVE" ? t("active") : t("harvested")}
             </span>
           </div>
 

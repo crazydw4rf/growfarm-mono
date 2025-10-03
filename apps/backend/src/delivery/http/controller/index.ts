@@ -4,3 +4,4 @@ export * from "./project.controller";
 export * from "./farm.controller";
 export * from "./report.controller";
 export * from "./chat.controller";
+export * from "./activity.controller";

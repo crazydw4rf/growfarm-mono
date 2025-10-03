@@ -1,20 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useAuth } from "@/contexts/auth-context";
-import { Eye, EyeOff } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
+import { Eye, EyeOff } from "lucide-react";
+import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const registerSchema = z
   .object({
-    first_name: z.string().min(1, "First name is required"),
-    last_name: z.string().min(1, "Last name is required"),
-    email: z.email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    first_name: z.string().min(1),
+    last_name: z.string().min(1),
+    email: z.string().email(),
+    password: z.string().min(6),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -25,6 +26,7 @@ const registerSchema = z
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
+  const t = useTranslations("auth");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { register: authRegister } = useAuth();
@@ -47,48 +49,16 @@ export default function RegisterPage() {
         password: data.password,
       });
     } catch (error) {
-      let errorMessage = "Registration failed. Please try again.";
+      let errorMessage = t("registerError") || "Registration failed. Please try again.";
 
       // Check if it's an axios error with response data
       if (axios.isAxiosError(error)) {
-        const status = error.response?.status;
         const responseData = error.response?.data;
 
-        switch (status) {
-          case 409:
-            errorMessage =
-              "This email is already registered. Please use a different email or try logging in.";
-            break;
-          case 400:
-            // Check if there's a specific validation message from the server
-            if (responseData?.error) {
-              errorMessage = `Validation error: ${responseData.error}`;
-            } else {
-              errorMessage =
-                "Invalid input. Please check all fields and ensure they meet the requirements.";
-            }
-            break;
-          case 422:
-            errorMessage =
-              "Invalid data format. Please check your input and try again.";
-            break;
-          case 429:
-            errorMessage =
-              "Too many registration attempts. Please wait a moment before trying again.";
-            break;
-          case 500:
-            errorMessage =
-              "Server error. Please try again later or contact support.";
-            break;
-          default:
-            // Try to get message from response data if available
-            if (responseData?.error) {
-              errorMessage = responseData.error;
-            } else if (responseData?.message) {
-              errorMessage = responseData.message;
-            } else {
-              errorMessage = "Registration failed. Please try again.";
-            }
+        if (responseData?.error) {
+          errorMessage = responseData.error;
+        } else if (responseData?.message) {
+          errorMessage = responseData.message;
         }
       }
 
@@ -103,15 +73,15 @@ export default function RegisterPage() {
       <div className="max-w-md w-full space-y-6 sm:space-y-8">
         <div>
           <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">
-            Create your account
+            {t("register")}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Or{" "}
+            {t("alreadyHaveAccount")}{" "}
             <Link
               href="/auth/login"
               className="font-medium text-green-600 hover:text-green-500"
             >
-              sign in to your existing account
+              {t("login")}
             </Link>
           </p>
         </div>
@@ -129,14 +99,14 @@ export default function RegisterPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="first_name" className="sr-only">
-                  First Name
+                  {t("firstName")}
                 </label>
                 <input
                   {...register("first_name")}
                   type="text"
                   autoComplete="given-name"
                   className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
-                  placeholder="First Name"
+                  placeholder={t("firstName")}
                 />
                 {errors.first_name && (
                   <p className="mt-1 text-sm text-red-600">
@@ -147,14 +117,14 @@ export default function RegisterPage() {
 
               <div>
                 <label htmlFor="last_name" className="sr-only">
-                  Last Name
+                  {t("lastName")}
                 </label>
                 <input
                   {...register("last_name")}
                   type="text"
                   autoComplete="family-name"
                   className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
-                  placeholder="Last Name"
+                  placeholder={t("lastName")}
                 />
                 {errors.last_name && (
                   <p className="mt-1 text-sm text-red-600">
@@ -166,14 +136,14 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="email" className="sr-only">
-                Email address
+                {t("email")}
               </label>
               <input
                 {...register("email")}
                 type="email"
                 autoComplete="email"
                 className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
-                placeholder="Email address"
+                placeholder={t("email")}
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600">
@@ -184,14 +154,14 @@ export default function RegisterPage() {
 
             <div className="relative">
               <label htmlFor="password" className="sr-only">
-                Password
+                {t("password")}
               </label>
               <input
                 {...register("password")}
                 type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 className="appearance-none rounded-md relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
-                placeholder="Password"
+                placeholder={t("password")}
               />
               <button
                 type="button"
@@ -213,14 +183,14 @@ export default function RegisterPage() {
 
             <div className="relative">
               <label htmlFor="confirmPassword" className="sr-only">
-                Confirm Password
+                {t("confirmPassword")}
               </label>
               <input
                 {...register("confirmPassword")}
                 type={showConfirmPassword ? "text" : "password"}
                 autoComplete="new-password"
                 className="appearance-none rounded-md relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
-                placeholder="Confirm Password"
+                placeholder={t("confirmPassword")}
               />
               <button
                 type="button"
@@ -247,7 +217,7 @@ export default function RegisterPage() {
               disabled={isSubmitting}
               className="group relative w-full flex justify-center py-2 sm:py-3 px-4 border border-transparent text-sm sm:text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Creating account..." : "Create account"}
+              {isSubmitting ? `${t("register")}...` : t("register")}
             </button>
           </div>
         </form>

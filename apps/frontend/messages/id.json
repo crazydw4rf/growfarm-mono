@@ -34,12 +34,15 @@
     "dontHaveAccount": "Belum punya akun?",
     "alreadyHaveAccount": "Sudah punya akun?",
     "loginError": "Email atau kata sandi salah",
-    "registerSuccess": "Pendaftaran berhasil"
+    "registerSuccess": "Pendaftaran berhasil",
+    "registerError": "Pendaftaran gagal. Silakan coba lagi.",
+    "confirmPassword": "Konfirmasi Kata Sandi"
   },
   "navigation": {
     "dashboard": "Dashboard",
     "projects": "Proyek",
     "farms": "Lahan",
+    "activities": "Aktivitas",
     "reports": "Laporan",
     "chat": "Chat",
     "settings": "Pengaturan"
@@ -86,6 +89,7 @@
     "list": "Daftar Lahan",
     "newFarm": "Lahan Baru",
     "selectProject": "Pilih Proyek",
+    "selectProjectPlaceholder": "Pilih proyek...",
     "selectProjectMessage": "Pilih proyek untuk melihat lahan-lahan terkait.",
     "backToProjects": "Kembali ke Daftar Proyek",
     "refreshing": "Memuat ulang...",
@@ -100,7 +104,30 @@
     "created": "Dibuat",
     "lastHarvest": "Panen Terakhir",
     "soilType": "Jenis Tanah",
-    "budget": "Anggaran"
+    "budget": "Anggaran",
+    "selectFarm": "Pilih Lahan",
+    "selectFarmPlaceholder": "Pilih lahan...",
+    "createNewFarm": "Buat Lahan Baru",
+    "updateFarm": "Perbarui Lahan",
+    "addNewFarmDescription": "Tambahkan lahan baru ke proyek Anda dan mulai melacak kemajuan budidaya.",
+    "updateFarmDescription": "Perbarui informasi lahan dan lacak kemajuan budidaya.",
+    "landSize": "Luas Lahan (hektar)",
+    "farmBudget": "Anggaran Lahan (IDR)",
+    "productPrice": "Harga Produk (IDR/kg)",
+    "plantedDate": "Tanggal Tanam",
+    "targetHarvestDate": "Target Tanggal Panen",
+    "description": "Deskripsi",
+    "enterFarmName": "Masukkan nama lahan",
+    "enterLocation": "Masukkan lokasi lahan",
+    "enterCommodity": "contoh: Padi, Jagung, Sayuran",
+    "enterDescription": "Masukkan deskripsi lahan (opsional)",
+    "creating": "Membuat...",
+    "updating": "Memperbarui...",
+    "createFarm": "Buat Lahan",
+    "updateFarmButton": "Perbarui Lahan",
+    "createError": "Gagal membuat lahan. Silakan coba lagi.",
+    "updateError": "Gagal memperbarui lahan. Silakan coba lagi.",
+    "required": "Wajib"
   },
   "projects": {
     "title": "Proyek",
@@ -129,7 +156,12 @@
     "target": "Target",
     "viewProject": "Lihat proyek",
     "confirmDelete": "Apakah Anda yakin ingin menghapus proyek ini? Tindakan ini tidak dapat dibatalkan.",
-    "deleteError": "Gagal menghapus proyek. Silakan coba lagi."
+    "deleteError": "Gagal menghapus proyek. Silakan coba lagi.",
+    "statuses": {
+      "PLANNING": "Perencanaan",
+      "IN_PROGRESS": "Sedang Berjalan",
+      "COMPLETED": "Selesai"
+    }
   },
   "chat": {
     "title": "Chat dengan Daisy",
@@ -229,6 +261,57 @@
     "showing": "Menampilkan",
     "to": "sampai",
     "results": "hasil"
+  },
+  "activities": {
+    "title": "Aktivitas",
+    "management": "Manajemen Aktivitas",
+    "subtitle": "Lacak dan kelola aktivitas lahan",
+    "addActivity": "Tambah Aktivitas",
+    "editActivity": "Edit Aktivitas",
+    "deleteActivity": "Hapus Aktivitas",
+    "activityName": "Nama Aktivitas",
+    "activityType": "Jenis Aktivitas",
+    "activityStatus": "Status Aktivitas",
+    "startDate": "Tanggal Mulai",
+    "endDate": "Tanggal Selesai",
+    "description": "Deskripsi",
+    "noActivities": "Belum ada aktivitas",
+    "createFirst": "Buat aktivitas pertama Anda",
+    "getStartedMessage": "Mulai dengan membuat aktivitas baru.",
+    "createNewActivity": "Buat Aktivitas Baru",
+    "updateActivity": "Perbarui Aktivitas",
+    "addNewActivityDescription": "Tambahkan aktivitas baru untuk melacak operasi lahan.",
+    "updateActivityDescription": "Perbarui informasi dan kemajuan aktivitas.",
+    "enterActivityName": "Masukkan nama aktivitas",
+    "enterDescription": "Masukkan deskripsi aktivitas (opsional)",
+    "creating": "Membuat...",
+    "updating": "Memperbarui...",
+    "createActivity": "Buat Aktivitas",
+    "updateActivityButton": "Perbarui Aktivitas",
+    "createError": "Gagal membuat aktivitas. Silakan coba lagi.",
+    "updateError": "Gagal memperbarui aktivitas. Silakan coba lagi.",
+    "deleteError": "Gagal menghapus aktivitas. Silakan coba lagi.",
+    "deleteConfirm": "Apakah Anda yakin ingin menghapus aktivitas ini?",
+    "viewActivities": "Lihat Aktivitas",
+    "totalActivities": "Total Aktivitas",
+    "types": {
+      "LAND_PREPARATION": "Persiapan Lahan",
+      "PLANTING": "Penanaman",
+      "FERTILIZING": "Pemupukan",
+      "IRRIGATION": "Pengairan",
+      "WEEDING": "Penyiangan",
+      "PEST_CONTROL": "Pengendalian Hama",
+      "PRUNING": "Pemangkasan",
+      "HARVESTING": "Pemanenan",
+      "POST_HARVEST": "Pasca Panen",
+      "MAINTENANCE": "Pemeliharaan",
+      "OTHER": "Lainnya"
+    },
+    "statuses": {
+      "NOT_STARTED": "Belum Dimulai",
+      "IN_PROGRESS": "Sedang Berjalan",
+      "DONE": "Selesai"
+    }
   },
   "landing": {
     "header": {

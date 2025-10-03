@@ -10,7 +10,10 @@ import { Err, Ok } from "@/utils";
 export interface IFarmRepository extends BaseRepositoryInterface<Farm> {
   findManyByProject(projectId: string, page: { skip?: number; take?: number }): Promise<Result<PaginatedObject<Farm[]>>>;
   findByProjectAndId(projectId: string, farmId: string): Promise<Result<Farm>>;
-  createActivity(): Promise<Result<Activity>>;
+  createActivity(farmId: string, data: any): Promise<Result<Activity>>;
+  updateActivity(activityId: string, data: any): Promise<Result<Activity>>;
+  deleteActivity(activityId: string): Promise<Result<Activity>>;
+  findActivities(farmId: string, page: { skip?: number; take?: number }): Promise<Result<PaginatedObject<Activity[]>>>;
 }
 
 @injectable("Singleton")
@@ -108,6 +111,64 @@ export class FarmRepository implements IFarmRepository {
     try {
       await this.prisma.farm.delete({ where: { id } });
       return Ok(true);
+    } catch (e) {
+      return this.handleError(e);
+    }
+  }
+
+  async createActivity(farmId: string, data: Activity): Promise<Result<Activity>> {
+    try {
+      const activity = await this.prisma.activity.create({
+        data: { ...data, farm_id: farmId },
+      });
+
+      return Ok(activity);
+    } catch (e) {
+      return this.handleError(e);
+    }
+  }
+
+  async updateActivity(activityId: string, data: Activity): Promise<Result<Activity>> {
+    try {
+      const activity = await this.prisma.activity.update({
+        where: { id: activityId },
+        data: { ...data },
+      });
+
+      return Ok(activity);
+    } catch (e) {
+      return this.handleError(e);
+    }
+  }
+
+  async deleteActivity(activityId: string): Promise<Result<Activity>> {
+    try {
+      const activity = await this.prisma.activity.delete({
+        where: { id: activityId },
+      });
+
+      return Ok(activity);
+    } catch (e) {
+      return this.handleError(e);
+    }
+  }
+
+  async findActivities(farmId: string, page: { skip?: number; take?: number }): Promise<Result<PaginatedObject<Activity[]>>> {
+    try {
+      const skip = page.skip ?? 0;
+      const take = page.take ?? 10;
+
+      const [activities, count] = await this.prisma.$transaction([
+        this.prisma.activity.findMany({
+          where: { farm_id: farmId },
+          skip,
+          take,
+          orderBy: { created_at: "desc" },
+        }),
+        this.prisma.activity.count({ where: { farm_id: farmId } }),
+      ]);
+
+      return Ok({ data: activities, count, skip, take });
     } catch (e) {
       return this.handleError(e);
     }

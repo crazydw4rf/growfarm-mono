@@ -135,11 +135,30 @@ export default function FarmsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "ACTIVE":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-700 border border-green-200";
       case "HARVESTED":
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-700 border border-gray-200";
+      case "PLANNING":
+        return "bg-yellow-100 text-yellow-700 border border-yellow-200";
+      case "IN_PROGRESS":
+        return "bg-blue-100 text-blue-700 border border-blue-200";
+      case "COMPLETED":
+        return "bg-green-100 text-green-700 border border-green-200";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-700 border border-gray-200";
+    }
+  };
+
+  const getProjectStatusLabel = (status: string) => {
+    switch (status) {
+      case "PLANNING":
+        return t("projects.statuses.PLANNING");
+      case "IN_PROGRESS":
+        return t("projects.statuses.IN_PROGRESS");
+      case "COMPLETED":
+        return t("projects.statuses.COMPLETED");
+      default:
+        return status;
     }
   };
 
@@ -283,7 +302,7 @@ export default function FarmsPage() {
                                 project.project_status,
                               )}`}
                             >
-                              {project.project_status.replace("_", " ")}
+                              {getProjectStatusLabel(project.project_status)}
                             </span>
                           </div>
                           <div className="space-y-1 text-sm text-gray-500">

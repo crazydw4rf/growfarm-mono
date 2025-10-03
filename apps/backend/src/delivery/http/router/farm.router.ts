@@ -2,7 +2,7 @@
 import express from "express";
 import { inject, injectable } from "inversify";
 
-import { FarmController } from "@/delivery/http/controller";
+import { ActivityController, FarmController } from "@/delivery/http/controller";
 import type { IHTTPRouter } from "@/types/http";
 
 import { AuthMiddleware } from "../middleware";
@@ -14,7 +14,8 @@ export class FarmRouter implements IHTTPRouter {
 
   constructor(
     @inject(FarmController) private readonly farmCtrl: FarmController,
-    @inject(AuthMiddleware) private readonly authMw: AuthMiddleware
+    @inject(ActivityController) private readonly activityCtrl: ActivityController,
+    @inject(AuthMiddleware) private readonly authMw: AuthMiddleware,
   ) {
     this.setupRoutes();
   }
@@ -26,5 +27,11 @@ export class FarmRouter implements IHTTPRouter {
     this.router.get("/", this.farmCtrl.getFarmsByProject);
     this.router.patch("/:farmId", this.farmCtrl.updateFarm);
     this.router.delete("/:farmId", this.farmCtrl.deleteFarm);
+
+    // Activity routes
+    this.router.post("/:farmId/activities", this.activityCtrl.createActivity);
+    this.router.get("/:farmId/activities", this.activityCtrl.getActivitiesByFarm);
+    this.router.patch("/:farmId/activities/:activityId", this.activityCtrl.updateActivity);
+    this.router.delete("/:farmId/activities/:activityId", this.activityCtrl.deleteActivity);
   }
 }

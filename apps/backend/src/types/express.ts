@@ -4,6 +4,7 @@ export type RequestURLParameters = {
   userId: string;
   projectId: string;
   farmId: string;
+  activityId: string;
 };
 
 type Locals = {

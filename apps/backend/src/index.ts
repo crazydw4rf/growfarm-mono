@@ -1,6 +1,7 @@
 import { Container } from "inversify";
 
 import {
+  ActivityController,
   AuthController,
   ChatController,
   FarmController,
@@ -31,6 +32,8 @@ function registerAppServices(c: Container): void {
   c.bind(FarmRepository).toSelf();
   c.bind(FarmUsecase).toSelf();
   c.bind(FarmController).toSelf();
+
+  c.bind(ActivityController).toSelf();
 
   c.bind(ReportController).toSelf();
 

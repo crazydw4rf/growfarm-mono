@@ -4,6 +4,8 @@
 
 GrowFarm is a comprehensive farm management system designed for agricultural project tracking, farm monitoring, and harvest management. The system includes an AI assistant named "Daisy" powered by Model Context Protocol (MCP) to help users manage their farms and projects through natural language conversations.
 
+Don't create any summary document
+
 ## Architecture
 
 This project uses a **monorepo structure** with the following packages:
@@ -56,14 +58,21 @@ bun run --filter "./apps/backend" build
 
 # Database operations
 bun run --filter "./apps/backend" prisma:gen    # Generate Prisma client
-bun run --filter "./apps/backend" prisma:studio # Open Prisma Studio
 
 # Linting (all workspaces)
 bun run --filter "*" lint
 
 # Run specific workspace script
 bun run --filter "<workspace-path>" <script-name>
+
+# Run specific command if not specified in package.json scripts
+# cd first
+cd apps/frontend
+# run with bunx
+bunx eslint --fix src
+bunx prettier -w src
 ```
+
 ## How to install package
 
 To install a package you need to cd first in target package or workspace, example:

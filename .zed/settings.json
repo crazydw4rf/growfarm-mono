@@ -6,7 +6,7 @@
         "source.organizeImports": true
       },
       "formatter": "prettier",
-      "language_servers": ["tsgo", "eslint", "!vtsls"]
+      "language_servers": ["!tsgo", "eslint", "vtsls"]
     },
     "TSX": {
       "inlay_hints": { "enabled": false },
@@ -14,7 +14,7 @@
         "source.organizeImports": true
       },
       "formatter": "prettier",
-      "language_servers": ["tsgo", "eslint", "!vtsls"]
+      "language_servers": ["!tsgo", "eslint", "vtsls"]
     }
   },
   "lsp": {

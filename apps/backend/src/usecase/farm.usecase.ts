@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
 import type { Logger } from "winston";
 
-import type { Farm } from "@/entity";
-import { type FarmCreateDto, type FarmUpdateDto } from "@/models";
+import type { Activity, Farm } from "@/entity";
+import type { ActivityCreateDto, ActivityUpdateDto, FarmCreateDto, FarmUpdateDto } from "@/models";
 import { FarmRepository, type IFarmRepository } from "@/repository";
 import { type LoggingService } from "@/services/logger";
 import { LoggingServiceSym } from "@/types";
@@ -16,6 +16,10 @@ export interface IFarmUsecase {
   getFarmById(id: string): Promise<Result<Farm>>;
   getFarmsByProject(projectId: string, page: { skip?: number; take?: number }): Promise<Result<PaginatedObject<Farm[]>>>;
   getFarmByProjectAndId(projectId: string, farmId: string): Promise<Result<Farm>>;
+  createActivity(farmId: string, dto: ActivityCreateDto): Promise<Result<Activity>>;
+  updateActivity(activityId: string, dto: ActivityUpdateDto): Promise<Result<Activity>>;
+  deleteActivity(activityId: string): Promise<Result<Activity>>;
+  getActivitiesByFarm(farmId: string, page: { skip?: number; take?: number }): Promise<Result<PaginatedObject<Activity[]>>>;
 }
 
 @injectable("Singleton")
@@ -85,5 +89,49 @@ export class FarmUsecase implements IFarmUsecase {
     }
 
     return Ok(true);
+  }
+
+  async createActivity(farmId: string, dto: ActivityCreateDto): Promise<Result<Activity>> {
+    this.logger.debug("creating new activity", { farmId, dto });
+
+    const [activity, err] = await this.farmRepo.createActivity(farmId, dto);
+    if (err) {
+      return Err(err);
+    }
+
+    return Ok(activity);
+  }
+
+  async updateActivity(activityId: string, dto: ActivityUpdateDto): Promise<Result<Activity>> {
+    this.logger.debug("updating activity", { activityId, dto });
+
+    const [activity, err] = await this.farmRepo.updateActivity(activityId, dto);
+    if (err) {
+      return Err(err);
+    }
+
+    return Ok(activity);
+  }
+
+  async deleteActivity(activityId: string): Promise<Result<Activity>> {
+    this.logger.debug("deleting activity", { activityId });
+
+    const [activity, err] = await this.farmRepo.deleteActivity(activityId);
+    if (err) {
+      return Err(err);
+    }
+
+    return Ok(activity);
+  }
+
+  async getActivitiesByFarm(farmId: string, page: { skip?: number; take?: number }): Promise<Result<PaginatedObject<Activity[]>>> {
+    this.logger.debug("getting activities by farm", { farmId, page });
+
+    const [activities, err] = await this.farmRepo.findActivities(farmId, page);
+    if (err) {
+      return Err(err);
+    }
+
+    return Ok(activities);
   }
 }

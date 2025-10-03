@@ -31,6 +31,10 @@
     {
       "name": "Chat",
       "description": "AI-powered chat endpoints"
+    },
+    {
+      "name": "Activities",
+      "description": "Farm activity management endpoints"
     }
   ],
   "paths": {
@@ -1011,6 +1015,320 @@
         }
       }
     },
+    "/projects/{projectId}/farms/{farmId}/activities": {
+      "post": {
+        "tags": ["Activities"],
+        "summary": "Create a new activity for a farm",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "farmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Farm ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivityCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Activity created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Activity"
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 201
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Farm not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Activities"],
+        "summary": "Get all activities for a farm",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "farmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Farm ID"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "description": "Number of records to skip"
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "default": 10
+            },
+            "description": "Number of records to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Activities retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedActivitiesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Farm not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/projects/{projectId}/farms/{farmId}/activities/{activityId}": {
+      "patch": {
+        "tags": ["Activities"],
+        "summary": "Update an activity",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "farmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Farm ID"
+          },
+          {
+            "name": "activityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Activity ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivityUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Activity updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Activity"
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Activity not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Activities"],
+        "summary": "Delete an activity",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Project ID"
+          },
+          {
+            "name": "farmId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Farm ID"
+          },
+          {
+            "name": "activityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "description": "Activity ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Activity deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "activity deleted"
+                        }
+                      }
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Activity not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/chat": {
       "post": {
         "tags": ["Chat"],
@@ -1858,6 +2176,207 @@
           }
         },
         "required": ["response"]
+      },
+      "Activity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "ulid",
+            "description": "Activity ID"
+          },
+          "farm_id": {
+            "type": "string",
+            "format": "ulid",
+            "description": "Farm ID"
+          },
+          "activity_name": {
+            "type": "string",
+            "description": "Name of the activity"
+          },
+          "activity_type": {
+            "type": "string",
+            "enum": [
+              "LAND_PREPARATION",
+              "PLANTING",
+              "FERTILIZING",
+              "IRRIGATION",
+              "WEEDING",
+              "PEST_CONTROL",
+              "PRUNING",
+              "HARVESTING",
+              "POST_HARVEST",
+              "MAINTENANCE",
+              "OTHER"
+            ],
+            "description": "Type of activity"
+          },
+          "activity_status": {
+            "type": "string",
+            "enum": ["NOT_STARTED", "IN_PROGRESS", "DONE"],
+            "description": "Current status of the activity"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Activity start date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Activity end date"
+          },
+          "description": {
+            "type": "string",
+            "description": "Activity description"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last update timestamp"
+          }
+        },
+        "required": ["id", "farm_id", "activity_name", "activity_type", "activity_status", "start_date", "end_date", "description"]
+      },
+      "ActivityCreate": {
+        "type": "object",
+        "properties": {
+          "activity_name": {
+            "type": "string",
+            "description": "Name of the activity",
+            "minLength": 1,
+            "maxLength": 255,
+            "example": "Soil Preparation"
+          },
+          "activity_type": {
+            "type": "string",
+            "enum": [
+              "LAND_PREPARATION",
+              "PLANTING",
+              "FERTILIZING",
+              "IRRIGATION",
+              "WEEDING",
+              "PEST_CONTROL",
+              "PRUNING",
+              "HARVESTING",
+              "POST_HARVEST",
+              "MAINTENANCE",
+              "OTHER"
+            ],
+            "default": "OTHER",
+            "description": "Type of activity",
+            "example": "LAND_PREPARATION"
+          },
+          "activity_status": {
+            "type": "string",
+            "enum": ["NOT_STARTED", "IN_PROGRESS", "DONE"],
+            "default": "NOT_STARTED",
+            "description": "Current status of the activity",
+            "example": "IN_PROGRESS"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Activity start date",
+            "example": "2025-01-15T00:00:00Z"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Activity end date",
+            "example": "2025-01-20T00:00:00Z"
+          },
+          "description": {
+            "type": "string",
+            "description": "Activity description",
+            "minLength": 1,
+            "maxLength": 1000,
+            "example": "Preparing the soil for the next planting season"
+          }
+        },
+        "required": ["activity_name", "start_date", "end_date", "description"]
+      },
+      "ActivityUpdate": {
+        "type": "object",
+        "properties": {
+          "activity_name": {
+            "type": "string",
+            "description": "Name of the activity",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "activity_type": {
+            "type": "string",
+            "enum": [
+              "LAND_PREPARATION",
+              "PLANTING",
+              "FERTILIZING",
+              "IRRIGATION",
+              "WEEDING",
+              "PEST_CONTROL",
+              "PRUNING",
+              "HARVESTING",
+              "POST_HARVEST",
+              "MAINTENANCE",
+              "OTHER"
+            ],
+            "description": "Type of activity"
+          },
+          "activity_status": {
+            "type": "string",
+            "enum": ["NOT_STARTED", "IN_PROGRESS", "DONE"],
+            "description": "Current status of the activity"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Activity start date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Activity end date"
+          },
+          "description": {
+            "type": "string",
+            "description": "Activity description",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        }
+      },
+      "PaginatedActivitiesResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Activity"
+            },
+            "description": "Array of activities"
+          },
+          "skip": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of records skipped"
+          },
+          "take": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Number of records returned"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of activities"
+          }
+        },
+        "required": ["data", "skip", "take", "count"]
       }
     },
     "securitySchemes": {

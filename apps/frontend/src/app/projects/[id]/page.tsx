@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
 import { useAuth } from "@/contexts/auth-context";
@@ -19,6 +20,7 @@ import {
 } from "lucide-react";
 
 export default function ProjectDetailsPage() {
+  const t = useTranslations();
   const [project, setProject] = useState<Project | null>(null);
   const [farms, setFarms] = useState<Farm[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,17 +73,30 @@ export default function ProjectDetailsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "PLANNING":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 text-yellow-700 border border-yellow-200";
       case "IN_PROGRESS":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-blue-700 border border-blue-200";
       case "COMPLETED":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-700 border border-green-200";
       case "ACTIVE":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-700 border border-green-200";
       case "HARVESTED":
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-700 border border-gray-200";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-700 border border-gray-200";
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "PLANNING":
+        return t("projects.statuses.PLANNING");
+      case "IN_PROGRESS":
+        return t("projects.statuses.IN_PROGRESS");
+      case "COMPLETED":
+        return t("projects.statuses.COMPLETED");
+      default:
+        return status;
     }
   };
 
@@ -144,7 +159,7 @@ export default function ProjectDetailsPage() {
                       project.project_status
                     )}`}
                   >
-                    {project.project_status.replace("_", " ")}
+                    {getStatusLabel(project.project_status)}
                   </span>
                   <span>Created {formatDate(project.created_at)}</span>
                 </div>
@@ -183,7 +198,7 @@ export default function ProjectDetailsPage() {
                         project.project_status
                       )}`}
                     >
-                      {project.project_status.replace("_", " ")}
+                      {getStatusLabel(project.project_status)}
                     </span>
                   </dd>
                 </div>

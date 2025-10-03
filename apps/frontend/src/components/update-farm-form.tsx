@@ -1,24 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { useData } from "@/contexts/data-context";
 import { farmsApi } from "@/lib/api";
 import { Farm } from "@/types/api";
-import { useData } from "@/contexts/data-context";
-import { Calendar, MapPin, Banknote, Sprout } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Banknote, Calendar, MapPin, Sprout } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const farmUpdateSchema = z.object({
   farm_name: z
     .string()
-    .min(1, "Farm name is required")
-    .regex(/^(?!.*[\p{Emoji}]).*$/u, "Farm name cannot contain emojis"),
-  location: z.string().min(1, "Location is required"),
-  land_size: z.number().min(0.1, "Land size must be at least 0.1 hectares"),
-  product_price: z.number().min(1, "Product price must be at least 1"),
-  comodity: z.string().min(1, "Commodity is required"),
+    .min(1)
+    .regex(/^(?!.*[\p{Emoji}]).*$/u),
+  location: z.string().min(1),
+  land_size: z.number().min(0.1),
+  product_price: z.number().min(1),
+  comodity: z.string().min(1),
   farm_status: z.enum(["ACTIVE", "HARVESTED"]),
   soil_type: z.enum([
     "ORGANOSOL",
@@ -32,12 +33,12 @@ const farmUpdateSchema = z.object({
     "GRUMUSOL",
     "KAMBISOL",
   ]),
-  planted_at: z.string().min(1, "Planting date is required"),
-  target_harvest_date: z.string().min(1, "Target harvest date is required"),
+  planted_at: z.string().min(1),
+  target_harvest_date: z.string().min(1),
   actual_harvest_date: z.string().optional(),
   total_harvest: z
     .number()
-    .nonnegative("Total harvest must be 0 or greater")
+    .nonnegative()
     .optional(),
   description: z.string().optional(),
 });
@@ -57,6 +58,8 @@ export default function UpdateFarmForm({
   initialData,
   onSuccess,
 }: UpdateFarmFormProps) {
+  const t = useTranslations("farms");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const { updateFarm } = useData();
@@ -117,7 +120,7 @@ export default function UpdateFarmForm({
       }
     } catch (error) {
       console.error("Farm update error:", error);
-      setError("root", { message: "Failed to update farm. Please try again." });
+      setError("root", { message: t("updateError") });
     } finally {
       setIsLoading(false);
     }
@@ -129,7 +132,7 @@ export default function UpdateFarmForm({
         {/* Farm Name */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Farm Name *
+            {t("farmName")} *
           </label>
           <div className="relative">
             <Sprout className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -137,7 +140,7 @@ export default function UpdateFarmForm({
               {...register("farm_name")}
               type="text"
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
-              placeholder="Enter farm name (no emojis allowed)"
+              placeholder={t("enterFarmName")}
             />
           </div>
           {errors.farm_name && (
@@ -150,7 +153,7 @@ export default function UpdateFarmForm({
         {/* Location */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Location *
+            {t("location")} *
           </label>
           <div className="relative">
             <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -158,7 +161,7 @@ export default function UpdateFarmForm({
               {...register("location")}
               type="text"
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
-              placeholder="Enter farm location"
+              placeholder={t("enterLocation")}
             />
           </div>
           {errors.location && (
@@ -172,7 +175,7 @@ export default function UpdateFarmForm({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Land Size (hectares) *
+              {t("landSize")} *
             </label>
             <input
               {...register("land_size", { valueAsNumber: true })}
@@ -191,7 +194,7 @@ export default function UpdateFarmForm({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Product Price (IDR/kg) *
+              {t("productPrice")} *
             </label>
             <div className="relative">
               <Banknote className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -215,13 +218,13 @@ export default function UpdateFarmForm({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Commodity *
+              {t("commodity")} *
             </label>
             <input
               {...register("comodity")}
               type="text"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
-              placeholder="Tomato, Rice, etc."
+              placeholder={t("enterCommodity")}
             />
             {errors.comodity && (
               <p className="mt-1 text-sm text-red-600">
@@ -232,7 +235,7 @@ export default function UpdateFarmForm({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Soil Type *
+              {t("soilType")} *
             </label>
             <select
               {...register("soil_type")}
@@ -261,7 +264,7 @@ export default function UpdateFarmForm({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Planting Date *
+              {t("plantedDate")} *
             </label>
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -280,7 +283,7 @@ export default function UpdateFarmForm({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Target Harvest Date *
+              {t("targetHarvestDate")} *
             </label>
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -299,16 +302,17 @@ export default function UpdateFarmForm({
         </div>
 
         {/* Farm Status */}
+        {/* Status */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Farm Status *
+            {t("status")} *
           </label>
           <select
             {...register("farm_status")}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
           >
-            <option value="ACTIVE">Active</option>
-            <option value="HARVESTED">Harvested</option>
+            <option value="ACTIVE">{t("active")}</option>
+            <option value="HARVESTED">{t("harvested")}</option>
           </select>
         </div>
 
@@ -321,7 +325,7 @@ export default function UpdateFarmForm({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Actual Harvest Date (Optional)
+                {t("lastHarvest")}
               </label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -360,7 +364,7 @@ export default function UpdateFarmForm({
         {/* Description */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Description (Optional)
+            {t("description")}
           </label>
           <textarea
             {...register("description")}
@@ -382,16 +386,16 @@ export default function UpdateFarmForm({
           <button
             type="button"
             onClick={() => router.back()}
-            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
+            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-sm sm:text-base"
           >
-            Cancel
+            {tCommon("cancel")}
           </button>
           <button
             type="submit"
             disabled={isLoading}
             className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
           >
-            {isLoading ? "Updating..." : "Update Farm"}
+            {isLoading ? t("updating") : t("updateFarmButton")}
           </button>
         </div>
       </form>

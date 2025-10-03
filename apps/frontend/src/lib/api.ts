@@ -1,24 +1,27 @@
-import { apiClient } from "./api-client";
 import {
-  User,
-  UserRegister,
-  UserLogin,
-  UserWithAccessToken,
-  Project,
-  ProjectCreate,
-  ProjectUpdate,
-  Farm,
-  FarmCreate,
-  FarmUpdate,
-  ApiResponse,
-  PaginationParams,
-  PaginatedResponse,
-  ProjectReportItem,
-  ProjectReportByDateItem,
-  ProjectReportDateRange,
-  ChatRequest,
-  ChatResponse,
+    Activity,
+    ActivityCreate,
+    ActivityUpdate,
+    ApiResponse,
+    ChatRequest,
+    ChatResponse,
+    Farm,
+    FarmCreate,
+    FarmUpdate,
+    PaginatedResponse,
+    PaginationParams,
+    Project,
+    ProjectCreate,
+    ProjectReportByDateItem,
+    ProjectReportDateRange,
+    ProjectReportItem,
+    ProjectUpdate,
+    User,
+    UserLogin,
+    UserRegister,
+    UserWithAccessToken,
 } from "@/types/api";
+import { apiClient } from "./api-client";
 
 // Auth API
 export const authApi = {
@@ -127,6 +130,49 @@ export const farmsApi = {
 export const chatApi = {
   chat: async (data: ChatRequest): Promise<ApiResponse<ChatResponse>> => {
     const response = await apiClient.post<ApiResponse<ChatResponse>>("/chat", data);
+    return response.data;
+  },
+};
+
+// Activities API
+export const activitiesApi = {
+  create: async (projectId: string, farmId: string, data: ActivityCreate): Promise<ApiResponse<Activity>> => {
+    const response = await apiClient.post<ApiResponse<Activity>>(
+      `/projects/${projectId}/farms/${farmId}/activities`,
+      data
+    );
+    return response.data;
+  },
+
+  getByFarm: async (projectId: string, farmId: string, params?: PaginationParams): Promise<PaginatedResponse<Activity>> => {
+    const paginationParams = {
+      skip: params?.skip || 0,
+      take: Math.min(params?.take || 10, 20),
+    };
+    const response = await apiClient.get<PaginatedResponse<Activity>>(
+      `/projects/${projectId}/farms/${farmId}/activities`,
+      paginationParams
+    );
+    return response.data;
+  },
+
+  update: async (
+    projectId: string,
+    farmId: string,
+    activityId: string,
+    data: ActivityUpdate
+  ): Promise<ApiResponse<Activity>> => {
+    const response = await apiClient.patch<ApiResponse<Activity>>(
+      `/projects/${projectId}/farms/${farmId}/activities/${activityId}`,
+      data
+    );
+    return response.data;
+  },
+
+  delete: async (projectId: string, farmId: string, activityId: string): Promise<ApiResponse<{ message: string }>> => {
+    const response = await apiClient.delete<ApiResponse<{ message: string }>>(
+      `/projects/${projectId}/farms/${farmId}/activities/${activityId}`
+    );
     return response.data;
   },
 };

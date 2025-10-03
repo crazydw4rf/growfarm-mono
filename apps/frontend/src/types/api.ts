@@ -183,3 +183,50 @@ export interface ChatRequest {
 export interface ChatResponse {
   response: string;
 }
+
+// Activity Types
+export type ActivityType =
+  | "LAND_PREPARATION"
+  | "PLANTING"
+  | "FERTILIZING"
+  | "IRRIGATION"
+  | "WEEDING"
+  | "PEST_CONTROL"
+  | "PRUNING"
+  | "HARVESTING"
+  | "POST_HARVEST"
+  | "MAINTENANCE"
+  | "OTHER";
+
+export type ActivityStatus = "NOT_STARTED" | "IN_PROGRESS" | "DONE";
+
+export interface Activity {
+  id: string;
+  farm_id: string;
+  activity_name: string;
+  activity_type: ActivityType;
+  activity_status: ActivityStatus;
+  start_date: string;
+  end_date: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ActivityCreate {
+  activity_name: string;
+  activity_type?: ActivityType;
+  activity_status?: ActivityStatus;
+  start_date: string;
+  end_date: string;
+  description?: string;
+}
+
+export interface ActivityUpdate {
+  activity_name?: string;
+  activity_type?: ActivityType;
+  activity_status?: ActivityStatus;
+  start_date?: string;
+  end_date?: string;
+  description?: string;
+}

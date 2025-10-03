@@ -34,12 +34,15 @@
     "dontHaveAccount": "Don't have an account?",
     "alreadyHaveAccount": "Already have an account?",
     "loginError": "Invalid email or password",
-    "registerSuccess": "Registration successful"
+    "registerSuccess": "Registration successful",
+    "registerError": "Registration failed. Please try again.",
+    "confirmPassword": "Confirm Password"
   },
   "navigation": {
     "dashboard": "Dashboard",
     "projects": "Projects",
     "farms": "Farms",
+    "activities": "Activities",
     "reports": "Reports",
     "chat": "Chat",
     "settings": "Settings"
@@ -86,6 +89,7 @@
     "list": "Farm List",
     "newFarm": "New Farm",
     "selectProject": "Select Project",
+    "selectProjectPlaceholder": "Select a project...",
     "selectProjectMessage": "Select a project to view its associated farms.",
     "backToProjects": "Back to Projects List",
     "refreshing": "Refreshing...",
@@ -100,7 +104,30 @@
     "created": "Created",
     "lastHarvest": "Last Harvest",
     "soilType": "Soil Type",
-    "budget": "Budget"
+    "budget": "Budget",
+    "selectFarm": "Select Farm",
+    "selectFarmPlaceholder": "Select a farm...",
+    "createNewFarm": "Create New Farm",
+    "updateFarm": "Update Farm",
+    "addNewFarmDescription": "Add a new farm to your project and start tracking cultivation progress.",
+    "updateFarmDescription": "Update farm information and track cultivation progress.",
+    "landSize": "Land Size (hectares)",
+    "farmBudget": "Farm Budget (IDR)",
+    "productPrice": "Product Price (IDR/kg)",
+    "plantedDate": "Planted Date",
+    "targetHarvestDate": "Target Harvest Date",
+    "description": "Description",
+    "enterFarmName": "Enter farm name",
+    "enterLocation": "Enter farm location",
+    "enterCommodity": "e.g., Rice, Corn, Vegetables",
+    "enterDescription": "Enter farm description (optional)",
+    "creating": "Creating...",
+    "updating": "Updating...",
+    "createFarm": "Create Farm",
+    "updateFarmButton": "Update Farm",
+    "createError": "Failed to create farm. Please try again.",
+    "updateError": "Failed to update farm. Please try again.",
+    "required": "Required"
   },
   "projects": {
     "title": "Projects",
@@ -129,7 +156,12 @@
     "target": "Target",
     "viewProject": "View project",
     "confirmDelete": "Are you sure you want to delete this project? This action cannot be undone.",
-    "deleteError": "Failed to delete project. Please try again."
+    "deleteError": "Failed to delete project. Please try again.",
+    "statuses": {
+      "PLANNING": "Planning",
+      "IN_PROGRESS": "In Progress",
+      "COMPLETED": "Completed"
+    }
   },
   "chat": {
     "title": "Chat with Daisy",
@@ -229,6 +261,57 @@
     "showing": "Showing",
     "to": "to",
     "results": "results"
+  },
+  "activities": {
+    "title": "Activities",
+    "management": "Activity Management",
+    "subtitle": "Track and manage farm activities",
+    "addActivity": "Add Activity",
+    "editActivity": "Edit Activity",
+    "deleteActivity": "Delete Activity",
+    "activityName": "Activity Name",
+    "activityType": "Activity Type",
+    "activityStatus": "Activity Status",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "description": "Description",
+    "noActivities": "No activities yet",
+    "createFirst": "Create your first activity",
+    "getStartedMessage": "Get started by creating a new activity.",
+    "createNewActivity": "Create New Activity",
+    "updateActivity": "Update Activity",
+    "addNewActivityDescription": "Add a new activity to track farm operations.",
+    "updateActivityDescription": "Update activity information and progress.",
+    "enterActivityName": "Enter activity name",
+    "enterDescription": "Enter activity description (optional)",
+    "creating": "Creating...",
+    "updating": "Updating...",
+    "createActivity": "Create Activity",
+    "updateActivityButton": "Update Activity",
+    "createError": "Failed to create activity. Please try again.",
+    "updateError": "Failed to update activity. Please try again.",
+    "deleteError": "Failed to delete activity. Please try again.",
+    "deleteConfirm": "Are you sure you want to delete this activity?",
+    "viewActivities": "View Activities",
+    "totalActivities": "Total Activities",
+    "types": {
+      "LAND_PREPARATION": "Land Preparation",
+      "PLANTING": "Planting",
+      "FERTILIZING": "Fertilizing",
+      "IRRIGATION": "Irrigation",
+      "WEEDING": "Weeding",
+      "PEST_CONTROL": "Pest Control",
+      "PRUNING": "Pruning",
+      "HARVESTING": "Harvesting",
+      "POST_HARVEST": "Post Harvest",
+      "MAINTENANCE": "Maintenance",
+      "OTHER": "Other"
+    },
+    "statuses": {
+      "NOT_STARTED": "Not Started",
+      "IN_PROGRESS": "In Progress",
+      "DONE": "Done"
+    }
   },
   "landing": {
     "header": {

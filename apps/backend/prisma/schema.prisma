@@ -1,12 +1,12 @@
 datasource db {
-  url = env("DATABASE_URL")
-  provider  = "postgresql"
+  url      = env("DATABASE_URL")
+  provider = "postgresql"
 }
 
 generator client {
-  provider = "prisma-client"
-  engineType = "client"
-  output   = "../src/generated/prisma"
+  provider        = "prisma-client"
+  engineType      = "client"
+  output          = "../src/generated/prisma"
   previewFeatures = ["typedSql"]
 
   runtime                = "bun"
@@ -54,7 +54,7 @@ model User {
   created_at    DateTime @default(now())
   updated_at    DateTime @default(now()) @updatedAt
 
-  projects        Project[] // satu user bisa punya banyak project
+  projects Project[] // satu user bisa punya banyak project
 }
 
 model Project {
@@ -72,7 +72,7 @@ model Project {
 
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  farms           Farm[] // satu project bisa punya banyak farm
+  farms Farm[] // satu project bisa punya banyak farm
 
   @@index([user_id])
 }
@@ -96,7 +96,45 @@ model Farm {
   created_at          DateTime   @default(now())
   updated_at          DateTime   @default(now()) @updatedAt
 
-  project Project @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  project  Project    @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  activity Activity[]
 
   @@index([project_id])
+}
+
+enum ActivityStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  DONE
+}
+
+enum ActivityType {
+  LAND_PREPARATION
+  PLANTING
+  FERTILIZING
+  IRRIGATION
+  WEEDING
+  PEST_CONTROL
+  PRUNING
+  HARVESTING
+  POST_HARVEST
+  MAINTENANCE
+  OTHER
+}
+
+model Activity {
+  id              String         @id @default(ulid()) @db.Char(26)
+  farm_id         String         @db.Char(26)
+  activity_name   String         @db.Text()
+  activity_type   ActivityType   @default(OTHER)
+  activity_status ActivityStatus @default(NOT_STARTED)
+  start_date      DateTime
+  end_date        DateTime
+  description     String         @db.Text()
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @default(now()) @updatedAt
+
+  farm Farm @relation(fields: [farm_id], references: [id], onDelete: Cascade)
+
+  @@index([farm_id])
 }

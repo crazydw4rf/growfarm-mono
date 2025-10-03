@@ -6,11 +6,11 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslations } from "next-intl";
 import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
 import { useData } from "@/contexts/data-context";
 import { projectsApi } from "@/lib/api";
-import { ProjectCreate } from "@/types/api";
 import { ArrowLeft, Save } from "lucide-react";
 
 const projectSchema = z.object({
@@ -28,6 +28,7 @@ const projectSchema = z.object({
 type ProjectFormData = z.infer<typeof projectSchema>;
 
 export default function NewProjectPage() {
+  const t = useTranslations();
   const [isLoading, setIsLoading] = useState(false);
   const { addProject } = useData();
   const router = useRouter();
@@ -164,9 +165,9 @@ export default function NewProjectPage() {
                     {...register("project_status")}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
                   >
-                    <option value="PLANNING">Planning</option>
-                    <option value="IN_PROGRESS">In Progress</option>
-                    <option value="COMPLETED">Completed</option>
+                    <option value="PLANNING">{t("projects.statuses.PLANNING")}</option>
+                    <option value="IN_PROGRESS">{t("projects.statuses.IN_PROGRESS")}</option>
+                    <option value="COMPLETED">{t("projects.statuses.COMPLETED")}</option>
                   </select>
                   {errors.project_status && (
                     <p className="mt-1 text-sm text-red-600">
