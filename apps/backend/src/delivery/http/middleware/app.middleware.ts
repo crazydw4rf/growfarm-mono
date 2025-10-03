@@ -46,8 +46,6 @@ export class AppMiddleware {
       return;
     }
 
-    console.error(err)
-
     this.logger.error("unknown error occurred", { message: err.message, cause: err.cause });
 
     httpError(res, Merror.new(err));
