@@ -30,7 +30,7 @@
     "@types/ms": "^2.1.0",
     "@types/node": "^24.4.0",
     "@types/winston": "^2.4.4",
-    "eslint": "^9.35.0",
+    "eslint": "^9.36.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-unused-imports": "^4.2.0",
     "prisma": "^6.16.1",
