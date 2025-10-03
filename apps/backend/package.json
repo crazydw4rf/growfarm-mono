@@ -22,7 +22,7 @@
   "type": "module",
   "devDependencies": {
     "@eslint/js": "^9.35.0",
-    "@types/bun": "^1.2.22",
+    "@types/bun": "^1.2.23",
     "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
