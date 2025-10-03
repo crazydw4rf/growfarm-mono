@@ -19,7 +19,7 @@
     "next-intl": "^4.3.9",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-hook-form": "^7.62.0",
+    "react-hook-form": "^7.63.0",
     "react-markdown": "^10.1.0",
     "zod": "^4.1.8"
   },
