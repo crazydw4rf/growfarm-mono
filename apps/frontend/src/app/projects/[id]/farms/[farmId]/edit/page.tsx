@@ -1,17 +1,17 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
+import ProtectedRoute from "@/components/protected-route";
 import { useData } from "@/contexts/data-context";
 import { farmsApi } from "@/lib/api";
 import { Farm, FarmUpdate } from "@/types/api";
-import { ArrowLeft, Save, RefreshCw } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeft, RefreshCw, Save } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, { useCallback, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const farmSchema = z.object({
   farm_name: z.string().min(1, "Farm name is required"),
@@ -21,18 +21,7 @@ const farmSchema = z.object({
   product_price: z.number().min(1, "Product price must be at least 1"),
   comodity: z.string().min(1, "Commodity is required"),
   farm_status: z.enum(["ACTIVE", "HARVESTED"]),
-  soil_type: z.enum([
-    "ORGANOSOL",
-    "ANDOSOL",
-    "LITOSOL",
-    "REGOSOL",
-    "VERTISOL",
-    "ALUVIAL",
-    "MEDISOL",
-    "PODZOLIK",
-    "GRUMUSOL",
-    "KAMBISOL",
-  ]),
+  soil_type: z.enum(["ORGANOSOL", "ANDOSOL", "LITOSOL", "REGOSOL", "VERTISOL", "ALUVIAL", "MEDISOL", "PODZOLIK", "GRUMUSOL", "KAMBISOL"]),
   planted_at: z.string().min(1, "Planted date is required"),
   target_harvest_date: z.string().min(1, "Target harvest date is required"),
   actual_harvest_date: z.string().optional(),
@@ -42,11 +31,7 @@ const farmSchema = z.object({
 
 type FarmFormData = z.infer<typeof farmSchema>;
 
-export default function EditFarmPage({
-  params,
-}: {
-  params: Promise<{ id: string; farmId: string }>;
-}) {
+export default function EditFarmPage({ params }: { params: Promise<{ id: string; farmId: string }> }) {
   const { id: projectId, farmId } = React.use(params);
   const [farm, setFarm] = useState<Farm | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -136,12 +121,8 @@ export default function EditFarmPage({
         farm_status: farm.farm_status,
         soil_type: farm.soil_type,
         planted_at: new Date(farm.planted_at).toISOString().split("T")[0],
-        target_harvest_date: new Date(farm.target_harvest_date)
-          .toISOString()
-          .split("T")[0],
-        actual_harvest_date: farm.actual_harvest_date
-          ? new Date(farm.actual_harvest_date).toISOString().split("T")[0]
-          : "",
+        target_harvest_date: new Date(farm.target_harvest_date).toISOString().split("T")[0],
+        actual_harvest_date: farm.actual_harvest_date ? new Date(farm.actual_harvest_date).toISOString().split("T")[0] : "",
         total_harvest: farm.total_harvest ? farm.total_harvest.toString() : "",
         description: farm.description || "",
       };
@@ -163,13 +144,8 @@ export default function EditFarmPage({
         soil_type: data.soil_type,
         planted_at: new Date(data.planted_at).toISOString(),
         target_harvest_date: new Date(data.target_harvest_date).toISOString(),
-        actual_harvest_date: data.actual_harvest_date
-          ? new Date(data.actual_harvest_date).toISOString()
-          : undefined,
-        total_harvest:
-          data.total_harvest && data.total_harvest.trim() !== ""
-            ? Number(data.total_harvest)
-            : undefined,
+        actual_harvest_date: data.actual_harvest_date ? new Date(data.actual_harvest_date).toISOString() : undefined,
+        total_harvest: data.total_harvest && data.total_harvest.trim() !== "" ? Number(data.total_harvest) : undefined,
         description: data.description,
       };
 
@@ -207,20 +183,12 @@ export default function EditFarmPage({
       <ProtectedRoute>
         <DashboardLayout>
           <div className="max-w-2xl mx-auto">
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
-              {error || "Farm not found"}
-            </div>
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">{error || "Farm not found"}</div>
             <div className="mt-4 flex space-x-3">
-              <Link
-                href={`/projects/${projectId}/farms`}
-                className="text-blue-600 hover:text-blue-800"
-              >
+              <Link href={`/projects/${projectId}/farms`} className="text-blue-600 hover:text-blue-800">
                 ← Back to Farms
               </Link>
-              <button
-                onClick={fetchFarmData}
-                className="text-green-600 hover:text-green-800"
-              >
+              <button onClick={fetchFarmData} className="text-green-600 hover:text-green-800">
                 Try Again
               </button>
             </div>
@@ -245,12 +213,8 @@ export default function EditFarmPage({
                   <ArrowLeft className="h-6 w-6" />
                 </Link>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    Edit Farm: {farm.farm_name}
-                  </h1>
-                  <p className="mt-1 text-sm text-gray-600">
-                    Update farm details and cultivation information.
-                  </p>
+                  <h1 className="text-2xl font-bold text-gray-900">Edit Farm: {farm.farm_name}</h1>
+                  <p className="mt-1 text-sm text-gray-600">Update farm details and cultivation information.</p>
                 </div>
               </div>
               <button
@@ -258,11 +222,7 @@ export default function EditFarmPage({
                 disabled={isRefreshing}
                 className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
               >
-                <RefreshCw
-                  className={`-ml-1 mr-2 h-4 w-4 ${
-                    isRefreshing ? "animate-spin" : ""
-                  }`}
-                />
+                <RefreshCw className={`-ml-1 mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
                 {isRefreshing ? "Refreshing..." : "Refresh"}
               </button>
             </div>
@@ -270,56 +230,37 @@ export default function EditFarmPage({
 
           {/* Form */}
           <div className="bg-white shadow rounded-lg">
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="space-y-6 px-6 py-6"
-            >
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 px-6 py-6">
               {errors.root && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
-                  {errors.root.message}
-                </div>
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">{errors.root.message}</div>
               )}
 
               {/* Farm Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Farm Name *
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Farm Name *</label>
                 <input
                   {...register("farm_name")}
                   type="text"
-                  className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                  className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-600 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500"
                 />
-                {errors.farm_name && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.farm_name.message}
-                  </p>
-                )}
+                {errors.farm_name && <p className="mt-1 text-sm text-red-600">{errors.farm_name.message}</p>}
               </div>
 
               {/* Location */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Location *
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Location *</label>
                 <input
                   {...register("location")}
                   type="text"
-                  className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                  className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-600 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500"
                 />
-                {errors.location && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.location.message}
-                  </p>
-                )}
+                {errors.location && <p className="mt-1 text-sm text-red-600">{errors.location.message}</p>}
               </div>
 
               {/* Land Size, Farm Budget and Product Price */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Land Size (hectares) *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Land Size (hectares) *</label>
                   <input
                     {...register("land_size", { valueAsNumber: true })}
                     type="number"
@@ -327,92 +268,62 @@ export default function EditFarmPage({
                     min="0.1"
                     className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
                   />
-                  {errors.land_size && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.land_size.message}
-                    </p>
-                  )}
+                  {errors.land_size && <p className="mt-1 text-sm text-red-600">{errors.land_size.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Farm Budget (IDR) *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Farm Budget (IDR) *</label>
                   <input
                     {...register("farm_budget", { valueAsNumber: true })}
                     type="number"
                     min="1"
                     className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
                   />
-                  {errors.farm_budget && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.farm_budget.message}
-                    </p>
-                  )}
+                  {errors.farm_budget && <p className="mt-1 text-sm text-red-600">{errors.farm_budget.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Product Price (IDR/kg) *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Product Price (IDR/kg) *</label>
                   <input
                     {...register("product_price", { valueAsNumber: true })}
                     type="number"
                     min="1"
                     className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
                   />
-                  {errors.product_price && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.product_price.message}
-                    </p>
-                  )}
+                  {errors.product_price && <p className="mt-1 text-sm text-red-600">{errors.product_price.message}</p>}
                 </div>
               </div>
 
               {/* Commodity */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Commodity *
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Commodity *</label>
                 <input
                   {...register("comodity")}
                   type="text"
-                  className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                  className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-600 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500"
                 />
-                {errors.comodity && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.comodity.message}
-                  </p>
-                )}
+                {errors.comodity && <p className="mt-1 text-sm text-red-600">{errors.comodity.message}</p>}
               </div>
 
               {/* Farm Status and Soil Type */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Farm Status *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Farm Status *</label>
                   <select
                     {...register("farm_status")}
-                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500"
                   >
                     <option value="ACTIVE">Active</option>
                     <option value="HARVESTED">Harvested</option>
                   </select>
-                  {errors.farm_status && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.farm_status.message}
-                    </p>
-                  )}
+                  {errors.farm_status && <p className="mt-1 text-sm text-red-600">{errors.farm_status.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Soil Type *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Soil Type *</label>
                   <select
                     {...register("soil_type")}
-                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500"
                   >
                     <option value="ORGANOSOL">Organosol</option>
                     <option value="ANDOSOL">Andosol</option>
@@ -425,71 +336,47 @@ export default function EditFarmPage({
                     <option value="GRUMUSOL">Grumusol</option>
                     <option value="KAMBISOL">Kambisol</option>
                   </select>
-                  {errors.soil_type && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.soil_type.message}
-                    </p>
-                  )}
+                  {errors.soil_type && <p className="mt-1 text-sm text-red-600">{errors.soil_type.message}</p>}
                 </div>
               </div>
 
               {/* Dates */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Planted Date *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Planted Date *</label>
                   <input
                     {...register("planted_at")}
-                    type="date"
-                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+                    type="datetime-local"
+                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500"
                   />
-                  {errors.planted_at && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.planted_at.message}
-                    </p>
-                  )}
+                  {errors.planted_at && <p className="mt-1 text-sm text-red-600">{errors.planted_at.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Target Harvest Date *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Target Harvest Date *</label>
                   <input
                     {...register("target_harvest_date")}
-                    type="date"
-                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+                    type="datetime-local"
+                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500"
                   />
-                  {errors.target_harvest_date && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.target_harvest_date.message}
-                    </p>
-                  )}
+                  {errors.target_harvest_date && <p className="mt-1 text-sm text-red-600">{errors.target_harvest_date.message}</p>}
                 </div>
               </div>
 
               {/* Harvest Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Actual Harvest Date
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Actual Harvest Date</label>
                   <input
                     {...register("actual_harvest_date")}
                     type="date"
-                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+                    className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500"
                   />
-                  {errors.actual_harvest_date && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.actual_harvest_date.message}
-                    </p>
-                  )}
+                  {errors.actual_harvest_date && <p className="mt-1 text-sm text-red-600">{errors.actual_harvest_date.message}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Total Harvest (kg)
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700">Total Harvest (kg)</label>
                   <input
                     {...register("total_harvest")}
                     type="number"
@@ -498,34 +385,21 @@ export default function EditFarmPage({
                     placeholder="Leave empty for no harvest yet"
                     className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
                   />
-                  <p className="mt-1 text-xs text-gray-500">
-                    Leave empty if not harvested yet, or enter 0 for zero
-                    harvest
-                  </p>
-                  {errors.total_harvest && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.total_harvest.message}
-                    </p>
-                  )}
+                  <p className="mt-1 text-xs text-gray-500">Leave empty if not harvested yet, or enter 0 for zero harvest</p>
+                  {errors.total_harvest && <p className="mt-1 text-sm text-red-600">{errors.total_harvest.message}</p>}
                 </div>
               </div>
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Description
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Description</label>
                 <textarea
                   {...register("description")}
                   rows={4}
-                  className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                  className="mt-1 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-600 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500"
                   placeholder="Enter farm description (optional)"
                 />
-                {errors.description && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.description.message}
-                  </p>
-                )}
+                {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>}
               </div>
 
               {/* Actions */}

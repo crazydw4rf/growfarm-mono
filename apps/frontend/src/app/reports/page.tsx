@@ -6,8 +6,8 @@ import { useAuth } from "@/contexts/auth-context";
 import { useData } from "@/contexts/data-context";
 import { apiClient } from "@/lib/api-client";
 import { AlertCircle, Calendar, FileText, Loader2, TrendingUp } from "lucide-react";
-import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 
 // Types are defined inline for this page since the imports aren't working
 interface ProjectReportItem {
@@ -174,7 +174,7 @@ export default function ReportsPage() {
                     <select
                       value={selectedProject}
                       onChange={(e) => setSelectedProject(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 text-gray-900"
                     >
                       <option value="">{t("reports.selectProjectPlaceholder")}</option>
                       {projects.map((project) => (

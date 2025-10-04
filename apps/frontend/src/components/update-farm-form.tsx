@@ -21,25 +21,11 @@ const farmUpdateSchema = z.object({
   product_price: z.number().min(1),
   comodity: z.string().min(1),
   farm_status: z.enum(["ACTIVE", "HARVESTED"]),
-  soil_type: z.enum([
-    "ORGANOSOL",
-    "ANDOSOL",
-    "LITOSOL",
-    "REGOSOL",
-    "VERTISOL",
-    "ALUVIAL",
-    "MEDISOL",
-    "PODZOLIK",
-    "GRUMUSOL",
-    "KAMBISOL",
-  ]),
+  soil_type: z.enum(["ORGANOSOL", "ANDOSOL", "LITOSOL", "REGOSOL", "VERTISOL", "ALUVIAL", "MEDISOL", "PODZOLIK", "GRUMUSOL", "KAMBISOL"]),
   planted_at: z.string().min(1),
   target_harvest_date: z.string().min(1),
   actual_harvest_date: z.string().optional(),
-  total_harvest: z
-    .number()
-    .nonnegative()
-    .optional(),
+  total_harvest: z.number().nonnegative().optional(),
   description: z.string().optional(),
 });
 
@@ -52,12 +38,7 @@ interface UpdateFarmFormProps {
   onSuccess?: () => void;
 }
 
-export default function UpdateFarmForm({
-  projectId,
-  farmId,
-  initialData,
-  onSuccess,
-}: UpdateFarmFormProps) {
+export default function UpdateFarmForm({ projectId, farmId, initialData, onSuccess }: UpdateFarmFormProps) {
   const t = useTranslations("farms");
   const tCommon = useTranslations("common");
   const router = useRouter();
@@ -80,15 +61,9 @@ export default function UpdateFarmForm({
       ...initialData,
       land_size: Number(initialData.land_size),
       product_price: Number(initialData.product_price),
-      planted_at: initialData.planted_at
-        ? new Date(initialData.planted_at).toISOString().slice(0, 16)
-        : "",
-      target_harvest_date: initialData.target_harvest_date
-        ? new Date(initialData.target_harvest_date).toISOString().slice(0, 16)
-        : "",
-      actual_harvest_date: initialData.actual_harvest_date
-        ? new Date(initialData.actual_harvest_date).toISOString().slice(0, 16)
-        : "",
+      planted_at: initialData.planted_at ? new Date(initialData.planted_at).toISOString().slice(0, 16) : "",
+      target_harvest_date: initialData.target_harvest_date ? new Date(initialData.target_harvest_date).toISOString().slice(0, 16) : "",
+      actual_harvest_date: initialData.actual_harvest_date ? new Date(initialData.actual_harvest_date).toISOString().slice(0, 16) : "",
       total_harvest: initialData.total_harvest || undefined,
     };
     reset(formData);
@@ -102,10 +77,7 @@ export default function UpdateFarmForm({
         ...data,
         land_size: data.land_size,
         product_price: data.product_price,
-        total_harvest:
-          data.total_harvest && !isNaN(data.total_harvest)
-            ? data.total_harvest
-            : undefined,
+        total_harvest: data.total_harvest && !isNaN(data.total_harvest) ? data.total_harvest : undefined,
       };
 
       const response = await farmsApi.update(projectId, farmId, farmPayload);
@@ -131,52 +103,38 @@ export default function UpdateFarmForm({
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Farm Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t("farmName")} *
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t("farmName")} *</label>
           <div className="relative">
             <Sprout className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
               {...register("farm_name")}
               type="text"
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base placeholder-gray-600 text-gray-900"
               placeholder={t("enterFarmName")}
             />
           </div>
-          {errors.farm_name && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.farm_name.message}
-            </p>
-          )}
+          {errors.farm_name && <p className="mt-1 text-sm text-red-600">{errors.farm_name.message}</p>}
         </div>
 
         {/* Location */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t("location")} *
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t("location")} *</label>
           <div className="relative">
             <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
               {...register("location")}
               type="text"
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base placeholder-gray-600 text-gray-900"
               placeholder={t("enterLocation")}
             />
           </div>
-          {errors.location && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.location.message}
-            </p>
-          )}
+          {errors.location && <p className="mt-1 text-sm text-red-600">{errors.location.message}</p>}
         </div>
 
         {/* Land Size and Product Price */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("landSize")} *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t("landSize")} *</label>
             <input
               {...register("land_size", { valueAsNumber: true })}
               type="number"
@@ -185,61 +143,43 @@ export default function UpdateFarmForm({
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
               placeholder="2.5"
             />
-            {errors.land_size && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.land_size.message}
-              </p>
-            )}
+            {errors.land_size && <p className="mt-1 text-sm text-red-600">{errors.land_size.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("productPrice")} *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t("productPrice")} *</label>
             <div className="relative">
               <Banknote className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <input
                 {...register("product_price", { valueAsNumber: true })}
                 type="number"
-                min="1"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
-                placeholder="8000"
+                min="0"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base text-gray-900"
+                placeholder="0"
               />
             </div>
-            {errors.product_price && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.product_price.message}
-              </p>
-            )}
+            {errors.product_price && <p className="mt-1 text-sm text-red-600">{errors.product_price.message}</p>}
           </div>
         </div>
 
         {/* Commodity and Soil Type */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("commodity")} *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t("commodity")} *</label>
             <input
               {...register("comodity")}
               type="text"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base placeholder-gray-600 text-gray-900"
               placeholder={t("enterCommodity")}
             />
-            {errors.comodity && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.comodity.message}
-              </p>
-            )}
+            {errors.comodity && <p className="mt-1 text-sm text-red-600">{errors.comodity.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("soilType")} *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t("soilType")} *</label>
             <select
               {...register("soil_type")}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base text-gray-900"
             >
               <option value="ORGANOSOL">Organosol</option>
               <option value="ANDOSOL">Andosol</option>
@@ -252,64 +192,46 @@ export default function UpdateFarmForm({
               <option value="GRUMUSOL">Grumusol</option>
               <option value="KAMBISOL">Kambisol</option>
             </select>
-            {errors.soil_type && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.soil_type.message}
-              </p>
-            )}
+            {errors.soil_type && <p className="mt-1 text-sm text-red-600">{errors.soil_type.message}</p>}
           </div>
         </div>
 
         {/* Dates */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("plantedDate")} *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t("plantedDate")} *</label>
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <input
                 {...register("planted_at")}
                 type="datetime-local"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base text-gray-900"
               />
             </div>
-            {errors.planted_at && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.planted_at.message}
-              </p>
-            )}
+            {errors.planted_at && <p className="mt-1 text-sm text-red-600">{errors.planted_at.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("targetHarvestDate")} *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t("targetHarvestDate")} *</label>
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <input
                 {...register("target_harvest_date")}
                 type="datetime-local"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base text-gray-900"
               />
             </div>
-            {errors.target_harvest_date && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.target_harvest_date.message}
-              </p>
-            )}
+            {errors.target_harvest_date && <p className="mt-1 text-sm text-red-600">{errors.target_harvest_date.message}</p>}
           </div>
         </div>
 
         {/* Farm Status */}
         {/* Status */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t("status")} *
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t("status")} *</label>
           <select
             {...register("farm_status")}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base text-gray-900"
           >
             <option value="ACTIVE">{t("active")}</option>
             <option value="HARVESTED">{t("harvested")}</option>
@@ -318,15 +240,11 @@ export default function UpdateFarmForm({
 
         {/* Harvest Information */}
         <div className="border-t border-gray-200 pt-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Harvest Information
-          </h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Harvest Information</h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t("lastHarvest")}
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t("lastHarvest")}</label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <input
@@ -338,9 +256,7 @@ export default function UpdateFarmForm({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Total Harvest (kg) (Optional)
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Total Harvest (kg) (Optional)</label>
               <input
                 {...register("total_harvest", { valueAsNumber: true })}
                 type="number"
@@ -349,28 +265,20 @@ export default function UpdateFarmForm({
                 placeholder="Leave empty if not harvested yet"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
               />
-              <p className="mt-1 text-xs text-gray-500">
-                Leave empty if not harvested yet, or enter 0 for zero harvest
-              </p>
-              {errors.total_harvest && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.total_harvest.message}
-                </p>
-              )}
+              <p className="mt-1 text-xs text-gray-500">Leave empty if not harvested yet, or enter 0 for zero harvest</p>
+              {errors.total_harvest && <p className="mt-1 text-sm text-red-600">{errors.total_harvest.message}</p>}
             </div>
           </div>
         </div>
 
         {/* Description */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t("description")}
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t("description")}</label>
           <textarea
             {...register("description")}
-            rows={3}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
-            placeholder="Additional notes about this farm..."
+            rows={4}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base resize-none placeholder-gray-600 text-gray-900"
+            placeholder={t("enterDescription")}
           />
         </div>
 

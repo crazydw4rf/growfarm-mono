@@ -1,24 +1,21 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useTranslations } from "next-intl";
-import ProtectedRoute from "@/components/protected-route";
 import DashboardLayout from "@/components/dashboard-layout";
+import ProtectedRoute from "@/components/protected-route";
 import { useData } from "@/contexts/data-context";
 import { projectsApi } from "@/lib/api";
 import { Project, ProjectUpdate } from "@/types/api";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Save } from "lucide-react";
+import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const projectSchema = z.object({
-  project_name: z
-    .string()
-    .min(1, "Project name is required")
-    .max(255, "Project name is too long"),
+  project_name: z.string().min(1, "Project name is required").max(255, "Project name is too long"),
   budget: z.number().min(0, "Budget must be at least 0"),
   project_status: z.enum(["PLANNING", "IN_PROGRESS", "COMPLETED"]),
   start_date: z.string().min(1, "Start date is required"),
@@ -28,11 +25,7 @@ const projectSchema = z.object({
 
 type ProjectFormData = z.infer<typeof projectSchema>;
 
-export default function EditProjectPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function EditProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: projectId } = React.use(params);
   const t = useTranslations();
   const { projects, loadProjects, updateProject } = useData();
@@ -139,14 +132,9 @@ export default function EditProjectPage({
       <ProtectedRoute>
         <DashboardLayout>
           <div className="max-w-2xl mx-auto">
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
-              {error || "Project not found"}
-            </div>
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">{error || "Project not found"}</div>
             <div className="mt-4">
-              <Link
-                href="/projects"
-                className="text-blue-600 hover:text-blue-800"
-              >
+              <Link href="/projects" className="text-blue-600 hover:text-blue-800">
                 ← Back to Projects
               </Link>
             </div>
@@ -163,62 +151,40 @@ export default function EditProjectPage({
           {/* Header */}
           <div className="mb-6">
             <div className="flex items-center space-x-3">
-              <Link
-                href={`/projects/${projectId}`}
-                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-              >
+              <Link href={`/projects/${projectId}`} className="text-gray-400 hover:text-gray-600 transition-colors duration-200">
                 <ArrowLeft className="h-6 w-6" />
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Edit Project: {project.project_name}
-                </h1>
-                <p className="mt-1 text-sm text-gray-600">
-                  Update project details and manage settings.
-                </p>
+                <h1 className="text-2xl font-bold text-gray-900">Edit Project: {project.project_name}</h1>
+                <p className="mt-1 text-sm text-gray-600">Update project details and manage settings.</p>
               </div>
             </div>
           </div>
 
           {/* Form */}
           <div className="bg-white shadow rounded-lg">
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="space-y-6 px-6 py-6"
-            >
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 px-6 py-6">
               {errors.root && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
-                  {errors.root.message}
-                </div>
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">{errors.root.message}</div>
               )}
 
               <div>
-                <label
-                  htmlFor="project_name"
-                  className="block text-sm font-medium text-gray-700"
-                >
+                <label htmlFor="project_name" className="block text-sm font-medium text-gray-700">
                   Project Name *
                 </label>
                 <div className="mt-1">
                   <input
                     {...register("project_name")}
                     type="text"
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-600 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500"
                     placeholder="Enter project name"
                   />
-                  {errors.project_name && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.project_name.message}
-                    </p>
-                  )}
+                  {errors.project_name && <p className="mt-1 text-sm text-red-600">{errors.project_name.message}</p>}
                 </div>
               </div>
 
               <div>
-                <label
-                  htmlFor="budget"
-                  className="block text-sm font-medium text-gray-700"
-                >
+                <label htmlFor="budget" className="block text-sm font-medium text-gray-700">
                   Budget (IDR) *
                 </label>
                 <div className="mt-1">
@@ -226,104 +192,72 @@ export default function EditProjectPage({
                     {...register("budget", { valueAsNumber: true })}
                     type="number"
                     min="0"
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-600 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500"
                     placeholder="Enter budget amount"
                   />
-                  {errors.budget && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.budget.message}
-                    </p>
-                  )}
+                  {errors.budget && <p className="mt-1 text-sm text-red-600">{errors.budget.message}</p>}
                 </div>
               </div>
 
               <div>
-                <label
-                  htmlFor="project_status"
-                  className="block text-sm font-medium text-gray-700"
-                >
+                <label htmlFor="project_status" className="block text-sm font-medium text-gray-700">
                   Project Status *
                 </label>
                 <div className="mt-1">
                   <select
                     {...register("project_status")}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500"
                   >
                     <option value="PLANNING">{t("projects.statuses.PLANNING")}</option>
                     <option value="IN_PROGRESS">{t("projects.statuses.IN_PROGRESS")}</option>
                     <option value="COMPLETED">{t("projects.statuses.COMPLETED")}</option>
                   </select>
-                  {errors.project_status && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.project_status.message}
-                    </p>
-                  )}
+                  {errors.project_status && <p className="mt-1 text-sm text-red-600">{errors.project_status.message}</p>}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label
-                    htmlFor="start_date"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label htmlFor="start_date" className="block text-sm font-medium text-gray-700">
                     Start Date *
                   </label>
                   <div className="mt-1">
                     <input
                       {...register("start_date")}
                       type="date"
-                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500"
                     />
-                    {errors.start_date && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.start_date.message}
-                      </p>
-                    )}
+                    {errors.start_date && <p className="mt-1 text-sm text-red-600">{errors.start_date.message}</p>}
                   </div>
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="target_date"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label htmlFor="target_date" className="block text-sm font-medium text-gray-700">
                     Target Completion Date *
                   </label>
                   <div className="mt-1">
                     <input
                       {...register("target_date")}
                       type="date"
-                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500"
                     />
-                    {errors.target_date && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.target_date.message}
-                      </p>
-                    )}
+                    {errors.target_date && <p className="mt-1 text-sm text-red-600">{errors.target_date.message}</p>}
                   </div>
                 </div>
               </div>
 
               <div>
-                <label
-                  htmlFor="description"
-                  className="block text-sm font-medium text-gray-700"
-                >
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
                   Description
                 </label>
                 <div className="mt-1">
                   <textarea
                     {...register("description")}
                     rows={4}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-600 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500"
                     placeholder="Enter project description (optional)"
                   />
-                  {errors.description && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.description.message}
-                    </p>
-                  )}
+                  {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>}
                 </div>
               </div>
 

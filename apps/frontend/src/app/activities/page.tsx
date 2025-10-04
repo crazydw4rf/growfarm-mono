@@ -6,17 +6,7 @@ import ProtectedRoute from "@/components/protected-route";
 import { useData } from "@/contexts/data-context";
 import { activitiesApi, farmsApi } from "@/lib/api";
 import { Activity, ActivityStatus, ActivityType, Farm } from "@/types/api";
-import {
-  Activity as ActivityIcon,
-  ArrowLeft,
-  Calendar,
-  CheckCircle,
-  Clock,
-  Edit,
-  Plus,
-  Trash2,
-  XCircle,
-} from "lucide-react";
+import { Activity as ActivityIcon, ArrowLeft, Calendar, CheckCircle, Clock, Edit, Plus, Trash2, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -62,27 +52,24 @@ export default function ActivitiesPage() {
     }
   }, []);
 
-  const loadActivities = useCallback(
-    async (projectId: string, farmId: string, page: number) => {
-      try {
-        setIsLoadingActivities(true);
-        const skip = (page - 1) * itemsPerPage;
-        const response = await activitiesApi.getByFarm(projectId, farmId, {
-          skip,
-          take: itemsPerPage,
-        });
-        setActivities(response.data);
-        setTotalCount(response.count);
-      } catch (error) {
-        console.error("Failed to load activities:", error);
-        setActivities([]);
-        setTotalCount(0);
-      } finally {
-        setIsLoadingActivities(false);
-      }
-    },
-    []
-  );
+  const loadActivities = useCallback(async (projectId: string, farmId: string, page: number) => {
+    try {
+      setIsLoadingActivities(true);
+      const skip = (page - 1) * itemsPerPage;
+      const response = await activitiesApi.getByFarm(projectId, farmId, {
+        skip,
+        take: itemsPerPage,
+      });
+      setActivities(response.data);
+      setTotalCount(response.count);
+    } catch (error) {
+      console.error("Failed to load activities:", error);
+      setActivities([]);
+      setTotalCount(0);
+    } finally {
+      setIsLoadingActivities(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (selectedProjectId) {
@@ -183,26 +170,18 @@ export default function ActivitiesPage() {
                     {tNav("projects")}
                   </Link>
                   <span>/</span>
-                  <Link
-                    href={`/projects/${selectedProjectId}`}
-                    className="hover:text-gray-700"
-                  >
+                  <Link href={`/projects/${selectedProjectId}`} className="hover:text-gray-700">
                     {selectedProject?.project_name}
                   </Link>
                   <span>/</span>
-                  <Link
-                    href={`/projects/${selectedProjectId}/farms/${selectedFarmId}`}
-                    className="hover:text-gray-700"
-                  >
+                  <Link href={`/projects/${selectedProjectId}/farms/${selectedFarmId}`} className="hover:text-gray-700">
                     {selectedFarm?.farm_name}
                   </Link>
                   <span>/</span>
                   <span className="text-gray-900">{t("title")}</span>
                 </div>
               ) : null}
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                {t("management")}
-              </h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t("management")}</h1>
               <p className="mt-1 text-sm text-gray-600">{t("subtitle")}</p>
             </div>
             {selectedProjectId && selectedFarmId && (
@@ -230,17 +209,13 @@ export default function ActivitiesPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Project Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {tFarms("selectProject")} *
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{tFarms("selectProject")} *</label>
                 <select
                   value={selectedProjectId}
                   onChange={(e) => setSelectedProjectId(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base text-gray-900"
                 >
-                  <option value="">
-                    {tFarms("selectProjectPlaceholder") || tFarms("selectProject")}
-                  </option>
+                  <option value="">{tFarms("selectProjectPlaceholder") || tFarms("selectProject")}</option>
                   {projects.map((project) => (
                     <option key={project.id} value={project.id}>
                       {project.project_name}
@@ -251,14 +226,12 @@ export default function ActivitiesPage() {
 
               {/* Farm Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {tFarms("selectFarm") || tFarms("farmName")} *
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{tFarms("selectFarm") || tFarms("farmName")} *</label>
                 <select
                   value={selectedFarmId}
                   onChange={(e) => setSelectedFarmId(e.target.value)}
                   disabled={!selectedProjectId || isLoadingFarms}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base text-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed"
                 >
                   <option value="">
                     {isLoadingFarms
@@ -274,11 +247,7 @@ export default function ActivitiesPage() {
               </div>
             </div>
 
-            {!selectedProjectId && (
-              <p className="mt-4 text-sm text-gray-500">
-                {tFarms("selectProjectMessage")}
-              </p>
-            )}
+            {!selectedProjectId && <p className="mt-4 text-sm text-gray-500">{tFarms("selectProjectMessage")}</p>}
           </div>
 
           {/* Activities List */}
@@ -291,12 +260,8 @@ export default function ActivitiesPage() {
               ) : activities.length === 0 ? (
                 <div className="text-center py-12">
                   <ActivityIcon className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">
-                    {t("noActivities")}
-                  </h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {t("getStartedMessage")}
-                  </p>
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">{t("noActivities")}</h3>
+                  <p className="mt-1 text-sm text-gray-500">{t("getStartedMessage")}</p>
                   <div className="mt-6">
                     <Link
                       href={`/projects/${selectedProjectId}/farms/${selectedFarmId}/activities/new`}
@@ -325,9 +290,7 @@ export default function ActivitiesPage() {
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             {t("startDate")}
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {t("endDate")}
-                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("endDate")}</th>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                             {tCommon("actions")}
                           </th>
@@ -340,13 +303,9 @@ export default function ActivitiesPage() {
                               <div className="flex items-center">
                                 {getStatusIcon(activity.activity_status)}
                                 <div className="ml-3">
-                                  <div className="text-sm font-medium text-gray-900">
-                                    {activity.activity_name}
-                                  </div>
+                                  <div className="text-sm font-medium text-gray-900">{activity.activity_name}</div>
                                   {activity.description && (
-                                    <div className="text-sm text-gray-500 truncate max-w-xs">
-                                      {activity.description}
-                                    </div>
+                                    <div className="text-sm text-gray-500 truncate max-w-xs">{activity.description}</div>
                                   )}
                                 </div>
                               </div>
@@ -354,7 +313,7 @@ export default function ActivitiesPage() {
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span
                                 className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(
-                                  activity.activity_type
+                                  activity.activity_type,
                                 )}`}
                               >
                                 {t(`types.${activity.activity_type}`)}
@@ -363,7 +322,7 @@ export default function ActivitiesPage() {
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span
                                 className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                                  activity.activity_status
+                                  activity.activity_status,
                                 )}`}
                               >
                                 {t(`statuses.${activity.activity_status}`)}

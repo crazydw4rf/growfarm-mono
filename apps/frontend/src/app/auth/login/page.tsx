@@ -61,27 +61,17 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-6 sm:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-6 sm:space-y-8">
         <div>
-          <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">
-            {t("welcomeBack")}
-          </h2>
+          <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">{t("welcomeBack")}</h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             {t("dontHaveAccount")}{" "}
-            <Link
-              href="/auth/register"
-              className="font-medium text-green-600 hover:text-green-500"
-            >
+            <Link href="/auth/register" className="font-medium text-green-600 hover:text-green-500">
               {t("register")}
             </Link>
           </p>
         </div>
-        <form
-          className="mt-6 sm:mt-8 space-y-4 sm:space-y-6"
-          onSubmit={handleSubmit(onSubmit)}
-        >
+        <form className="mt-6 sm:mt-8 space-y-4 sm:space-y-6" onSubmit={handleSubmit(onSubmit)}>
           {errors.root && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
-              {errors.root.message}
-            </div>
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">{errors.root.message}</div>
           )}
 
           <div className="space-y-4">
@@ -93,14 +83,10 @@ export default function LoginPage() {
                 {...register("email")}
                 type="email"
                 autoComplete="email"
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-sm sm:text-base"
+                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-600 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-sm sm:text-base"
                 placeholder={t("email")}
               />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.email.message}
-                </p>
-              )}
+              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
             </div>
 
             <div className="relative">
@@ -111,7 +97,7 @@ export default function LoginPage() {
                 {...register("password")}
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
-                className="appearance-none rounded-md relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-sm sm:text-base"
+                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-600 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 text-sm sm:text-base pr-10"
                 placeholder={t("password")}
               />
               <button
@@ -125,11 +111,7 @@ export default function LoginPage() {
                   <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                 )}
               </button>
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.password.message}
-                </p>
-              )}
+              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
             </div>
           </div>
 

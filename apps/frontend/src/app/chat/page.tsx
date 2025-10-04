@@ -3,9 +3,9 @@
 import { useChat } from "@/contexts/chat-context";
 import { chatApi } from "@/lib/api";
 import { Loader2, MessageCircle, Send, Trash2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { useTranslations, useLocale } from "next-intl";
 
 interface Message {
   role: "user" | "assistant";
@@ -183,7 +183,7 @@ export default function ChatPage() {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder={t("placeholder")}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm placeholder-gray-500"
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm placeholder-gray-600 text-gray-900"
               disabled={isLoading}
             />
             <button
