@@ -156,11 +156,9 @@ export default function RegisterPage() {
             </div>
 
             <div className="relative">
-              <label htmlFor="confirmPassword" className="sr-only">
-                {t("confirmPassword")}
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t("confirmPassword")}</label>
               <input
-                {...register("confirm_password")}
+                {...register("confirmPassword")}
                 type={showConfirmPassword ? "text" : "password"}
                 autoComplete="new-password"
                 className="appearance-none rounded-md relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-600 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 text-sm sm:text-base"
