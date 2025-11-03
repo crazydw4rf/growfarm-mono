@@ -21,7 +21,7 @@
     "react-dom": "19.1.0",
     "react-hook-form": "^7.62.0",
     "react-markdown": "^10.1.0",
-    "zod": "^4.1.8"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
